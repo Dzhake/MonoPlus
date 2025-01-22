@@ -1,9 +1,11 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
-VisualStudioVersion = 17.12.35527.113 d17.12
+VisualStudioVersion = 17.12.35527.113
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonoPlus", "MonoPlus\MonoPlus.csproj", "{207F2FDD-2927-4811-BB6B-B7AAE4F7938A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SDL3.Core", "SDL3-CS\SDL3\SDL3.Core.csproj", "{EF97A734-AD89-4F8C-8B6E-7862DDECD35D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{207F2FDD-2927-4811-BB6B-B7AAE4F7938A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{207F2FDD-2927-4811-BB6B-B7AAE4F7938A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{207F2FDD-2927-4811-BB6B-B7AAE4F7938A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EF97A734-AD89-4F8C-8B6E-7862DDECD35D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EF97A734-AD89-4F8C-8B6E-7862DDECD35D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EF97A734-AD89-4F8C-8B6E-7862DDECD35D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EF97A734-AD89-4F8C-8B6E-7862DDECD35D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
