@@ -7,6 +7,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonoPlus", "MonoPlus\MonoPl
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SDL3.Core", "SDL3-CS\SDL3\SDL3.Core.csproj", "{EF97A734-AD89-4F8C-8B6E-7862DDECD35D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonoPlus.Input", "MonoPlus\MonoPlus.Input\MonoPlus.Input.csproj", "{EE2D58A2-E6CD-4CF8-8A47-54AB238FB48E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonoPlus.Drawing", "MonoPlus\MonoPlus.Drawing\MonoPlus.Drawing.csproj", "{9EE4B4C2-CADB-4BE4-A545-4537F0F231B3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +25,14 @@ Global
 		{EF97A734-AD89-4F8C-8B6E-7862DDECD35D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EF97A734-AD89-4F8C-8B6E-7862DDECD35D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EF97A734-AD89-4F8C-8B6E-7862DDECD35D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EE2D58A2-E6CD-4CF8-8A47-54AB238FB48E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EE2D58A2-E6CD-4CF8-8A47-54AB238FB48E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EE2D58A2-E6CD-4CF8-8A47-54AB238FB48E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EE2D58A2-E6CD-4CF8-8A47-54AB238FB48E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9EE4B4C2-CADB-4BE4-A545-4537F0F231B3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9EE4B4C2-CADB-4BE4-A545-4537F0F231B3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9EE4B4C2-CADB-4BE4-A545-4537F0F231B3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9EE4B4C2-CADB-4BE4-A545-4537F0F231B3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
