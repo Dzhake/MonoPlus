@@ -5,6 +5,5 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\MonoPlus.csproj" />
-    <ProjectReference Include="..\MonoPlus.Time\MonoPlus.Time.csproj" />
   </ItemGroup>
 </Project>

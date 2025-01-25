@@ -2,6 +2,7 @@
 using System.Text;
 using Microsoft.Xna.Framework.Input;
 using MonoPlus.Input;
+using MonoPlus.Time;
 
 namespace CardGames.Console;
 
@@ -13,6 +14,9 @@ public class TextField
     public int SelectionEnd;
     public int SelectionLength => SelectionEnd - SelectionStart;
 
+    protected float holdTime;
+    protected float totalHoldTime;
+    protected Keys holdKey;
 
     public void Update()
     {
@@ -23,23 +27,23 @@ public class TextField
 
     protected bool HandleInput()
     {
-        if (Input.Pressed(Keys.Back))
+        if (KeyPressed(Keys.Back))
         {
             if (!TryRemoveSelection() && CursorPos > 0) RemoveSymbol(CursorPos - 1, true);
         }
-        else if (Input.Pressed(Keys.Delete))
+        else if (KeyPressed(Keys.Delete))
         {
             if (!TryRemoveSelection() && CursorPos < text.Length) RemoveSymbol(CursorPos);
         }
 
-        else if (Input.Pressed(Keys.Left))
+        else if (KeyPressed(Keys.Left))
             MoveCursor(CursorPos - 1);
-        else if (Input.Pressed(Keys.Right))
+        else if (KeyPressed(Keys.Right))
             MoveCursor(CursorPos + 1);
 
-        else if (Input.Pressed(Keys.End))
+        else if (KeyPressed(Keys.End))
             MoveCursor(text.Length);
-        else if (Input.Pressed(Keys.Home))
+        else if (KeyPressed(Keys.Home))
             MoveCursor(0);
         /*else if (Input.Ctrl)
         {
@@ -58,29 +62,37 @@ public class TextField
         }*/
         else
             return false;
+            
         return true;
     }
 
-
-    public bool TryRemoveSelection()
+    protected void ResetHoldInfo()
     {
-        if (SelectionStart == SelectionEnd) return false;
-        RemoveSelection();
-        return true;
+        holdTime = 0;
+        totalHoldTime = 0;
+        holdKey = Keys.None;
     }
 
-    public void RemoveSelection()
+    protected bool KeyPressed(Keys key)
     {
-        if (CursorPos == SelectionEnd) CursorPos = SelectionStart;
-        text.Remove(SelectionStart, SelectionLength);
-        ResetSelection();
+        if (Input.Pressed(key))
+        {
+            ResetHoldInfo();
+            holdKey = key;
+            return true;
+        }
+        if (holdKey != key) return false;
+        if (Input.Down(holdKey))
+        {
+            holdTime += Time.DeltaTime;
+            totalHoldTime += Time.DeltaTime;
+            if (totalHoldTime < 0.5f || holdTime <= 0.05f) return false;
+            holdTime = 0;
+            return true;
+        }
+        ResetHoldInfo();
+        return false;
     }
-
-    public string GetSelection()
-    {
-        return text.ToString().Substring(SelectionStart, SelectionLength);
-    }
-
 
     protected void RemoveSymbol(int index, bool moveCursor = false)
     {
@@ -145,4 +157,26 @@ public class TextField
             
         CursorPos = Math.Clamp(to, 0, text.Length);
     }
+
+
+    #region PublicAPI
+    public bool TryRemoveSelection()
+    {
+        if (SelectionStart == SelectionEnd) return false;
+        RemoveSelection();
+        return true;
+    }
+
+    public void RemoveSelection()
+    {
+        if (CursorPos == SelectionEnd) CursorPos = SelectionStart;
+        text.Remove(SelectionStart, SelectionLength);
+        ResetSelection();
+    }
+
+    public string GetSelection()
+    {
+        return text.ToString().Substring(SelectionStart, SelectionLength);
+    }
+    #endregion
 }
