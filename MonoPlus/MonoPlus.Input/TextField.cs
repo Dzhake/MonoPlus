@@ -1,8 +1,10 @@
 ﻿using System;
+using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using Microsoft.Xna.Framework.Input;
 using MonoPlus.Input;
 using MonoPlus.Time;
+using SDL3;
 
 namespace CardGames.Console;
 
@@ -37,15 +39,15 @@ public class TextField
         }
 
         else if (KeyPressed(Keys.Left))
-            MoveCursor(CursorPos - 1);
+            MoveCursor(CursorPos - 1, true);
         else if (KeyPressed(Keys.Right))
-            MoveCursor(CursorPos + 1);
+            MoveCursor(CursorPos + 1, true);
 
-        else if (KeyPressed(Keys.End))
-            MoveCursor(text.Length);
         else if (KeyPressed(Keys.Home))
             MoveCursor(0);
-        /*else if (Input.Ctrl)
+        else if (KeyPressed(Keys.End))
+            MoveCursor(text.Length);
+        else if (Input.Ctrl)
         {
             bool cut = Input.Pressed(Keys.X);
             if ((Input.Pressed(Keys.C) || cut) && SelectionLength > 0)
@@ -56,21 +58,16 @@ public class TextField
             else if (Input.Pressed(Keys.V))
             {
                 TryRemoveSelection();
-                text.Insert(CursorPos, SDL.SDL_GetClipboardText());
+                string clipboard = SDL.SDL_GetClipboardText();
+                text.Insert(CursorPos, clipboard);
+                CursorPos += clipboard.Length;
             }
             return true;
-        }*/
+        }
         else
             return false;
             
         return true;
-    }
-
-    protected void ResetHoldInfo()
-    {
-        holdTime = 0;
-        totalHoldTime = 0;
-        holdKey = Keys.None;
     }
 
     protected bool KeyPressed(Keys key)
@@ -139,27 +136,46 @@ public class TextField
             (SelectionEnd, SelectionStart) = (SelectionStart, SelectionEnd);
     }
 
+    protected void MoveCursor(int to, bool affectedBySelection = false)
+    {
+        if (Input.Shift)
+            MoveSelection(to - CursorPos);
+        else if (SelectionLength > 0)
+        {
+            if (affectedBySelection)
+            {
+                if (to <= CursorPos) CursorPos = SelectionStart;
+                else CursorPos = SelectionEnd;
+            }
+            ResetSelection();
+            if (affectedBySelection) return;
+        }
+            
+        CursorPos = Math.Clamp(to, 0, text.Length);
+    }
+
+    protected void ResetHoldInfo()
+    {
+        holdTime = 0;
+        totalHoldTime = 0;
+        holdKey = Keys.None;
+    }
+
     protected void ResetSelection()
     {
         SelectionStart = 0;
         SelectionEnd = 0;
     }
 
-    protected void MoveCursor(int to)
-    {
-        if (Input.Shift)
-            MoveSelection(to - CursorPos);
-        else if (SelectionLength > 0)
-        {
-            ResetSelection();
-            return;
-        }
-            
-        CursorPos = Math.Clamp(to, 0, text.Length);
-    }
-
-
     #region PublicAPI
+
+    public void Reset()
+    {
+        ResetSelection();
+        ResetHoldInfo();
+        CursorPos = 0;
+        text.Clear();
+    }
     public bool TryRemoveSelection()
     {
         if (SelectionStart == SelectionEnd) return false;

@@ -4,6 +4,7 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\SDL3-CS\SDL3\SDL3.Core.csproj" />
     <ProjectReference Include="..\MonoPlus.csproj" />
     <ProjectReference Include="..\MonoPlus.Time\MonoPlus.Time.csproj" />
   </ItemGroup>
