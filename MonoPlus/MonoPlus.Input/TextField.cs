@@ -167,7 +167,7 @@ public class TextField
         SelectionEnd = 0;
     }
 
-    #region PublicAPI
+
 
     public void Reset()
     {
@@ -194,5 +194,4 @@ public class TextField
     {
         return text.ToString().Substring(SelectionStart, SelectionLength);
     }
-    #endregion
 }
