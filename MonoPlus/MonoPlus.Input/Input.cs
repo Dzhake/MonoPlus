@@ -8,12 +8,30 @@ namespace MonoPlus.Input;
 
 public static class Input
 {
-    private static Keys[]? PrevPressedKeys;
-    private static Keys[]? PressedKeys;
+    /// <summary>
+    /// <see cref="StringBuilder"/> which contains "text input" keys pressed since last update, excluding <see cref="char.IsControl(char)"/> keys/>
+    /// </summary>
     public static StringBuilder? KeyString;
+
+    /// <summary>
+    /// <see cref="KeyboardState"/> for this frame.
+    /// </summary>
     public static KeyboardState State;
+
+    /// <summary>
+    /// <see cref="TextField"/> which is considered "active".
+    /// </summary>
     public static TextField? FocusedTextField;
-    public static bool DoModifierChecks = true;
+
+    /// <summary>
+    /// Array of keys which were down last frame
+    /// </summary>
+    private static Keys[]? PrevPressedKeys;
+
+    /// <summary>
+    /// Array of keys which are down this frame
+    /// </summary>
+    private static Keys[]? PressedKeys;
 
     private static void TextInput(object? sender, TextInputEventArgs e)
     {
@@ -31,7 +49,6 @@ public static class Input
         KeyString = new StringBuilder();
         GameWindow win = game.Window;
         win.TextInput += TextInput;
-        DoModifierChecks = true;
     }
 
     /// <summary>
@@ -42,7 +59,6 @@ public static class Input
         State = Keyboard.GetState();
         PrevPressedKeys = PressedKeys;
         PressedKeys = State.GetPressedKeys();
-        if (!DoModifierChecks) return;
         Shift = Down(Keys.LeftShift) || Down(Keys.RightShift);
         Ctrl = Down(Keys.LeftControl) || Down(Keys.RightControl);
         Alt = Down(Keys.LeftAlt) || Down(Keys.RightAlt);
@@ -86,9 +102,20 @@ public static class Input
     /// <returns>Whether the key is released</returns>
     public static bool Released(Keys key) => PrevPressedKeys != null && PressedKeys != null && PrevPressedKeys.Contains(key) && !PressedKeys.Contains(key);
 
-    public static bool Shift = false;
-    public static bool Ctrl = false;
-    public static bool Alt = false;
+    /// <summary>
+    /// Is "L.Shift" or "R.Shift" key is down this frame. Same as Input.Down(Keys.LeftShift) || Input.Down(Keys.RightShift)
+    /// </summary>
+    public static bool Shift;
+
+    /// <summary>
+    /// Is "L.Ctrl" or "R.Ctrl" key is down this frame. Same as Input.Down(Keys.LeftControl) || Input.Down(Keys.RightControl)
+    /// </summary>
+    public static bool Ctrl;
+
+    /// <summary>
+    /// Is "L.Alt" or "R.Alt" key is down this frame. Same as Input.Down(Keys.LeftAlt) || Input.Down(Keys.RightAlt)
+    /// </summary>
+    public static bool Alt;
 
     #endregion
 }
