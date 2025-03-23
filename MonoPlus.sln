@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonoPlus.Input", "MonoPlus\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonoPlus.Graphics", "MonoPlus\MonoPlus.Graphics\MonoPlus.Graphics.csproj", "{137C4658-33E5-4735-B24D-3DEF55B8DB27}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MonoPlus.Time", "MonoPlus\MonoPlus.Time\MonoPlus.Time.csproj", "{272F2E0A-294E-4B99-A665-3C3C030AB561}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -33,6 +35,10 @@ Global
 		{137C4658-33E5-4735-B24D-3DEF55B8DB27}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{137C4658-33E5-4735-B24D-3DEF55B8DB27}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{137C4658-33E5-4735-B24D-3DEF55B8DB27}.Release|Any CPU.Build.0 = Release|Any CPU
+		{272F2E0A-294E-4B99-A665-3C3C030AB561}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{272F2E0A-294E-4B99-A665-3C3C030AB561}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{272F2E0A-294E-4B99-A665-3C3C030AB561}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{272F2E0A-294E-4B99-A665-3C3C030AB561}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
