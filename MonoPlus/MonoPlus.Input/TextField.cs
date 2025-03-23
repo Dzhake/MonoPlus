@@ -62,6 +62,11 @@ public class TextField
                 text.Insert(CursorPos, clipboard);
                 CursorPos += clipboard.Length;
             }
+            else if (Input.Pressed(Keys.A))
+            {
+                SelectionEnd = text.Length;
+                CursorPos = SelectionEnd;
+            }
             return true;
         }
         else
@@ -176,6 +181,7 @@ public class TextField
         CursorPos = 0;
         text.Clear();
     }
+
     public bool TryRemoveSelection()
     {
         if (SelectionStart == SelectionEnd) return false;
