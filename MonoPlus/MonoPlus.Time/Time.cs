@@ -27,7 +27,7 @@ public static class Time
     /// </summary>
     public static float TimeScale = 1;
 
-    public static event Action TimeSpeedCallback = delegate{};
+    public static event Action TimeSpeedCallback = delegate { };
 
     public static void Update(GameTime gameTime)
     {
@@ -38,5 +38,9 @@ public static class Time
         TotalTime += DeltaTime;
     }
 
-    public static void RunTimeScaleCallbacks() => TimeSpeedCallback.Invoke();
+    public static void RunTimeScaleCallbacks()
+    {
+        TimeScale = 1;
+        TimeSpeedCallback.Invoke();
+    }
 }
