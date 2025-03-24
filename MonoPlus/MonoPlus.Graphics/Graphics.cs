@@ -18,7 +18,7 @@ public static class Graphics
 
     public static void Initialize(Game game)
     {
-        if (deviceManager == null) throw new InvalidOperationException("graphicsManager is null!");
+        if (deviceManager == null) throw new InvalidOperationException("deviceManager is null!");
         device = game.GraphicsDevice;
         spriteBatch = new SpriteBatch(game.GraphicsDevice);
         Pixel = new(device, 1, 1);
