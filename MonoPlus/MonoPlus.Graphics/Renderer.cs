@@ -4,7 +4,7 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace MonoPlus.Graphics;
 
-public static class Graphics
+public static class Renderer
 {
     public static GraphicsDeviceManager? deviceManager;
     public static SpriteBatch? spriteBatch;
@@ -44,25 +44,39 @@ public static class Graphics
     #endregion
 
     #region AdvancedFunctions
-    public static void DrawLine(Vector2 p1, Vector2 p2, Color color, float width = 1f)
+    public static void DrawLine(Vector2 lineStart, Vector2 lineEnd, Color color, float width = 1f)
     {
         if (Pixel is null) throw new InvalidOperationException("DrawLine was called, but Pixel is null!");
-        DrawTexture(Pixel, p1, new Rectangle?(), color, (float)Math.Atan2(p2.Y - p1.Y, p2.X - p1.X), new Vector2(0f, 0.5f), new Vector2((p1 - p2).Length(), width));
+        DrawTexture(Pixel, lineStart, new Rectangle?(), color, (float)Math.Atan2(lineEnd.Y - lineStart.Y, lineEnd.X - lineStart.X), new Vector2(0f, 0.5f), new Vector2((lineStart - lineEnd).Length(), width));
     }
 
-    public static void DrawRect(Vector2 p1, Vector2 p2, Color col, bool filled = true, float borderWidth = 1f)
+    /// <summary>
+    /// Draws a rectangle.
+    /// </summary>
+    /// <param name="p1">Rectangle's top left corner</param>
+    /// <param name="p2">Rectangle's bottom right corner</param>
+    /// <param name="color">Rectangle's color</param>
+    /// <param name="filled">Should rectangle be fillew or hollow</param>
+    /// <param name="borderWidth">Width of lines used to make rectangle. Only used with hollow rectangle.</param>
+    /// <exception cref="InvalidOperationException"></exception>
+    public static void DrawRect(Vector2 p1, Vector2 p2, Color color, bool filled = true, float borderWidth = 1f)
     {
         if (Pixel is null) throw new InvalidOperationException("DrawRect was called, but Pixel is null!");
+
         if (filled)
-            DrawTexture(Pixel, p1, new Rectangle?(), col, 0f, Vector2.Zero, new Vector2(-(p1.X - p2.X), -(p1.Y - p2.Y)));
+            DrawTexture(Pixel, p1, new Rectangle?(), color, 0f, Vector2.Zero, new Vector2(-(p1.X - p2.X), -(p1.Y - p2.Y)));
         else
         {
             float num = borderWidth / 2f;
-            DrawLine(new Vector2(p1.X, p1.Y + num), new Vector2(p2.X, p1.Y + num), col, borderWidth);
-            DrawLine(new Vector2(p1.X + num, p1.Y + borderWidth), new Vector2(p1.X + num, p2.Y - borderWidth), col, borderWidth);
-            DrawLine(new Vector2(p2.X, p2.Y - num), new Vector2(p1.X, p2.Y - num), col, borderWidth);
-            DrawLine(new Vector2(p2.X - num, p2.Y - borderWidth), new Vector2(p2.X - num, p1.Y + borderWidth), col, borderWidth);
+            DrawLine(new Vector2(p1.X, p1.Y + num), new Vector2(p2.X, p1.Y + num), color, borderWidth);
+            DrawLine(new Vector2(p1.X + num, p1.Y + borderWidth), new Vector2(p1.X + num, p2.Y - borderWidth), color, borderWidth);
+            DrawLine(new Vector2(p2.X, p2.Y - num), new Vector2(p1.X, p2.Y - num), color, borderWidth);
+            DrawLine(new Vector2(p2.X - num, p2.Y - borderWidth), new Vector2(p2.X - num, p1.Y + borderWidth), color, borderWidth);
         }
     }
+
+    public static void DrawRect(Rectangle rectangle, Color color, bool filled = true, float borderWidth = 1f) =>
+        DrawRect(new Vector2(rectangle.Left, rectangle.Top), new Vector2(rectangle.Right, rectangle.Bottom), color, filled, borderWidth);
+
     #endregion
 }
