@@ -76,9 +76,7 @@ public static class Assets
         int separatorIndex = query.IndexOf(":/");
         if (separatorIndex == -1)
         {
-            if (query.Length > 0 && query[0] == '/')
-                query = query[1..];
-            // [ '/' ] <path>
+            //no prefix, only <path>
             prefix = default;
             path = query;
             return;
@@ -88,4 +86,12 @@ public static class Assets
         path = query[(separatorIndex + 2)..];
     }
 
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public static void LoadAssets()
+    {
+
+    }
 }

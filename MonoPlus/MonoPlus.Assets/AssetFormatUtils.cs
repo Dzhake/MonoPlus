@@ -7,7 +7,7 @@ using MonoPlus.Assets;
 
 namespace MonoPlus.Assets;
 
-public static class AssetFormatsUtils
+public static class AssetFormatUtils
 {
     // Order of bytes in an int32/int64 may differ depending on the machine's endianness
 
@@ -87,7 +87,7 @@ public static class AssetFormatsUtils
         return AssetFormat.Unknown;
     }
 
-    [Pure] public static AssetFormat DetectFileExtension(ReadOnlySpan<char> pathOrExtension)
+    [Pure] public static AssetFormat DetectFormatByPath(ReadOnlySpan<char> pathOrExtension)
     {
         pathOrExtension = Path.GetExtension(pathOrExtension);
         return pathOrExtension switch

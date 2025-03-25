@@ -119,8 +119,6 @@ public abstract class AssetManager : IDisposable
         => LoadCore<T>(path, path, true)!;
     [Pure] public ValueTask<T> LoadAsync<T>(ReadOnlySpan<char> path)
         => LoadCore<T>(path, null, true)!;
-
-    // TODO: add InvalidateCachedAsset and use it instead? make asset consumers refresh it themselves?
     protected void RefreshAsset(ReadOnlySpan<char> relativePath)
     {
         try

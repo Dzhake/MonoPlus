@@ -12,8 +12,9 @@
    The above copyright notice and this permission notice shall be included in all
    copies or substantial portions of the Software.
 */
-﻿using System;
+using System;
 using System.IO;
+using System.Threading.Tasks;
 using JetBrains.Annotations;
 
 namespace MonoPlus;
@@ -24,20 +25,51 @@ namespace MonoPlus;
 public static class StreamExtensions
 {
     /// <summary>
-    ///   <para>Writes the specified <paramref name="stream"/>'s content to an array and returns it.</para>
+    ///   <para>Attempts to retrieve the specified <paramref name="stream"/>'s <see cref="Stream.Length"/>, and returns a value indicating whether the operation was successful.</para>
     /// </summary>
-    /// <param name="stream">The stream to read content from.</param>
-    /// <returns>A byte array containing the specified <paramref name="stream"/>'s content.</returns>
+    /// <param name="stream">The stream to retrieve the byte length of.</param>
+    /// <param name="byteLength">When this method returns, contains the specified <paramref name="stream"/>'s <see cref="Stream.Length"/>, if the operation was successful, or 0 if the operation failed.</param>
+    /// <returns><see langword="true"/>, if the specified <paramref name="stream"/>'s <see cref="Stream.Length"/> was successfully retrieved; otherwise, <see langword="false"/>.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="stream"/> is <see langword="null"/>.</exception>
-    /// <exception cref="InvalidOperationException">The <paramref name="stream"/>'s content length did not match the retrieved length.</exception>
-    [MustUseReturnValue] public static byte[] ToByteArray(this Stream stream)
+    [Pure]
+    public static bool TryGetLength(this Stream stream, out long byteLength)
     {
         ArgumentNullException.ThrowIfNull(stream);
 
-        if (stream.TryGetLength(out int byteLength))
+        try
         {
+            byteLength = stream.Length;
+            return true;
+        }
+        catch (NotSupportedException)
+        {
+            byteLength = 0;
+            return false;
+        }
+    }
+
+    /// <summary>
+    ///   <para>Writes the specified <paramref name="stream"/>'s content to a byte array and returns it.</para>
+    /// </summary>
+    /// <param name="stream">The stream to read the content of.</param>
+    /// <returns>A byte array containing the specified <paramref name="stream"/>'s content.</returns>
+    /// <exception cref="ArgumentNullException"><paramref name="stream"/> is <see langword="null"/>.</exception>
+    /// <exception cref="InvalidOperationException">The <paramref name="stream"/>'s content length did not match the retrieved length.</exception>
+    /// <exception cref="OverflowException">The <paramref name="stream"/>'s length is greater than <see cref="int.MaxValue"/>.</exception>
+    [Pure]
+    public static byte[] ToByteArray(this Stream stream)
+    {
+        ArgumentNullException.ThrowIfNull(stream);
+
+        if (stream.TryGetLength(out long byteLengthLong))
+        {
+            int byteLength = checked((int)byteLengthLong);
             // If the stream's size is known, allocate and populate an array
-            byte[] array = new byte[byteLength];
+#if NET5_0_OR_GREATER
+            byte[] array = GC.AllocateUninitializedArray<byte>(byteLength);
+#else
+                byte[] array = new byte[byteLength];
+#endif
             if (stream.Read(array) != byteLength) throw new InvalidOperationException();
             return array;
         }
@@ -46,14 +78,40 @@ public static class StreamExtensions
         stream.CopyTo(temp);
         return temp.ToArray();
     }
+    [Pure]
+    public static async ValueTask<byte[]> ToByteArrayAsync(this Stream stream)
+    {
+        ArgumentNullException.ThrowIfNull(stream);
+
+        if (stream.TryGetLength(out long byteLengthLong))
+        {
+            int byteLength = checked((int)byteLengthLong);
+            // If the stream's size is known, allocate and populate an array
+#if NET5_0_OR_GREATER
+            byte[] array = GC.AllocateUninitializedArray<byte>(byteLength);
+#else
+                byte[] array = new byte[byteLength];
+#endif
+            int readCount = await stream.ReadAsync(array);
+            if (readCount != byteLength) throw new InvalidOperationException();
+            return array;
+        }
+        // If the stream's size cannot be determined, use a MemoryStream
+        MemoryStream temp = new();
+        await stream.CopyToAsync(temp);
+        return temp.ToArray();
+    }
+
     /// <summary>
     ///   <para>Retrieves a byte array containing the specified <paramref name="stream"/>'s content. May return an exposed <see cref="MemoryStream"/>'s buffer, avoiding an allocation.</para>
     /// </summary>
-    /// <param name="stream">The stream to read content from.</param>
+    /// <param name="stream">The stream to read the content of.</param>
     /// <returns>A byte array containing the specified <paramref name="stream"/>'s content.</returns>
     /// <exception cref="ArgumentNullException"><paramref name="stream"/> is <see langword="null"/>.</exception>
     /// <exception cref="InvalidOperationException">The <paramref name="stream"/>'s content length did not match the retrieved length.</exception>
-    [MustUseReturnValue] public static byte[] ToByteArrayDangerous(this Stream stream)
+    /// <exception cref="OverflowException">The <paramref name="stream"/>'s length is greater than <see cref="int.MaxValue"/>.</exception>
+    [Pure]
+    public static byte[] ToByteArrayDangerous(this Stream stream)
     {
         ArgumentNullException.ThrowIfNull(stream);
 
@@ -64,31 +122,8 @@ public static class StreamExtensions
             if (segment.Offset == 0 && segment.Count == array.Length)
                 return array;
         }
-        // Use the safe way with copying instead
+        // Otherwise, use the safe way with copying instead
         return ToByteArray(stream);
-    }
-
-    /// <summary>
-    ///   <para>Attempts to retrieve the specified <paramref name="stream"/>'s <see cref="Stream.Length"/>, and returns a value indicating whether the operation was successful.</para>
-    /// </summary>
-    /// <param name="stream">The stream to determine the byte length of.</param>
-    /// <param name="byteLength">When this method returns, contains the specified <paramref name="stream"/>'s <see cref="Stream.Length"/>, if the operation was successful, or -1 if the operation failed.</param>
-    /// <returns><see langword="true"/>, if the specified <paramref name="stream"/>'s <see cref="Stream.Length"/> was successfully retrieved; otherwise, <see langword="false"/>.</returns>
-    /// <exception cref="ArgumentNullException"><paramref name="stream"/> is <see langword="null"/>.</exception>
-    [Pure] public static bool TryGetLength(this Stream stream, out int byteLength)
-    {
-        ArgumentNullException.ThrowIfNull(stream);
-
-        try
-        {
-            byteLength = checked((int)stream.Length);
-            return true;
-        }
-        catch (NotSupportedException)
-        {
-            byteLength = -1;
-            return false;
-        }
     }
 
 }

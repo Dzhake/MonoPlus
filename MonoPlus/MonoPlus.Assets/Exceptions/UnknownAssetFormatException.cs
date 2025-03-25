@@ -8,11 +8,11 @@ namespace MonoPlus.Assets;
 public sealed class UnknownAssetFormatException : Exception
 {
     /// <summary>
-    ///   <para>Gets the asset manager that the specified asset could not be found in.</para>
+    ///   <para>Gets the asset manager that the specified asset found in.</para>
     /// </summary>
     public AssetManager AssetManager { get; }
     /// <summary>
-    ///   <para>Gets a relative path to the asset that could not be found.</para>
+    ///   <para>Gets a relative path to the asset.</para>
     /// </summary>
     public string RelativePath { get; }
 
