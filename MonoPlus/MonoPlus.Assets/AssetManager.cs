@@ -17,6 +17,10 @@ public abstract class AssetManager : IDisposable
     /// </summary>
     protected StringKeyedDictionary<AssetCacheEntry> _cache = new();
     /// <summary>
+    ///   <para>The asset manager's dictionary of listeners which should be notified when asset is loaded/refreshed.</para>
+    /// </summary>
+    protected StringKeyedDictionary<Action> _listeners = new();
+    /// <summary>
     ///   <para>The asset manager's cache reader-writer lock.</para>
     /// </summary>
     protected readonly ReaderWriterLockSlim _cacheRwl = new();
@@ -103,6 +107,7 @@ public abstract class AssetManager : IDisposable
 
             // Add the AssetEntry for this asset in the cache
             _cache.Add(pathString, new(loading));
+            // TODO: notify listeners
 
             return loading;
         }
@@ -131,7 +136,7 @@ public abstract class AssetManager : IDisposable
 
                 // Set the AssetEntry for this asset in the cache
                 _cache[pathString] = new(loading);
-
+                
                 // TODO: what about stale values? How do we do that? Especially relevant for errors
             }
         }

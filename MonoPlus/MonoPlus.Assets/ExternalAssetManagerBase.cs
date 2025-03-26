@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Diagnostics;
 using System.IO;
+using System.Text;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 using Microsoft.Xna.Framework.Audio;
@@ -35,12 +37,23 @@ public abstract class ExternalAssetManagerBase : AssetManager
         case AssetType.VIDEO:
             throw new NotImplementedException("Video loading is not implemented yet, and probably never will be.");
         case AssetType.TEXT:
-            return await new StreamReader(info.AssetStream).ReadToEndAsync();
+            switch (Assets.ResourcePriority)
+            {
+                case Assets.ResourcePriorityType.Performance:
+                    return await new StreamReader(info.AssetStream, Encoding.UTF8).ReadToEndAsync();
+                case Assets.ResourcePriorityType.Memory:
+                    return Encoding.UTF8.GetString(info.AssetStream.ToByteArrayDangerous());
+            }
+            break;
         case AssetType.BINARY:
             return info.AssetStream.ToByteArrayDangerous();
+        case AssetType.EFFECT:
+            return new Effect(Renderer.device, info.AssetStream.ToByteArrayDangerous());
         default:
             throw new UnknownAssetFormatException(this, assetPath);
         }
+
+        throw new UnreachableException($"Asset type is {info.Format.ToType()}. I don't know how did this bypass \"default:\"");
     }
 
     public struct ExternalAssetInfo

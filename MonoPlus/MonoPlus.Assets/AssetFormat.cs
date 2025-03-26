@@ -28,16 +28,20 @@ public enum AssetFormat
 
     // [129, 160] - binary format
     Bin = 129,
+
+    // [161, 192] - shader format (i really don't need that much reserved formats. Whatever)
+    Mgfx = 161,
 }
 /// <summary>
 ///   <para>Defines the types of assets.</para>
 /// </summary>
 public enum AssetType
 {
-    UNKNOWN = 0,
-    AUDIO = 1,
-    IMAGE = 2,
-    VIDEO = 3,
-    TEXT = 4,
-    BINARY = 5,
+    UNKNOWN,
+    AUDIO,
+    IMAGE,
+    VIDEO,
+    TEXT,
+    BINARY,
+    EFFECT,
 }

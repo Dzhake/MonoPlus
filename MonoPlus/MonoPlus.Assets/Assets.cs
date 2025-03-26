@@ -87,11 +87,10 @@ public static class Assets
     }
 
 
-    /// <summary>
-    /// 
-    /// </summary>
-    public static void LoadAssets()
-    {
+    public enum ResourcePriorityType {Performance, Memory}
 
-    }
+    /// <summary>
+    /// <para>Represents should asset managers prefer performance or lower memory usage, used in rare cases.</para>
+    /// </summary>
+    public static ResourcePriorityType ResourcePriority = ResourcePriorityType.Performance;
 }
