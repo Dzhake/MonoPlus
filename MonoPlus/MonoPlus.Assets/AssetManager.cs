@@ -70,46 +70,18 @@ public abstract class AssetManager : IDisposable
     /// <returns>A new asset, loaded from the specified path, or <see langword="null"/> if it is not found.</returns>
     protected abstract ValueTask<object?> LoadNewAssetAsync(string assetPath);
 
-    private ValueTask<object?> LoadAssetCore(ReadOnlySpan<char> path, string? pathString, bool startLoading)
+    public void LoadIntoCache(string path)
     {
-        ObjectDisposedException.ThrowIf(disposed != 0, this);
-
-        // Normalize the path
-        if (path.IndexOf('\\') >= 0) path = pathString = path.ToString().Replace('\\', '/');
-
-        try
-        {
-            _cacheRwl.EnterReadLock();
-            // Try to read the asset from cache
-            if (_cache.TryGetValue(path.ToString(), out AssetCacheEntry entry))
-                return entry.GetValueAsync();
-        }
-        finally
-        {
-            _cacheRwl.ExitReadLock();
-        }
-
-        // If not told to start loading the asset, return default
-        if (!startLoading) return default;
-        // Otherwise, prepare the path string before entering writer lock
-        pathString ??= path.ToString();
+        if (path.IndexOf('\\') >= 0) path = path.ToString().Replace('\\', '/');
 
         try
         {
             _cacheRwl.EnterWriteLock();
-            // Try again, maybe the asset JUST started loading from another thread, that
-            // somehow managed to get in the queue between this thread's cache locks.
-            if (_cache.TryGetValue(path.ToString(), out AssetCacheEntry entry))
-                return entry.GetValueAsync();
 
-            // Start loading the new asset asynchronously
-            ValueTask<object?> loading = LoadNewAssetAsync(pathString);
-
+            // Start loading the new asset asynchronously,
             // Add the AssetEntry for this asset in the cache
-            _cache.Add(pathString, new(loading));
-            // TODO: notify listeners
-
-            return loading;
+            _cache.Add(path, new(LoadNewAssetAsync(path)));
+            NotifyListenersOnAssetRefresh(path);
         }
         finally
         {
@@ -117,13 +89,51 @@ public abstract class AssetManager : IDisposable
         }
     }
 
-    private ValueTask<T?> LoadCore<T>(ReadOnlySpan<char> path, string? pathString, bool startLoading)
-        => LoadAssetCore(path, pathString, startLoading).Transform((asset => (T?)asset));
+    private ValueTask<object?> LoadAssetCore(ReadOnlySpan<char> path, bool startLoading)
+    {
+        ObjectDisposedException.ThrowIf(disposed != 0, this);
+
+        // Normalize the path
+        if (path.IndexOf('\\') >= 0) path = path.ToString().Replace('\\', '/');
+        string pathString = path.ToString();
+
+        try
+        {
+            _cacheRwl.EnterReadLock();
+            // Try to read the asset from cache
+            if (_cache.TryGetValue(path.ToString(), out AssetCacheEntry entry))
+                return entry.GetValueAsync();
+
+            if (!startLoading)
+            {
+                _cacheRwl.ExitReadLock();
+                return default;
+            }
+
+            ValueTask<object?> loading = LoadNewAssetAsync(pathString);
+
+            // Add the AssetEntry for this asset in the cache
+            _cache.Add(pathString, new(loading));
+
+            NotifyListenersOnAssetRefresh(pathString);
+            _cacheRwl.ExitReadLock();
+            return loading;
+
+        }
+        finally
+        {
+            _cacheRwl.ExitReadLock();
+        }
+        
+    }
+
+    private ValueTask<T?> LoadCore<T>(ReadOnlySpan<char> path,  bool startLoading)
+        => LoadAssetCore(path,startLoading).Transform((asset => (T?)asset));
 
     [Pure] public ValueTask<T> LoadAsync<T>(string path)
-        => LoadCore<T>(path, path, true)!;
+        => LoadCore<T>(path, true)!;
     [Pure] public ValueTask<T> LoadAsync<T>(ReadOnlySpan<char> path)
-        => LoadCore<T>(path, null, true)!;
+        => LoadCore<T>(path, true)!;
     protected void RefreshAsset(ReadOnlySpan<char> relativePath)
     {
         try
@@ -169,5 +179,12 @@ public abstract class AssetManager : IDisposable
         {
             public object? Value => reloadTask.IsCompletedSuccessfully ? reloadTask.Result : staleValue;
         }
+    }
+
+    public virtual void PreloadAssetsAsync() {}
+
+    protected void NotifyListenersOnAssetRefresh(string assetPath)
+    {
+
     }
 }

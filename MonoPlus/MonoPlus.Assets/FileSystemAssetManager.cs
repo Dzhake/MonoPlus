@@ -113,4 +113,13 @@ public sealed class FileSystemAssetManager : ExternalAssetManagerBase
         string mainPath = matchedFiles[0];
         return new(new ExternalAssetInfo(File.OpenRead(mainPath), AssetFormatUtils.DetectFormatByPath(mainPath)));
     }
+
+    public override void PreloadAssetsAsync()
+    {
+        if (!Directory.Exists(DirectoryPath)) return;
+        int rootPathLength = DirectoryPath.Length;
+
+        foreach (string file in Directory.GetFiles(DirectoryPath, "*", SearchOption.AllDirectories))
+            LoadIntoCache(file.Remove(0, rootPathLength));
+    }
 }
