@@ -54,33 +54,46 @@ public static class Renderer
         DrawTexture(Pixel, lineStart, new Rectangle?(), color, (float)Math.Atan2(lineEnd.Y - lineStart.Y, lineEnd.X - lineStart.X), new Vector2(0f, 0.5f), new Vector2((lineStart - lineEnd).Length(), width));
     }
 
+
     /// <summary>
     /// Draws a rectangle.
     /// </summary>
     /// <param name="p1">Rectangle's top left corner</param>
     /// <param name="p2">Rectangle's bottom right corner</param>
     /// <param name="color">Rectangle's color</param>
-    /// <param name="filled">Should rectangle be fillew or hollow</param>
-    /// <param name="borderWidth">Width of lines used to make rectangle. Only used with hollow rectangle.</param>
-    /// <exception cref="InvalidOperationException"></exception>
-    public static void DrawRect(Vector2 p1, Vector2 p2, Color color, bool filled = true, float borderWidth = 1f)
-    {
-        //if (Pixel is null) throw new InvalidOperationException("DrawRect was called, but Pixel is null!");
+    public static void DrawRect(Vector2 p1, Vector2 p2, Color color) =>
+        DrawTexture(Pixel, p1, new Rectangle?(), color, 0f, Vector2.Zero, new Vector2(-(p1.X - p2.X), -(p1.Y - p2.Y)));
 
-        if (filled)
-            DrawTexture(Pixel, p1, new Rectangle?(), color, 0f, Vector2.Zero, new Vector2(-(p1.X - p2.X), -(p1.Y - p2.Y)));
-        else
-        {
-            float num = borderWidth / 2f;
-            DrawLine(new Vector2(p1.X, p1.Y + num), new Vector2(p2.X, p1.Y + num), color, borderWidth);
-            DrawLine(new Vector2(p1.X + num, p1.Y + borderWidth), new Vector2(p1.X + num, p2.Y - borderWidth), color, borderWidth);
-            DrawLine(new Vector2(p2.X, p2.Y - num), new Vector2(p1.X, p2.Y - num), color, borderWidth);
-            DrawLine(new Vector2(p2.X - num, p2.Y - borderWidth), new Vector2(p2.X - num, p1.Y + borderWidth), color, borderWidth);
-        }
+    /// <summary>
+    /// Draws a rectangle.
+    /// </summary>
+    /// <param name="rectangle"><see cref="Rectangle"/> which represents drawn rectangle's position and size.</param>
+    /// <param name="color">Rectangle's color</param>
+    public static void DrawRect(Rectangle rectangle, Color color) => DrawRect(new Vector2(rectangle.Left, rectangle.Top), new Vector2(rectangle.Right, rectangle.Bottom), color);
+
+    /// <summary>
+    /// Draws a rectangle.
+    /// </summary>
+    /// <param name="p1">Rectangle's top left corner</param>
+    /// <param name="p2">Rectangle's bottom right corner</param>
+    /// <param name="color">Rectangle's color</param>
+    /// <param name="borderWidth">Width of lines used to make rectangle.</param>
+    public static void DrawHollowRect(Vector2 p1, Vector2 p2, Color color, float borderWidth = 1f)
+    {
+        float halfBorderWidth = borderWidth / 2f;
+        DrawLine(new Vector2(p1.X, p1.Y + halfBorderWidth), new Vector2(p2.X, p1.Y + halfBorderWidth), color, borderWidth);
+        DrawLine(new Vector2(p1.X + halfBorderWidth, p1.Y + borderWidth), new Vector2(p1.X + halfBorderWidth, p2.Y - borderWidth), color, borderWidth);
+        DrawLine(new Vector2(p2.X, p2.Y - halfBorderWidth), new Vector2(p1.X, p2.Y - halfBorderWidth), color, borderWidth);
+        DrawLine(new Vector2(p2.X - halfBorderWidth, p2.Y - borderWidth), new Vector2(p2.X - halfBorderWidth, p1.Y + borderWidth), color, borderWidth);
     }
 
-    public static void DrawRect(Rectangle rectangle, Color color, bool filled = true, float borderWidth = 1f) =>
-        DrawRect(new Vector2(rectangle.Left, rectangle.Top), new Vector2(rectangle.Right, rectangle.Bottom), color, filled, borderWidth);
-
+    /// <summary>
+    /// Draws a rectangle.
+    /// </summary>
+    /// <param name="rectangle"><see cref="Rectangle"/> which represents drawn rectangle's position and size.</param>
+    /// <param name="color">Rectangle's color</param>
+    /// <param name="borderWidth">Width of lines used to make rectangle.</param>
+    public static void DrawHollowRect(Rectangle rectangle, Color color, float borderWidth = 1f) =>
+        DrawHollowRect(new Vector2(rectangle.Left, rectangle.Top), new Vector2(rectangle.Right, rectangle.Bottom), color, borderWidth);
     #endregion
 }
