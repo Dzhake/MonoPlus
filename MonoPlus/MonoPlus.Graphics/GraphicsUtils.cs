@@ -3,7 +3,7 @@ using Microsoft.Xna.Framework;
 
 namespace MonoPlus.Graphics;
 
-public class GraphicUtils
+public class GraphicsUtils
 {
     public static Color ParseColor(string hex)
     {
