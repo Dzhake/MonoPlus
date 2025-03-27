@@ -9,7 +9,9 @@ public static class Renderer
     public static GraphicsDeviceManager? deviceManager;
     public static SpriteBatch? spriteBatch;
     public static GraphicsDevice? device;
-    public static Texture2D? Pixel;
+    public static Texture2D Pixel = null!;
+    public static IntPtr WindowHandle;
+    public static GameWindow? Window;
 
     public static void OnGameCreated(Game game)
     {
@@ -20,6 +22,8 @@ public static class Renderer
     {
         if (deviceManager == null) throw new InvalidOperationException("deviceManager is null!");
         device = game.GraphicsDevice;
+        Window = game.Window;
+        WindowHandle = Window.Handle;
         spriteBatch = new SpriteBatch(game.GraphicsDevice);
         Pixel = new(device, 1, 1);
         Pixel.SetData([Color.White]);
@@ -43,10 +47,10 @@ public static class Renderer
     public static void End() => spriteBatch?.End();
     #endregion
 
-    #region AdvancedFunctions
+    #region ShapesFunctions
     public static void DrawLine(Vector2 lineStart, Vector2 lineEnd, Color color, float width = 1f)
     {
-        if (Pixel is null) throw new InvalidOperationException("DrawLine was called, but Pixel is null!");
+        //if (Pixel is null) throw new InvalidOperationException("DrawLine was called, but Pixel is null!");
         DrawTexture(Pixel, lineStart, new Rectangle?(), color, (float)Math.Atan2(lineEnd.Y - lineStart.Y, lineEnd.X - lineStart.X), new Vector2(0f, 0.5f), new Vector2((lineStart - lineEnd).Length(), width));
     }
 
@@ -61,7 +65,7 @@ public static class Renderer
     /// <exception cref="InvalidOperationException"></exception>
     public static void DrawRect(Vector2 p1, Vector2 p2, Color color, bool filled = true, float borderWidth = 1f)
     {
-        if (Pixel is null) throw new InvalidOperationException("DrawRect was called, but Pixel is null!");
+        //if (Pixel is null) throw new InvalidOperationException("DrawRect was called, but Pixel is null!");
 
         if (filled)
             DrawTexture(Pixel, p1, new Rectangle?(), color, 0f, Vector2.Zero, new Vector2(-(p1.X - p2.X), -(p1.Y - p2.Y)));
