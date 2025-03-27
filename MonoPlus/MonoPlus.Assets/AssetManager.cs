@@ -1,5 +1,4 @@
 ﻿﻿using System;
- using System.Collections.Generic;
  using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
@@ -72,7 +71,7 @@ public abstract class AssetManager : IDisposable
 
     public void LoadIntoCache(string path)
     {
-        if (path.IndexOf('\\') >= 0) path = path.ToString().Replace('\\', '/');
+        if (path.IndexOf('\\') >= 0) path = path.Replace('\\', '/');
 
         try
         {
@@ -181,7 +180,7 @@ public abstract class AssetManager : IDisposable
         }
     }
 
-    public virtual void PreloadAssetsAsync() {}
+    public virtual void PreloadAssets() {}
 
     protected void NotifyListenersOnAssetRefresh(string assetPath)
     {

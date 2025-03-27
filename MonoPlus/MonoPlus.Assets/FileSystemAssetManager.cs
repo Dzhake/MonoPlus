@@ -114,7 +114,7 @@ public sealed class FileSystemAssetManager : ExternalAssetManagerBase
         return new(new ExternalAssetInfo(File.OpenRead(mainPath), AssetFormatUtils.DetectFormatByPath(mainPath)));
     }
 
-    public override void PreloadAssetsAsync()
+    public override void PreloadAssets()
     {
         if (!Directory.Exists(DirectoryPath)) return;
         int rootPathLength = DirectoryPath.Length;

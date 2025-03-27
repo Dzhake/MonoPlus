@@ -118,7 +118,7 @@ public sealed class ZipArchiveAssetManager : ExternalAssetManagerBase
         foreach (ZipArchiveEntry zipEntry in archive.Entries)
         {
             // Open and decompress the entry, and store its info in entries
-            byte[] entryData = await zipEntry.Open().ToByteArrayAsync();
+            Stream entryData = zipEntry.Open();
             uint crc32 = zipEntry.Crc32;
 
             ReadOnlySpan<char> zipEntryName = zipEntry.FullName.AsSpan();
@@ -132,6 +132,10 @@ public sealed class ZipArchiveAssetManager : ExternalAssetManagerBase
             entry.AssetData = entryData;
             entry.AssetCrc32 = crc32;
             entry.Format = AssetFormatUtils.DetectFormatByPath(assetExtension);
+
+            //load entry into cache
+            //LoadIntoCache(zipEntryName.ToString());
+            //TODO: make a good way to preload assets instead of by path.
 
             // Overwrite entry if exists, or create if not found
             newLookup[assetName] = entry;
@@ -188,16 +192,17 @@ public sealed class ZipArchiveAssetManager : ExternalAssetManagerBase
 
         if (!lookup.TryGetValue(assetPath, out Entry entry) || entry.AssetData is null) return default;
 
-        return new ExternalAssetInfo(new MemoryStream(entry.AssetData), entry.Format);
+        return new ExternalAssetInfo(entry.AssetData, entry.Format);
     }
 
-    private struct Entry(byte[]? assetData, uint assetCrc32, AssetFormat format)
+    private struct Entry(Stream? assetData, uint assetCrc32, AssetFormat format)
     {
-        public byte[]? AssetData = assetData;
+        public Stream? AssetData = assetData;
         public uint AssetCrc32 = assetCrc32;
         public AssetFormat Format = format;
 
         public readonly bool EqualsCrc32(in Entry other) => AssetCrc32 == other.AssetCrc32;
     }
 
+    public override void PreloadAssets() => ReloadArchiveAsync();
 }
