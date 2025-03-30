@@ -203,6 +203,4 @@ public sealed class ZipArchiveAssetManager : ExternalAssetManagerBase
 
         public readonly bool EqualsCrc32(in Entry other) => AssetCrc32 == other.AssetCrc32;
     }
-
-    public override void PreloadAssets() => ReloadArchiveAsync();
 }

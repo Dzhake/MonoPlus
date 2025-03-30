@@ -105,7 +105,6 @@ public abstract class AssetManager : IDisposable
 
             if (!startLoading)
             {
-                _cacheRwl.ExitReadLock();
                 return default;
             }
 
@@ -115,7 +114,6 @@ public abstract class AssetManager : IDisposable
             _cache.Add(pathString, new(loading));
 
             NotifyListenersOnAssetRefresh(pathString);
-            _cacheRwl.ExitReadLock();
             return loading;
 
         }
@@ -184,6 +182,6 @@ public abstract class AssetManager : IDisposable
 
     protected void NotifyListenersOnAssetRefresh(string assetPath)
     {
-
+        //TODO
     }
 }

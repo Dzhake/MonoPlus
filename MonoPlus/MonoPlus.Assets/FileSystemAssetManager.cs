@@ -64,16 +64,16 @@ public sealed class FileSystemAssetManager : ExternalAssetManagerBase
 
     private void InitWatcher()
     {
-        FileSystemWatcher watcher = new FileSystemWatcher(DirectoryPath);
+        _watcher = new(DirectoryPath);
 
-        watcher.Created += OnFileChanged;
-        watcher.Deleted += OnFileChanged;
-        watcher.Changed += OnFileChanged;
-        watcher.Renamed += OnFileRenamed;
+        _watcher.Created += OnFileChanged;
+        _watcher.Deleted += OnFileChanged;
+        _watcher.Changed += OnFileChanged;
+        _watcher.Renamed += OnFileRenamed;
 
-        watcher.EnableRaisingEvents = true;
-        _watcher = watcher;
+        _watcher.EnableRaisingEvents = true;
     }
+
     private void DisposeWatcher()
     {
         Interlocked.Exchange(ref _watcher, null)?.Dispose();
@@ -120,6 +120,7 @@ public sealed class FileSystemAssetManager : ExternalAssetManagerBase
         int rootPathLength = DirectoryPath.Length;
 
         foreach (string file in Directory.GetFiles(DirectoryPath, "*", SearchOption.AllDirectories))
-            LoadIntoCache(file.Remove(0, rootPathLength));
+            LoadIntoCache(Path.ChangeExtension(file.Remove(0, rootPathLength), null)); //Remove everything but relative directory, remove extension
+            
     }
 }
