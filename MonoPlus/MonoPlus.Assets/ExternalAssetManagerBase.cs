@@ -49,6 +49,8 @@ public abstract class ExternalAssetManagerBase : AssetManager
             return info.AssetStream.ToByteArrayDangerous();
         case AssetType.EFFECT:
             return new Effect(Renderer.device, info.AssetStream.ToByteArrayDangerous());
+        case AssetType.LOCALIZATION:
+
         default:
             throw new UnknownAssetFormatException(this, assetPath);
         }

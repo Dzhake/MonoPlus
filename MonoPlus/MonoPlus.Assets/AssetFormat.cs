@@ -31,6 +31,9 @@ public enum AssetFormat
 
     // [161, 192] - shader format (i really don't need that much reserved formats. Whatever)
     Mgfx = 161,
+
+    // [193, 224]
+    Ftl = 193,
 }
 /// <summary>
 ///   <para>Defines the types of assets.</para>
@@ -44,4 +47,5 @@ public enum AssetType
     TEXT,
     BINARY,
     EFFECT,
+    LOCALIZATION,
 }

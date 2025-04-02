@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net9.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <DebugType>embedded</DebugType>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Linguini.Bundle" Version="0.8.1" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MonoPlus.csproj" />
+  </ItemGroup>
+</Project>
