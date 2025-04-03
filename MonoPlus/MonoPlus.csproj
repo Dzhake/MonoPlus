@@ -7,6 +7,7 @@
     <AllowUnsafeBlocks>True</AllowUnsafeBlocks>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Logging.cs" />
     <Compile Include="StreamExtensions.cs" />
     <Compile Include="StringKeyedDictionary.cs" />
     <Compile Include="TaskExtensions.cs" />
@@ -14,6 +15,8 @@
   <ItemGroup>
     <PackageReference Include="JetBrains.Annotations" Version="2024.3.0" />
     <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.2.1105" />
+    <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
+    <PackageReference Include="Serilog.Sinks.File" Version="6.0.0" />
     <ProjectReference Include="..\SDL3-CS\SDL3\SDL3.Core.csproj" />
   </ItemGroup>
 </Project>
