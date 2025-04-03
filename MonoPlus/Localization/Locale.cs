@@ -4,7 +4,6 @@ using System.IO;
 using Linguini.Bundle;
 using Linguini.Bundle.Builder;
 using Linguini.Bundle.Errors;
-using Microsoft.Xna.Framework.Input;
 using Serilog;
 
 namespace MonoPlus.Localization;
