@@ -11,6 +11,7 @@ namespace MonoPlus.Localization;
 public static class Locale
 {
     private static FluentBundle? Bundle;
+    public static string CurrentLanguage = "en";
 
     public static void Initialize(string language)
     {

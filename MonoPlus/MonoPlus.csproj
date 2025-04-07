@@ -7,10 +7,11 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="JetBrains.Annotations" Version="2024.3.0" />
-    <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.2.1105" />
+    <PackageReference Include="MonoGame.Framework.DesktopGL" Version="3.8.3" />
     <PackageReference Include="Serilog.Sinks.Console" Version="6.0.0" />
     <PackageReference Include="Serilog.Sinks.File" Version="6.0.0" />
-    <PackageReference Include="Linguini.Bundle" Version="0.8.1" />
+    <PackageReference Include="Linguini.Bundle" Version="0.9.0" />
+    <PackageReference Include="SerilogAnalyzer" Version="0.15.0" />
 
     <ProjectReference Include="..\SDL3-CS\SDL3\SDL3.Core.csproj" />
   </ItemGroup>

@@ -7,6 +7,7 @@ using JetBrains.Annotations;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using MonoPlus.Graphics;
+using MonoPlus.Localization;
 
 namespace MonoPlus.Assets;
 
@@ -50,7 +51,9 @@ public abstract class ExternalAssetManagerBase : AssetManager
         case AssetType.EFFECT:
             return new Effect(Renderer.device, info.AssetStream.ToByteArrayDangerous());
         case AssetType.LOCALIZATION:
-
+            if (Locale.CurrentLanguage == Path.GetFileNameWithoutExtension(assetPath))
+                Locale.Load(new(info.AssetStream));
+            return null;
         default:
             throw new UnknownAssetFormatException(this, assetPath);
         }
