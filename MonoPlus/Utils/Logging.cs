@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Reflection;
+using System.Runtime.InteropServices;
 using Serilog;
 using Serilog.Core;
 using Serilog.Events;
@@ -20,6 +22,17 @@ public static class Logging
             .WriteTo.File(formatter, $"{AppContext.BaseDirectory}log.txt")
             .MinimumLevel.ControlledBy(LevelSwitch)
             .CreateLogger();
+
+        WriteStartupInfo();
+    }
+
+    private static void WriteStartupInfo()
+    {
+        Assembly? entryAssembly = Assembly.GetEntryAssembly();
+        if (entryAssembly is null) throw new InvalidOperationException("Hello..? Entry assembly is null..??");
+        Log.Information("Entry Assembly: {AssemblyName}", entryAssembly.FullName);
+        Log.Information("OS: {OS} ({OSID})", RuntimeInformation.OSDescription, RuntimeInformation.RuntimeIdentifier);
+        Log.Information("SystemMemory: {Memory} MB", GC.GetGCMemoryInfo().TotalAvailableMemoryBytes / 1024f / 1024f);
     }
 
     public static void SetMinimumLogLevel(LogEventLevel level)

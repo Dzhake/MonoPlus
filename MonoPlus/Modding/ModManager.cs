@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text.Json;
 
 namespace MonoPlus.Modding;
 
@@ -12,21 +13,26 @@ public static class ModManager
 
     public static void Initialize()
     {
-        foreach (string modDir in Directory.EnumerateDirectories(ModsDirectory, "*", SearchOption.TopDirectoryOnly))
+        foreach (ReadOnlySpan<char> modDir in Directory.EnumerateDirectories(ModsDirectory, "*", SearchOption.TopDirectoryOnly))
             LoadMod(modDir);
     }
 
-    private static void LoadMod(string dir)
+    private static void LoadMod(ReadOnlySpan<char> modDir)
     {
         Mod mod = new();
-        string configPath = GetModConfigPath(dir);
-        if (File.Exists(configPath))
+        string configPath = GetModConfigPath(modDir);
+        if (!File.Exists(configPath)) throw new InvalidModConfigurationException(configPath, "File not found");
+
+        mod.Config = JsonSerializer.Deserialize<ModConfig>(File.ReadAllText(configPath)) ?? throw new InvalidModConfigurationException(configPath, "Deserializer returned null.");
+        var config = mod.Config;
+        foreach (ReadOnlySpan<char> relativeDllPath in config.DllFiles)
         {
-            mod.Config = new(File.OpenRead(configPath), configPath); //Stream is closed in ModConfig's ctor
+            string absoluteDllPath = Path.Join(modDir, relativeDllPath);
+            if (!File.Exists(absoluteDllPath)) throw new InvalidModConfigurationException(configPath, $"Config contains a reference to .dll file which was not found: {absoluteDllPath}");
         }
     }
 
-    public static string GetModConfigPath(string modDir) => $"{modDir}config.json";
+    public static string GetModConfigPath(ReadOnlySpan<char> modDir) => $"{modDir}config.json";
 
     public static void PreLoadContent()
     {

@@ -25,7 +25,7 @@ public static class Locale
 
         if (errors is null) return;
         foreach (FluentError error in errors)
-            Log.Error(error.ToString());
+            Log.Error("{Error}", error.ToString());
     }
 
     public static string Get(string key)
@@ -35,7 +35,7 @@ public static class Locale
         string? message = Bundle.GetMessage(key);
         if (message is not null) return message;
 
-        Log.Warning($"Message with key \"{key}\" not found!");
+        Log.Warning("Message with key {Key} not found!", key);
         return $"{{{key}}}";
 
     }
