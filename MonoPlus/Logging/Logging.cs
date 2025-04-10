@@ -6,7 +6,7 @@ using Serilog.Core;
 using Serilog.Events;
 using Serilog.Formatting.Display;
 
-namespace MonoPlus;
+namespace MonoPlus.Logging;
 
 public static class Logging
 {
@@ -14,12 +14,13 @@ public static class Logging
 
     public static void Initialize()
     {
-        string outputTemplate = "[{Timestamp:hh:mm:ss} {Level:u3}] {Message}{NewLine}{Exception}";
+        string outputTemplate = "[{Timestamp:hh:mm:ss} {Level:u3}] [{Module}] {Message}{NewLine}{Exception}";
         MessageTemplateTextFormatter formatter = new(outputTemplate);
         LevelSwitch = new();
         Log.Logger = new LoggerConfiguration()
             .WriteTo.Console(formatter)
             .WriteTo.File(formatter, $"{AppContext.BaseDirectory}log.txt")
+            .Enrich.With(new ModuleTextEnricher())
             .MinimumLevel.ControlledBy(LevelSwitch)
             .CreateLogger();
 

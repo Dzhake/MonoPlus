@@ -61,6 +61,19 @@ public abstract class ExternalAssetManagerBase : AssetManager
         throw new UnreachableException($"Asset type is {info.Format.ToType()}. I don't know how did this bypass \"default:\"");
     }
 
+    /// <summary>
+    /// 
+    /// </summary>
+    /// <param name="rootName">Folder name without trailing slash or zip archive name without extension (and dot)</param>
+    /// <returns><see cref="FileSystemAssetManager"/> if "<see cref="rootName"/>/" was found, <see cref="ZipArchiveAssetManager"/> if "<see cref="rootName"/>.zip" was found and null if neither found.</returns>
+    public static AssetManager? FolderOrZip(string rootName)
+    {
+        string folder = $"{rootName}/";
+        string zip = $"{rootName}.zip";
+        return Directory.Exists(folder) ? new FileSystemAssetManager(folder) :
+            File.Exists(zip) ? new ZipArchiveAssetManager(zip) : null;
+    }
+
     public struct ExternalAssetInfo
     {
         public Stream? AssetStream;
