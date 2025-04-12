@@ -9,7 +9,7 @@ using Microsoft.Xna.Framework.Graphics;
 using MonoPlus.Graphics;
 using MonoPlus.Localization;
 
-namespace MonoPlus.Assets;
+namespace MonoPlus.AssetsManagment;
 
 /// <summary>
 ///   <para>Implements a base for asset managers, that load assets from an external source.</para>

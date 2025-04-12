@@ -1,4 +1,4 @@
-﻿namespace MonoPlus.Assets;
+﻿namespace MonoPlus.AssetsManagment;
 
 /// <summary>
 ///   <para>Defines all the supported asset data formats.</para>

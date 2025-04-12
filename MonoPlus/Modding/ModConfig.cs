@@ -1,19 +1,28 @@
-﻿using Chasm.SemanticVersioning;
+﻿using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace MonoPlus.Modding;
 
+/// <summary>
+/// Represents configuration data for <see cref="Mod"/>
+/// </summary>
 public class ModConfig
 {
-    public required string Name;
-    public required string AssemblyFile;
-    public required SemanticVersion Version;
-    public ModID?[]? HardDependencies;
+    /// <summary>
+    /// Mod's ID — It's unique name and version
+    /// </summary>
+    [JsonInclude]
+    public required ModID ID;
 
     /// <summary>
-    /// Call after mod was loaded successfully to clear dependencies from memory
+    /// File path, relative to mod's directory, to .dll file related to mod
     /// </summary>
-    public void ClearDeps()
-    {
-        HardDependencies = null;
-    }
+    [JsonInclude]
+    public string? AssemblyFile;
+
+    /// <summary>
+    /// Dependencies of the mod
+    /// </summary>
+    [JsonInclude]
+    public List<ModDep>? Dependencies;
 }

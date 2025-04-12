@@ -3,9 +3,9 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using JetBrains.Annotations;
-using MonoPlus.Assets;
+using MonoPlus.AssetsManagment;
 
-namespace MonoPlus.Assets;
+namespace MonoPlus.AssetsManagment;
 
 public static class AssetFormatUtils
 {

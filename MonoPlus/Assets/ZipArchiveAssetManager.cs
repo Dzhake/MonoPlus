@@ -6,7 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 
-namespace MonoPlus.Assets;
+namespace MonoPlus.AssetsManagment;
 
 /// <summary>
 ///   <para>Represents an asset manager, that loads assets from a ZIP archive file in the file system.</para>
