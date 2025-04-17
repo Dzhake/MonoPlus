@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Runtime.Intrinsics.Arm;
 using System.Text.Json;
 using MonoPlus.AssetsManagment;
 using Serilog;
@@ -79,12 +78,13 @@ public static class ModManager
         //Load mod assembly and find mod class or use Mod
         if (!string.IsNullOrEmpty(config.AssemblyFile))
         {
-            string configFile = Path.Join(modDir, config.AssemblyFile);
-            Log.Information("Loading assembly from {ConfigFile}..", configFile);
-            Assembly assembly = LoadAssembly(configFile);
-            mod = ReflectionUtils.CreateInstance<Mod>(FindModType(assembly));
+            string dllPath = Path.Join(modDir, config.AssemblyFile);
+            Log.Information("Loading assembly from {DllPath}..", dllPath);
+            ModAssemblyLoadContext assemblyContext = new();
+            assemblyContext.LoadFromAssemblyPath(dllPath);
+            mod = ReflectionUtils.CreateInstance<Mod>(FindModType(assemblyContext.Assemblies.ElementAt(0)));
             mod.Config = config;
-            mod.assembly = assembly;
+            mod.AssemblyContext = assemblyContext;
         }
         else
             mod = new(config);
@@ -102,6 +102,12 @@ public static class ModManager
         LoadedMods.Add(mod);
 
         return mod;
+    }
+
+    public static void UnloadMod(Mod mod)
+    {
+        LoadedMods.Remove(mod);
+        mod.AssemblyContext?.Dispose();
     }
 
     private static void PostLoadMods()
@@ -205,4 +211,6 @@ public static class ModManager
     /// <param name="modDir">Directory, where "config.json" is located</param>
     /// <returns>File path to config.json</returns>
     public static string GetModConfigPath(ReadOnlySpan<char> modDir) => $"{modDir}config.json";
+
+    
 }

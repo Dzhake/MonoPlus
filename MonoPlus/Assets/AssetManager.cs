@@ -153,13 +153,23 @@ public abstract class AssetManager : IDisposable
         }
     }
 
+    /// <summary>
+    /// Represents an asset and a loading task for it
+    /// </summary>
     protected readonly struct AssetCacheEntry
     {
-        // _value is either the loaded asset (object) or its loading task (Task<object>).
+        /// <summary>
+        ///     _value is either the loaded asset (object) or its loading task (<see cref="Task"/> <see cref="object"/>).
+        /// </summary>
         private readonly object? _value;
 
+        /// <summary>
+        /// Instances a new <see cref="AssetCacheEntry"/> with <see cref="_value"/> being <see cref="task"/>
+        /// </summary>
+        /// <param name="task"><see cref="ValueTask{T}"/> with asset</param>
         public AssetCacheEntry(ValueTask<object?> task)
             => _value = task.IsCompletedSuccessfully ? task.Result : task.AsTask();
+
         public AssetCacheEntry(ValueTask<object?> task, object? previousValue)
             => _value = task.IsCompletedSuccessfully ? task.Result : new StaleWhileReload(task, previousValue);
 

@@ -3,15 +3,17 @@ using System.IO;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using JetBrains.Annotations;
-using MonoPlus.AssetsManagment;
 
 namespace MonoPlus.AssetsManagment;
 
+/// <summary>
+/// Util methods related to detecting <see cref="AssetFormat"/>
+/// </summary>
 public static class AssetFormatUtils
 {
     // Order of bytes in an int32/int64 may differ depending on the machine's endianness
 
-    private static readonly int OggHeader = ByteSequenceToInt32(+'O', +'g', +'g', +'S');
+    /*private static readonly int OggHeader = ByteSequenceToInt32(+'O', +'g', +'g', +'S');
     private static readonly int RiffHeader = ByteSequenceToInt32(+'R', +'I', +'F', +'F');
     private static readonly int WaveHeader = ByteSequenceToInt32(+'W', +'A', +'V', +'E');
     private static readonly long PngHeader = ByteSequenceToInt64(0x89, +'P', +'N', +'G', +'\r', +'\n', 0x1A, +'\n');
@@ -85,8 +87,13 @@ public static class AssetFormatUtils
                 return AssetFormat.Jpeg;
         }
         return AssetFormat.Unknown;
-    }
+    }*/
 
+    /// <summary>
+    /// Detects asset format based on file's extension
+    /// </summary>
+    /// <param name="pathOrExtension">File path, or file name (might be only extension, but must include dot)</param>
+    /// <returns></returns>
     [Pure] public static AssetFormat DetectFormatByPath(ReadOnlySpan<char> pathOrExtension)
     {
         pathOrExtension = Path.GetExtension(pathOrExtension);

@@ -15,6 +15,7 @@
     <PackageReference Include="Linguini.Bundle" Version="0.9.0" />
     <PackageReference Include="SerilogAnalyzer" Version="0.15.0" />
 
+    <ProjectReference Include="..\HarmonyX\Harmony\Harmony.csproj" />
     <ProjectReference Include="..\SDL3-CS\SDL3\SDL3.Core.csproj" />
   </ItemGroup>
 </Project>

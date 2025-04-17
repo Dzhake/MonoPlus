@@ -1,5 +1,4 @@
-﻿using System.Reflection;
-using MonoPlus.AssetsManagment;
+﻿using MonoPlus.AssetsManagment;
 using Serilog;
 
 namespace MonoPlus.Modding;
@@ -12,7 +11,7 @@ public class Mod
 
     public ModConfig Config;
     public AssetManager? Assets;
-    public Assembly? assembly;
+    public ModAssemblyLoadContext? AssemblyContext;
     public ILogger Logger;
 
     public Mod(ModConfig config)

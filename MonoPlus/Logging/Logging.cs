@@ -8,6 +8,9 @@ using Serilog.Formatting.Display;
 
 namespace MonoPlus.Logging;
 
+/// <summary>
+/// Small helper class for initializing <see cref="Log"/>.
+/// </summary>
 public static class Logging
 {
     public static LoggingLevelSwitch? LevelSwitch;
