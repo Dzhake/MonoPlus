@@ -90,9 +90,9 @@ public static class AssetFormatUtils
     }*/
 
     /// <summary>
-    /// Detects asset format based on file's extension
+    /// Detects asset format based on <see cref="File"/>'s extension
     /// </summary>
-    /// <param name="pathOrExtension">File path, or file name (might be only extension, but must include dot)</param>
+    /// <param name="pathOrExtension"><see cref="File"/> path, or file name (might be only extension, but must include dot)</param>
     /// <returns></returns>
     [Pure] public static AssetFormat DetectFormatByPath(ReadOnlySpan<char> pathOrExtension)
     {

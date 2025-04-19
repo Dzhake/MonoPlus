@@ -50,9 +50,9 @@ public sealed class ZipArchiveAssetManager : ExternalAssetManagerBase
     /// <summary>
     ///   <para>Initializes a new instance of the <see cref="ZipArchiveAssetManager"/> class with the specified <paramref name="archivePath"/>.</para>
     /// </summary>
-    /// <param name="archivePath">A path to the archive to load assets from.</param>
+    /// <param name="archivePath"><see cref="File"/> path to the archive to load assets from.</param>
     /// <exception cref="ArgumentNullException"><paramref name="archivePath"/> is <see langword="null"/>.</exception>
-    /// <exception cref="ArgumentException"><paramref name="archivePath"/> is not a valid file path.</exception>
+    /// <exception cref="ArgumentException"><paramref name="archivePath"/> is not a valid <see cref="File"/> path.</exception>
     /// <exception cref="NotSupportedException"><paramref name="archivePath"/> contains a colon (":") that is not part of a volume identifier (for example, "c:\").</exception>
     /// <exception cref="PathTooLongException">The specified path, file name, or both exceed the system-defined maximum length.</exception>
     public ZipArchiveAssetManager(string archivePath)
