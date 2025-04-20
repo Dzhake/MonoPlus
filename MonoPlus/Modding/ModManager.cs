@@ -19,6 +19,16 @@ public static class ModManager
     public static string ModsDirectory = $"{AppContext.BaseDirectory}Mods/";
 
     /// <summary>
+    /// Amount of successfully loaded mods
+    /// </summary>
+    public static int LoadedModsCount => ModManager.Mods.Count;
+
+    /// <summary>
+    /// Amount of successfully loaded mods, or mods which are about to load
+    /// </summary>
+    public static int TotalModsCount;
+
+    /// <summary>
     /// Initializes mod manager, including loading all mods from <see cref="ModsDirectory"/>
     /// </summary>
     public static void Initialize()

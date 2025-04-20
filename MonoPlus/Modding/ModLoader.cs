@@ -16,6 +16,7 @@ namespace MonoPlus.Modding;
 /// </summary>
 public static class ModLoader
 {
+
     /// <summary>
     /// Amount of currently reloading mods (including their assemblies). It's recommended to prevent player interacting with the game while this is greater than 0.
     /// </summary>
@@ -36,6 +37,8 @@ public static class ModLoader
         IEnumerable<string> modDirs = Directory.EnumerateDirectories(modsDir, "*", SearchOption.TopDirectoryOnly);
         List<ModConfig> configs = LoadModConfigs(modDirs);
         configs = ModConfigSorter.SortModConfigs(configs);
+
+        ModManager.TotalModsCount += configs.Count;
 
         foreach (ModConfig config in configs)
             LoadModFromConfig(config);
@@ -94,7 +97,7 @@ public static class ModLoader
     /// </summary>
     /// <param name="config"><see cref="ModConfig"/> with info related to mod</param>
     /// <returns></returns>
-    private static Mod LoadModFromConfig(ModConfig config)
+    private static void LoadModFromConfig(ModConfig config)
     {
         Mod mod = LoadModAssemblyAndGetMod(config.ModDirectory, config);
 
@@ -111,8 +114,6 @@ public static class ModLoader
         ModManager.Mods.Add(mod.Config.ID.Name, mod);
         mod.PreInitialize();
         Log.Information("Loaded {ModName}", config.ID.Name);
-
-        return mod;
     }
 
     /// <summary>
