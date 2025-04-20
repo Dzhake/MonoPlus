@@ -21,7 +21,7 @@ public sealed class ZipArchiveAssetManager : ExternalAssetManagerBase
     /// <inheritdoc/>
     public override string DisplayName => $"\"{ArchivePath}\"";
 
-    private readonly object stateLock = new();
+    private readonly Lock stateLock = new();
     private FileSystemWatcher? _watcher;
 
     private Task? reloadTask;

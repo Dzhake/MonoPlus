@@ -13,17 +13,23 @@ namespace MonoPlus.Logging;
 /// </summary>
 public static class Logging
 {
+    /// <summary>
+    /// Allows switching minimum printed <see cref="LogEventLevel"/> (Use <see cref="SetMinimumLogLevel"/>)
+    /// </summary>
     public static LoggingLevelSwitch? LevelSwitch;
 
+    /// <summary>
+    /// Initializes <see cref="Log.Logger"/>
+    /// </summary>
     public static void Initialize()
     {
-        string outputTemplate = "[{Timestamp:hh:mm:ss} {Level:u3}] [{Module}] {Message}{NewLine}{Exception}";
+        string outputTemplate = "[{Timestamp:hh:mm:ss} {Level:u3}] [{Mod}] {Message}{NewLine}{Exception}";
         MessageTemplateTextFormatter formatter = new(outputTemplate);
         LevelSwitch = new();
         Log.Logger = new LoggerConfiguration()
             .WriteTo.Console(formatter)
             .WriteTo.File(formatter, $"{AppContext.BaseDirectory}log.txt")
-            .Enrich.With(new ModuleTextEnricher())
+            .Enrich.With(new ModNameEnricher())
             .MinimumLevel.ControlledBy(LevelSwitch)
             .CreateLogger();
 
@@ -39,6 +45,11 @@ public static class Logging
         Log.Information("SystemMemory: {Memory} MB", GC.GetGCMemoryInfo().TotalAvailableMemoryBytes / 1024f / 1024f);
     }
 
+    /// <summary>
+    /// Switches minimum printed <see cref="LogEventLevel"/> to <paramref name="level"/>
+    /// </summary>
+    /// <param name="level">New minimum <see cref="LogEventLevel"/>. Messages of this level and higher will be printed to console and log.txt</param>
+    /// <exception cref="InvalidOperationException">LevelSwitch is null</exception>
     public static void SetMinimumLogLevel(LogEventLevel level)
     {
         if (LevelSwitch is null)

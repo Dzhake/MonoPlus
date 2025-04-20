@@ -25,4 +25,13 @@ public static class ModManager
     {
         ModLoader.LoadMods(ModsDirectory);
     }
+
+    /// <summary>
+    /// Updates all <see cref="Mods"/>
+    /// </summary>
+    public static void Update()
+    {
+        foreach (Mod mod in Mods.Values)
+            mod.Update();
+    }
 }

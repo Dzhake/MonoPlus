@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Reflection;
 using HarmonyLib;
 using HarmonyLib.Tools;
@@ -15,7 +16,7 @@ public class Mod
     /// <summary>
     /// Read from config.json <see cref="ModConfig"/> for <see langword="this"/> <see cref="Mod"/>
     /// </summary>
-    public ModConfig Config;
+    public ModConfig Config = null!;
 
     /// <summary>
     /// Used for assets used by <see langword="this"/> <see cref="Mod"/>
@@ -47,11 +48,15 @@ public class Mod
         if (Logger is null) throw new InvalidOperationException("Logger is null!");
     }
 
+    /// <summary>
+    /// Ties <paramref name="config"/> with <see langword="this"/>, and sets <see cref="Logger"/> and <see cref="HarmonyInstance"/> based on <paramref name="config"/>
+    /// </summary>
+    /// <param name="config"></param>
     public void AssignConfig(ModConfig config)
     {
         Config = config;
         Config.mod = this;
-        Logger = Log.ForContext("Module", Config.ID.Name);
+        Logger = Log.ForContext("Mod", Config.ID.Name);
         HarmonyInstance = new(Config.ID.Name);
     }
 

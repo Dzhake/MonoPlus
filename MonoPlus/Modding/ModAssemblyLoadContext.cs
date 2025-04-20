@@ -1,7 +1,9 @@
 ﻿using System;
+using System.IO;
 using System.Reflection;
 using System.Runtime.Loader;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace MonoPlus.Modding;
 
@@ -15,12 +17,34 @@ public class ModAssemblyLoadContext : AssemblyLoadContext, IDisposable
     /// </summary>
     private bool disposed;
 
+    /// <summary>
+    /// <see cref="FileSystemWatcher"/> which watches for .dll <see cref="File"/>
+    /// </summary>
+    private FileSystemWatcher watcher;
+
+    /// <summary>
+    /// <see cref="ModConfig"/> for same <see cref="Mod"/> as this <see cref="ModAssemblyLoadContext"/>
+    /// </summary>
+    private ModConfig Config;
 
     /// <summary>
     /// Instances a new <see cref="ModAssemblyLoadContext"/>
     /// </summary>
-    public ModAssemblyLoadContext() : base(isCollectible: true)
+    public ModAssemblyLoadContext(ModConfig config) : base(isCollectible: true)
     {
+        if (config.AssemblyFile is null) throw new InvalidOperationException("Trying to create ModAssemblyLoadContext with config which has null AssemblyFile");
+        
+        Config = config;
+
+        watcher = new(config.ModDirectory, config.AssemblyFile);
+        watcher.Changed += OnFileChanged;
+        watcher.EnableRaisingEvents = true;
+    }
+
+    private void OnFileChanged(object sender, FileSystemEventArgs e)
+    {
+        if (watcher != sender) return;
+        ModLoader.ReloadMod(Config);
     }
 
     /// <summary>
@@ -31,6 +55,7 @@ public class ModAssemblyLoadContext : AssemblyLoadContext, IDisposable
     {
         if (Interlocked.Exchange(ref disposed, true) || !disposing) return;
         
+        watcher.Dispose();
         Unload();
     }
 

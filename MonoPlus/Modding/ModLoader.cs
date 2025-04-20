@@ -17,9 +17,14 @@ namespace MonoPlus.Modding;
 public static class ModLoader
 {
     /// <summary>
-    /// <see cref="Queue{ModConfig}"/> of <see cref="DelayedModConfigs"/>s, which are not yet ready to be loaded
+    /// Amount of currently reloading mods (including their assemblies). It's recommended to prevent player interacting with the game while this is greater than 0.
     /// </summary>
-    public static Queue<ModConfig> DelayedModConfigs = new();
+    public static int ReloadingMods;
+
+    /// <summary>
+    /// Whether any mods were successfully fully loaded, to check in <see cref="ModManager.Mods"/> too, when sorting mods by dependencies.
+    /// </summary>
+    public static bool loadedAnyMods;
 
 
     /// <summary>
@@ -28,36 +33,38 @@ public static class ModLoader
     /// <param name="modsDir"><see cref="Directory"/> path to <see cref="Directory"/> with Directories, where each folder contains config.json</param>
     public static void LoadMods(string modsDir)
     {
-        foreach (string modDir in Directory.EnumerateDirectories(modsDir, "*", SearchOption.TopDirectoryOnly))
-            LoadMod(modDir);
+        IEnumerable<string> modDirs = Directory.EnumerateDirectories(modsDir, "*", SearchOption.TopDirectoryOnly);
+        List<ModConfig> configs = LoadModConfigs(modDirs);
+        configs = ModConfigSorter.SortModConfigs(configs);
+
+        foreach (ModConfig config in configs)
+            LoadModFromConfig(config);
+
         PostLoadMods();
     }
 
     /// <summary>
     /// Loads mod from specified path
     /// </summary>
-    /// <param name="modDir">Path to folder where mod is located</param>
+    /// <param name="modDirs"></param>
     /// <exception cref="InvalidModConfigurationException">Thrown if mod configuration is invalid or not found</exception>
     /// <exception cref="TypeLoadException">Thrown if </exception>
-    public static Mod? LoadMod(string modDir)
+    public static List<ModConfig> LoadModConfigs(IEnumerable<string> modDirs)
     {
-        //Check that config exists
-        string configPath = GetModConfigPath(modDir);
-        if (!File.Exists(configPath)) throw new InvalidModConfigurationException(configPath, "File not found");
-
-        //Load config
-        ModConfig config = LoadModConfig(configPath);
-        config.ModDirectory = modDir;
-
-        //Delay if mod has dependencies
-        if (config.Dependencies is not null)
+        List<ModConfig> configs = new();
+        foreach (string modDir in modDirs)
         {
-            Log.Information("{ModName} has dependencies, delaying..", config.ID.Name);
-            DelayedModConfigs.Enqueue(config);
-            return null;
+            //Check that config exists
+            string configPath = GetModConfigPath(modDir);
+            if (!File.Exists(configPath)) throw new InvalidModConfigurationException(configPath, "File not found");
+
+            //Load config
+            ModConfig config = LoadModConfig(configPath);
+            config.ModDirectory = modDir;
+            configs.Add(config);
         }
-        
-        return LoadModFromConfig(config);
+
+        return configs;
     }
 
 
@@ -102,6 +109,7 @@ public static class ModLoader
         }
 
         ModManager.Mods.Add(mod.Config.ID.Name, mod);
+        mod.PreInitialize();
         Log.Information("Loaded {ModName}", config.ID.Name);
 
         return mod;
@@ -148,7 +156,7 @@ public static class ModLoader
         {
             string dllPath = Path.Join(modDir, config.AssemblyFile);
             Log.Information("Loading assembly from {DllPath}..", dllPath);
-            ModAssemblyLoadContext assemblyContext = LoadAssembly(dllPath);
+            ModAssemblyLoadContext assemblyContext = LoadAssembly(config, dllPath);
             mod = ReflectionUtils.CreateInstance<Mod>(FindModType(assemblyContext.Assemblies.ElementAt(0)));
             mod.AssemblyContext = assemblyContext;
         }
@@ -162,10 +170,11 @@ public static class ModLoader
     /// <summary>
     /// Loads <see cref="Assembly"/> at <paramref name="dllPath"/>, and returns <see cref="ModAssemblyLoadContext"/> with it
     /// </summary>
+    /// <param name="config"><see cref="ModConfig"/> used for <see cref="ModAssemblyLoadContext"/></param>
     /// <param name="dllPath"><see cref="File"/> path to .dll file with valid dotnet <see cref="Assembly"/></param>
-    public static ModAssemblyLoadContext LoadAssembly(string dllPath)
+    public static ModAssemblyLoadContext LoadAssembly(ModConfig config, string dllPath)
     {
-        ModAssemblyLoadContext assemblyContext = new();
+        ModAssemblyLoadContext assemblyContext = new(config);
         assemblyContext.LoadFromAssemblyPath(dllPath);
         return assemblyContext;
     }
@@ -193,14 +202,20 @@ public static class ModLoader
 
 
     /// <summary>
-    /// Reloads specified <paramref name="mod"/>, including all it's content and <see cref="ModAssemblyLoadContext"/>
+    /// Reloads mod related to the <paramref name="config"/>, including <see cref="ModAssemblyLoadContext"/> but excluding it's <see cref="AssetManager"/>
     /// </summary>
     /// <param name="config"></param>
     /// <returns></returns>
-    public static async Task ReloadMod(ModConfig config) {
+    public static async void ReloadMod(ModConfig config)
+    {
+        if (config.mod is null) throw new InvalidOperationException("Tried to reload mod, but config.mod is null!");
+        ReloadingMods++;
         Log.Information("Reloading mod: {ModName}", config.ID.Name);
+        AssetManager? assets = config.mod.Assets;
         await UnloadMod(config);
         LoadModFromConfig(config);
+        config.mod.Assets = assets;
+        ReloadingMods--;
     }
 
     /// <summary>
@@ -227,18 +242,14 @@ public static class ModLoader
         Log.Information("Assembly unloaded");
     }
 
-
+    /// <summary>
+    /// Calls <see cref="Mod.Initialize"/> for ALL loaded mods, and sets <see cref="loadedAnyMods"/>
+    /// </summary>
     private static void PostLoadMods()
     {
-        foreach (ModConfig config in DelayedModConfigs)
-        {
-            if (!DependenciesMet(config))
-            {
-                Log.Warning("Couldn't load dependencies for {ModName}, skipping..", config.ID.Name);
-                continue;
-            }
-
-            LoadModFromConfig(config);
-        }
+        foreach (Mod mod in ModManager.Mods.Values)
+            mod.Initialize();
+        
+        loadedAnyMods = true;
     }
 }

@@ -35,5 +35,5 @@ public class ModConfig
     /// <summary>
     /// <see cref="Directory"/> path where this config was located.
     /// </summary>
-    public required string ModDirectory;
+    public string ModDirectory = null!;
 }
