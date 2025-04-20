@@ -4,7 +4,7 @@
 using System.Threading.Tasks;
 using JetBrains.Annotations;
 
-namespace MonoPlus.AssetsManagment;
+namespace MonoPlus.AssetsManagement;
 
 /// <summary>
 ///   <para>Provides a set of static methods to manage asset managers and load assets.</para>

@@ -1,6 +1,6 @@
 ﻿﻿using System;
 
-namespace MonoPlus.AssetsManagment;
+namespace MonoPlus.AssetsManagement;
 
 /// <summary>
 ///   <para>The exception that is thrown when an asset at the specified path is not found.</para>

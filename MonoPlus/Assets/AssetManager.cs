@@ -1,9 +1,9 @@
 ﻿﻿using System;
+ using System.Diagnostics.Contracts;
  using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 
-namespace MonoPlus.AssetsManagment;
+namespace MonoPlus.AssetsManagement;
 
 /// <summary>
 ///   <para>Represents an asset manager, that loads and caches various assets.</para>

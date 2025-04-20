@@ -1,10 +1,8 @@
 ﻿﻿using System;
-using System.IO;
-using System.Runtime.CompilerServices;
-using System.Runtime.InteropServices;
-using JetBrains.Annotations;
+ using System.Diagnostics.Contracts;
+ using System.IO;
 
-namespace MonoPlus.AssetsManagment;
+namespace MonoPlus.AssetsManagement;
 
 /// <summary>
 /// Util methods related to detecting <see cref="AssetFormat"/>

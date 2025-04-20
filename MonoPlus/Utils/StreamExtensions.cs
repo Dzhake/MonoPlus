@@ -13,9 +13,9 @@
    copies or substantial portions of the Software.
 */
 using System;
+using System.Diagnostics.Contracts;
 using System.IO;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 
 namespace MonoPlus;
 

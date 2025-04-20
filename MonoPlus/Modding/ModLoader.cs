@@ -2,7 +2,7 @@
 using System.Reflection;
 using System;
 using System.Linq;
-using MonoPlus.AssetsManagment;
+using MonoPlus.AssetsManagement;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.IO;

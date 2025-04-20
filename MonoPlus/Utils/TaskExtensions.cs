@@ -65,17 +65,17 @@ public static class TaskExtensions
         return source.TrySetResult(result);
     }
 
-    [Pure] public static Task<T> CastUnsafe<T>(this Task task)
+    [System.Diagnostics.Contracts.Pure] public static Task<T> CastUnsafe<T>(this Task task)
         => Unsafe.As<Task, Task<T>>(ref task);
-    [Pure] public static object? GetResultUnsafe(this Task task)
+    [System.Diagnostics.Contracts.Pure] public static object? GetResultUnsafe(this Task task)
         => task.CastUnsafe<object?>().Result;
 
-    [Pure] public static T? GetImmediateResult<T>(this Task<T> task)
+    [System.Diagnostics.Contracts.Pure] public static T? GetImmediateResult<T>(this Task<T> task)
         => task.IsCompletedSuccessfully ? task.Result : default;
-    [Pure] public static T? GetImmediateResult<T>(this ValueTask<T> valueTask)
+    [System.Diagnostics.Contracts.Pure] public static T? GetImmediateResult<T>(this ValueTask<T> valueTask)
         => valueTask.IsCompletedSuccessfully ? valueTask.Result : default;
 
-    [Pure] public static ValueTask<TTo> Transform<TFrom, TTo>(this ValueTask<TFrom> valueTask, [InstantHandle] Func<TFrom, TTo> converter)
+    [System.Diagnostics.Contracts.Pure] public static ValueTask<TTo> Transform<TFrom, TTo>(this ValueTask<TFrom> valueTask, [InstantHandle] Func<TFrom, TTo> converter)
     {
         if (valueTask.IsCompletedSuccessfully)
             return new(converter(valueTask.Result));

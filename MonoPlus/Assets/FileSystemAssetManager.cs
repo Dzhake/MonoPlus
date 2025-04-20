@@ -1,11 +1,11 @@
 ﻿﻿using System;
-using System.IO;
+ using System.Diagnostics.Contracts;
+ using System.IO;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 
-namespace MonoPlus.AssetsManagment;
+namespace MonoPlus.AssetsManagement;
 
 /// <summary>
 ///   <para>Represents an asset manager, that loads assets from a directory in the file system.</para>

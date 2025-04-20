@@ -2,7 +2,7 @@
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace MonoPlus.AssetsManagment;
+namespace MonoPlus.AssetsManagement;
 
 /// <summary>
 ///   <para>Defines all the supported asset data formats.</para>
@@ -10,7 +10,7 @@ namespace MonoPlus.AssetsManagment;
 public enum AssetFormat
 {
     /// <summary>
-    /// Unknown asset format, not supported by <see cref="MonoPlus.AssetsManagment"/>
+    /// Unknown asset format, not supported by <see cref="MonoPlus.AssetsManagement"/>
     /// </summary>
     Unknown = 0,
 
@@ -104,7 +104,7 @@ public enum AssetFormat
 public enum AssetType
 {
     /// <summary>
-    /// Unknown asset type, not supported by <see cref="MonoPlus.AssetsManagment"/>
+    /// Unknown asset type, not supported by <see cref="MonoPlus.AssetsManagement"/>
     /// </summary>
     UNKNOWN,
 

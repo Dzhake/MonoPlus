@@ -1,12 +1,12 @@
 ﻿﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.IO;
 using System.IO.Compression;
 using System.Threading;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 
-namespace MonoPlus.AssetsManagment;
+namespace MonoPlus.AssetsManagement;
 
 /// <summary>
 ///   <para>Represents an asset manager, that loads assets from a ZIP archive file in the file system.</para>
