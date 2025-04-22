@@ -223,7 +223,7 @@ public static class ModLoader
     /// Unloads <see cref="Mod"/> related to specified <paramref name="config"/>, and doesn't return until it's <see cref="ModAssemblyLoadContext"/> is fully unloaded
     /// </summary>
     /// <param name="config"><see cref="ModConfig"/> related to <see cref="Mod"/> which should be unloaded</param>
-    /// <returns>uh   idk</returns>
+    /// <returns>uh   idk </returns> //TODO
     public  static async Task UnloadMod(ModConfig config)
     {
         Mod? mod = config.mod;
