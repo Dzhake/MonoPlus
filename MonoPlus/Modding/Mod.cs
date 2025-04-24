@@ -27,7 +27,7 @@ public class Mod
     public ModAssemblyLoadContext? AssemblyContext;
 
     /// <summary>
-    /// Used to <see cref="Log"/> <see cref="Mod"/>-specific info by using <see cref="Mod.Config"/>'s <see cref="ModID.Name"/> in lines logged by this logger.
+    /// Used to <see cref="Log"/> <see cref="Mod"/>-specific info by using <see cref="Mod.Config"/>'s <see cref="ModId.Name"/> in lines logged by this logger.
     /// </summary>
     public ILogger? Logger;
 
@@ -54,8 +54,8 @@ public class Mod
     {
         Config = config;
         Config.mod = this;
-        Logger = Log.ForContext("Mod", Config.ID.Name);
-        HarmonyInstance = new(Config.ID.Name);
+        Logger = Log.ForContext("Mod", Config.Id.Name);
+        HarmonyInstance = new(Config.Id.Name);
     }
 
     /// <summary>

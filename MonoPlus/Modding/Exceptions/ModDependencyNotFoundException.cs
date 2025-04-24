@@ -8,9 +8,9 @@ namespace MonoPlus.Modding;
 public class ModDependencyNotFoundException : Exception
 {
     /// <summary>
-    /// <see cref="ModID"/> of <see cref="Mod"/> which requested <see cref="Dep"/>
+    /// <see cref="ModId"/> of <see cref="Mod"/> which requested <see cref="Dep"/>
     /// </summary>
-    public ModID Requester;
+    public ModId Requester;
 
     /// <summary>
     /// <see cref="ModDep"/> which could not be satisfied
@@ -22,9 +22,9 @@ public class ModDependencyNotFoundException : Exception
     /// <summary>
     /// Instances a new <see cref="ModDependencyNotFoundException"/> with specified <see cref="Requester"/> and <see cref="Dep"/>
     /// </summary>
-    /// <param name="requester"><see cref="ModID"/> of <see cref="Mod"/> which requested <see cref="Dep"/></param>
+    /// <param name="requester"><see cref="ModId"/> of <see cref="Mod"/> which requested <see cref="Dep"/></param>
     /// <param name="dep"><see cref="ModDep"/> which could not be satisfied</param>
-    public ModDependencyNotFoundException(ModID requester, ModDep dep)
+    public ModDependencyNotFoundException(ModId requester, ModDep dep)
     {
         Requester = requester;
         Dep = dep;

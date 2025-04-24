@@ -63,9 +63,9 @@ public class ModConfigSorter
                 foreach (ModDep dep in config.Dependencies)
                 {
                     //check for mods from ModManager.Mods
-                    if (ModLoader.loadedAnyMods && ModManager.Mods.Values.Any(mod => mod.Config.ID.Matches(dep))) continue;
-                    int depIndex = configs.FindIndex(otherConfig => otherConfig.ID.Matches(dep));
-                    if (depIndex == -1) throw new ModDependencyNotFoundException(config.ID, dep);
+                    if (ModLoader.loadedAnyMods && ModManager.Mods.Values.Any(mod => mod.Config.Id.Matches(dep))) continue;
+                    int depIndex = configs.FindIndex(otherConfig => otherConfig.Id.Matches(dep));
+                    if (depIndex == -1) throw new ModDependencyNotFoundException(config.Id, dep);
                     SortStep(depIndex, sorted, sortStates, configs);
                 }
             sortStates[index] = ModSortState.Visited;
@@ -73,8 +73,8 @@ public class ModConfigSorter
             return;
         case ModSortState.Visiting:
             //cyclic dependency
-            string thisID = configs[index].ID.Name;
-            throw new CyclicModDependencyException(configs[index].ID, configs.Find(otherConfig => otherConfig.Dependencies?.Any(dep => dep.Name == thisID) ?? false)?.ID ?? new ModID("TRIED TO FIND CYCLIC MOD DEPENDENCY, BUT IT WAS NOT FOUND???", new SemanticVersion(0, 0, 0)));
+            string thisId = configs[index].Id.Name;
+            throw new CyclicModDependencyException(configs[index].Id, configs.Find(otherConfig => otherConfig.Dependencies?.Any(dep => dep.Name == thisId) ?? false)?.Id ?? new ModId("TRIED TO FIND CYCLIC MOD DEPENDENCY, BUT IT WAS NOT FOUND???", new SemanticVersion(0, 0, 0)));
         case ModSortState.Visited:
             //if visited, then return
             return;

@@ -9,7 +9,7 @@ namespace MonoPlus.Modding;
 public static class ModManager
 {
     /// <summary>
-    /// <see cref="Dictionary{TKey,TValue}"/> of <see cref="Mod"/>s, where key is <see cref="Mod"/>'s name in it's <see cref="ModID"/>, and value is the <see cref="Mod"/> with that name.
+    /// <see cref="Dictionary{TKey,TValue}"/> of <see cref="Mod"/>s, where key is <see cref="Mod"/>'s name in it's <see cref="ModId"/>, and value is the <see cref="Mod"/> with that name.
     /// </summary>
     public static readonly Dictionary<string, Mod> Mods = new();
 

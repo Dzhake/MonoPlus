@@ -1,50 +1,114 @@
 ﻿using System;
-using Chasm.SemanticVersioning;
+using System.Collections.Generic;
+using System.IO;
+using System.Text.Json;
+using Serilog;
 
 namespace MonoPlus.Modding;
 
 /// <summary>
-/// Class for validating and zipping mods.
+/// used to create <see cref="Mod"/>s
 /// </summary>
-public class ModBuilder
+public class ModBuilder(ModBuilder.ModCreationInfo info)
 {
     /// <summary>
-    /// Validates and zips <see cref="mod"/>
+    /// Represents information about how the mod should be created with <see cref="CreateMod"/>
     /// </summary>
-    /// <param name="mod">Mod to build</param>
-    /// <returns><see langword="null"/> if build was successfull, or <see cref="Exception"/> if not</returns>
-    public static Exception? BuildMod(Mod mod)
+    public struct ModCreationInfo
     {
-        return ValidateMod(mod) ?? ZipMod(mod);
+        /// <summary>
+        /// Name of the mod
+        /// </summary>
+        public string Name;
+
+        /// <summary>
+        /// Whether the mod include code (.cs files)
+        /// </summary>
+        public bool IncludeCode;
+
+        /// <summary>
+        /// Dependencies of the mod
+        /// </summary>
+        public List<ModDep> Dependencies;
     }
 
     /// <summary>
-    /// Validates <see cref="mod"/>
+    /// Information about how the mod should be created
     /// </summary>
-    /// <param name="mod">Mod to validate</param>
-    /// <returns><see langword="null"/> if mod is valid, or <see cref="Exception"/> if not</returns>
-    public static Exception? ValidateMod(Mod mod)
-    {
-        ModConfig config = mod.Config;
-        ModID id = config.ID;
-        string name = id.Name;
-        if (id.Version == new SemanticVersion(0, 0, 0))
-            return new Exception("Mod version is 0.0.0, you must use 0.0.1 or above");
+    public ModCreationInfo Info = info;
 
-        if (name is "ExampleMod" or "NewMod")
-            return new Exception($"Mod is called {id.Name}, call your mod something original to prevent conflicts with other mods");
+    /// <summary>
+    /// Creates a new mod (folder, files) based on specified <see cref="Info"/>
+    /// </summary>
+    /// <returns><see langword="null"/> on success, or <see cref="Exception"/> with information about fail otherwise</returns>
+    public Exception? CreateMod()
+    {
+        Log.Information("Creating a new mod with name {ModName}", Info.Name);
+
+        string modDir = Path.Combine(ModManager.ModsDirectory, Info.Name);
+        if (Directory.Exists(modDir)) return new Exception($"Directory {modDir} already exists!");
+        Directory.CreateDirectory(modDir);
+
+        if (Info.IncludeCode)
+        {
+            Directory.CreateDirectory($"{modDir}Source/");
+            WriteCsproj(File.CreateText($"{modDir}Source/{Info.Name}.csproj"));
+        }
+
+        ModConfig config = new()
+        {
+            AssemblyFile = Info.IncludeCode ? $"bin/{Info.Name}.dll" : null,
+            Id = new(Info.Name, new(1, 0, 0)),
+            Dependencies = Info.Dependencies,
+        };
+
+        FileStream configStream = new($"{modDir}config.json", FileMode.Create);
+        JsonSerializer.Serialize(configStream, config);
+        configStream.Close();
 
         return null;
     }
 
-    /// <summary>
-    /// Zips <see cref="mod"/>
-    /// </summary>
-    /// <param name="mod">Mod to zip</param>
-    /// <returns><see langword="null"/> if zipping was successfull, or <see cref="Exception"/> if not</returns>
-    public static Exception? ZipMod(Mod mod)
+    private void WriteCsproj(StreamWriter writer)
     {
-        throw new NotImplementedException("Mod zipping is not yet implemented");
-        return null;
+        writer.WriteLine("<Project Sdk=\"Microsoft.NET.Sdk\">");
+
+        writer.WriteLine("  <PropertyGroup>");
+        WriteProperties(writer);
+        writer.WriteLine("  </PropertyGroup>");
+
+        writer.WriteLine("  <ItemGroup>");
+        WriteItems(writer);
+        writer.WriteLine("  </ItemGroup>");
+
+        WriteTasks(writer);
+
+        writer.WriteLine("</Project>");
+        writer.Close();
+    }
+
+    private void WriteProperties(StreamWriter writer)
+    {
+        writer.WriteLine($"    <AssemblyName>{Info.Name}</AssemblyName>");
+        writer.WriteLine($"    <RootNamespace>{Info.Name}</RootNamespace>");
+        writer.WriteLine("    <TargetFramework>net9.0</TargetFramework>");
+        writer.WriteLine("    <LangVersion>preview</LangVersion>");
+        writer.WriteLine("    <DebugType>embedded</DebugType>");
+        writer.WriteLine("    <Nullable>enable</Nullable>");
+        writer.WriteLine("    <AllowUnsafeBlocks>True</AllowUnsafeBlocks>");
+    }
+
+    private void WriteItems(StreamWriter writer)
+    {
+        writer.WriteLine("    <Reference Include=\"../../../MonoPlus.dll\">");
+        writer.WriteLine("      <Private>false</Private>");
+        writer.WriteLine("    </Reference>");
+    }
+
+    private void WriteTasks(StreamWriter writer)
+    {
+        writer.WriteLine("  <Target Name=\"CopyFiles\" AfterTargets=\"Build\">");
+        writer.WriteLine("    <Copy SourceFiles=\"$(OutputPath)\\$(AssemblyName).dll\" DestinationFolder=\"bin\" />");
+        writer.WriteLine("  </Target>");
     }
 }

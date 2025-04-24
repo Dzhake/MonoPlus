@@ -10,13 +10,14 @@
         <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
         <OutputPath>$(ProjectDir)bin\</OutputPath>
     </PropertyGroup>
-    <ItemGroup>
-      <Compile Remove="MSBuildTasks\**" />
-      <EmbeddedResource Remove="MSBuildTasks\**" />
-      <None Remove="MSBuildTasks\**" />
-    </ItemGroup>
+
 
     <ItemGroup>
+        <!-- Separate project -->
+        <Compile Remove="MSBuildTasks\**" />
+        <EmbeddedResource Remove="MSBuildTasks\**" />
+        <None Remove="MSBuildTasks\**" />
+
         <PackageReference Include="Chasm.SemanticVersioning" Version="2.8.2" />
         <PackageReference Include="HarmonyX" Version="2.14.0" />
         <PackageReference Include="JetBrains.Annotations" Version="2024.3.0" />
@@ -28,6 +29,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\SDL3-CS\SDL3\SDL3.Core.csproj" />
+        <ProjectReference Include="..\SDL3-CS\SDL3\SDL3.Core.csproj" />
     </ItemGroup>
 </Project>

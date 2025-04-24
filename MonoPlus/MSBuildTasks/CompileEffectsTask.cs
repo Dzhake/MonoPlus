@@ -84,9 +84,9 @@ public class CompileEffectsTask : Task
             catch (Exception exception)
             {
                 int exit = 1;
-                if (exception is Win32Exception) //Probably "The system cannot find the file specified"? I hope that the only case.
+                if (exception is Win32Exception) //Probably "The system cannot find the file specified"? I hope that's the only case.
                 {
-                    Log.LogMessage(MessageImportance.High, "(Probably) MGFXC could not be started! Please install it as global dotnet tool, and check that you can run it from CMD (global dotnet tools dir should be at PATH).");
+                    Log.LogMessage(MessageImportance.High, "(Probably) MGFXC could not be started! You need to install it as global dotnet tool, and check that you can run it from CMD (global dotnet tools dir should be at PATH).");
                     exit = 2;
                 }
                 Log.LogMessage(MessageImportance.High, exception.ToString());

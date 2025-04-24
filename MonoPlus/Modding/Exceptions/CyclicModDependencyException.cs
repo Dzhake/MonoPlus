@@ -8,26 +8,26 @@ namespace MonoPlus.Modding;
 public class CyclicModDependencyException : Exception
 {
     /// <summary>
-    /// <see cref="ModID"/> of mod which has <see cref="SecondID"/> as dependency
+    /// <see cref="ModId"/> of mod which has <see cref="SecondId"/> as dependency
     /// </summary>
-    public ModID FirstID;
+    public ModId FirstId;
 
     /// <summary>
-    /// <see cref="ModID"/> of mod which has <see cref="FirstID"/> as dependency
+    /// <see cref="ModId"/> of mod which has <see cref="FirstId"/> as dependency
     /// </summary>
-    public ModID SecondID;
+    public ModId SecondId;
 
     /// <inheritdoc/>
-    public override string Message => $"Cycle mod dependency: {FirstID}, {SecondID}";
+    public override string Message => $"Cycle mod dependency: {FirstId}, {SecondId}";
 
     /// <summary>
-    /// Instances a new <see cref="CyclicModDependencyException"/> with specified <see cref="FirstID"/> and <see cref="SecondID"/>
+    /// Instances a new <see cref="CyclicModDependencyException"/> with specified <see cref="FirstId"/> and <see cref="SecondId"/>
     /// </summary>
     /// <param name="firstId"></param>
     /// <param name="secondId"></param>
-    public CyclicModDependencyException(ModID firstId, ModID secondId)
+    public CyclicModDependencyException(ModId firstId, ModId secondId)
     {
-        FirstID = firstId;
-        SecondID = secondId;
+        FirstId = firstId;
+        SecondId = secondId;
     }
 }

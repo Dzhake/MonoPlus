@@ -10,10 +10,10 @@ namespace MonoPlus.Modding;
 public class ModConfig
 {
     /// <summary>
-    /// Mod's ID — <see cref="Mod"/>'s unique name and version
+    /// Mod's Id — <see cref="Mod"/>'s unique name and version
     /// </summary>
     [JsonInclude]
-    public required ModID ID;
+    public required ModId Id;
 
     /// <summary>
     /// <see cref="File"/> path, relative to mod's directory, to .dll file related to mod

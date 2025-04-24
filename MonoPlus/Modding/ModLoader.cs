@@ -107,13 +107,13 @@ public static class ModLoader
         if (assets is not null)
         {
             mod.Assets = assets;
-            Assets.RegisterAssetManager(assets, config.ID.Name);
+            Assets.RegisterAssetManager(assets, config.Id.Name);
             assets.PreloadAssets();
         }
 
-        ModManager.Mods.Add(mod.Config.ID.Name, mod);
+        ModManager.Mods.Add(mod.Config.Id.Name, mod);
         mod.PreInitialize();
-        Log.Information("Loaded {ModName}", config.ID.Name);
+        Log.Information("Loaded {ModName}", config.Id.Name);
     }
 
     /// <summary>
@@ -128,11 +128,11 @@ public static class ModLoader
 
         foreach (Mod loadedMod in ModManager.Mods.Values)
         {
-            ModID loadedModID = loadedMod.Config.ID;
+            ModId loadedModId = loadedMod.Config.Id;
             for (int i = 0; i < deps.Count; i++)
             {
                 ModDep dep = deps[i];
-                if (loadedModID.Matches(dep)) deps.RemoveAt(i);
+                if (loadedModId.Matches(dep)) deps.RemoveAt(i);
             }
 
             if (config.Dependencies.Count == 0) return true;
@@ -211,7 +211,7 @@ public static class ModLoader
     {
         if (config.mod is null) throw new InvalidOperationException("Tried to reload mod, but config.mod is null!");
         ReloadingMods++;
-        Log.Information("Reloading mod: {ModName}", config.ID.Name);
+        Log.Information("Reloading mod: {ModName}", config.Id.Name);
         AssetManager? assets = config.mod.Assets;
         await UnloadMod(config);
         LoadModFromConfig(config);
@@ -228,11 +228,11 @@ public static class ModLoader
     {
         Mod? mod = config.mod;
         if (mod is null) throw new InvalidOperationException("Trying to unload mod by config, but config.mod is null!");
-        Log.Information("Unloading mod: {ModName}", config.ID.Name);
+        Log.Information("Unloading mod: {ModName}", config.Id.Name);
         mod.HarmonyInstance?.UnpatchSelf();
         WeakReference alcWeakReference = new(mod.AssemblyContext, trackResurrection: true);
         mod.AssemblyContext?.Dispose();
-        ModManager.Mods.Remove(mod.Config.ID.Name);
+        ModManager.Mods.Remove(mod.Config.Id.Name);
 
         //Remove references to the Mod because it might be type from that assembly
         mod = null;

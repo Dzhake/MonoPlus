@@ -46,7 +46,7 @@ public readonly struct ModDep
     }
 
     /// <summary>
-    /// Checks if two <see cref="ModID"/>s <see cref="Equals"/>
+    /// Checks if two <see cref="ModId"/>s <see cref="Equals"/>
     /// </summary>
     public static bool operator ==(ModDep left, ModDep right)
     {
@@ -54,7 +54,7 @@ public readonly struct ModDep
     }
 
     /// <summary>
-    /// Checks whether two <see cref="ModID"/>s don't <see cref="Equals"/>
+    /// Checks whether two <see cref="ModId"/>s don't <see cref="Equals"/>
     /// </summary>
     public static bool operator !=(ModDep left, ModDep right)
     {
