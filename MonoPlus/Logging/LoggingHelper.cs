@@ -11,7 +11,7 @@ namespace MonoPlus.Logging;
 /// <summary>
 /// Small helper class for initializing <see cref="Log"/>.
 /// </summary>
-public static class Logging
+public static class LoggingHelper
 {
     /// <summary>
     /// Allows switching minimum printed <see cref="LogEventLevel"/> (Use <see cref="SetMinimumLogLevel"/>)

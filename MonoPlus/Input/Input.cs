@@ -4,7 +4,7 @@ using CardGames.Console;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 
-namespace MonoPlus.Input;
+namespace MonoPlus.InputHandling;
 
 public static class Input
 {

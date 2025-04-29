@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Text;
 using Microsoft.Xna.Framework.Input;
-using MonoPlus.Input;
+using MonoPlus.InputHandling;
 using MonoPlus.Time;
 using SDL3;
 

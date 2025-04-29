@@ -9,23 +9,24 @@ namespace MonoPlus.Modding;
 public static class ModValidator
 {
     /// <summary>
-    /// Validates and zips <see cref="mod"/>
+    /// Validates and zips mod at <paramref name="modDir"/>
     /// </summary>
-    /// <param name="mod">Mod to build</param>
+    /// <param name="modDir">Directory path where mod is located</param>
     /// <returns><see langword="null"/> if build was successfull, or <see cref="Exception"/> if not</returns>
-    public static Exception? BuildMod(Mod mod)
+    public static Exception? BuildMod(string modDir)
     {
-        return ValidateMod(mod) ?? ZipMod(mod);
+        return ValidateMod(modDir) ?? ZipMod(modDir);
     }
 
     /// <summary>
-    /// Validates <see cref="mod"/>
+    /// Validates mod at <paramref name="modDir"/>
     /// </summary>
-    /// <param name="mod">Mod to validate</param>
+    /// <param name="modDir">Directory path where mod is located</param>
     /// <returns><see langword="null"/> if mod is valid, or <see cref="Exception"/> if not</returns>
-    public static Exception? ValidateMod(Mod mod)
+    public static Exception? ValidateMod(string modDir)
     {
-        ModConfig config = mod.Config;
+        //load mod from folder, get config, validate, etc.
+        ModConfig config = ModLoader.LoadModFromFolder(modDir);
         ModId id = config.Id;
         string name = id.Name;
         if (id.Version == new SemanticVersion(0, 0, 0))
@@ -38,11 +39,11 @@ public static class ModValidator
     }
 
     /// <summary>
-    /// Zips <see cref="mod"/>
+    /// Zips mod at <paramref name="modDir"/>
     /// </summary>
-    /// <param name="mod">Mod to zip</param>
+    /// <param name="modDir">Directory path where mod to zip is located</param>
     /// <returns><see langword="null"/> if zipping was successfull, or <see cref="Exception"/> if not</returns>
-    public static Exception? ZipMod(Mod mod)
+    public static Exception? ZipMod(string modDir)
     {
         throw new NotImplementedException("Mod zipping is not yet implemented");
         return null;

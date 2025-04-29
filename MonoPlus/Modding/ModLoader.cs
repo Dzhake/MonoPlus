@@ -55,21 +55,28 @@ public static class ModLoader
     public static List<ModConfig> LoadModConfigs(IEnumerable<string> modDirs)
     {
         List<ModConfig> configs = new();
-        foreach (string modDir in modDirs)
-        {
-            //Check that config exists
-            string configPath = GetModConfigPath(modDir);
-            if (!File.Exists(configPath)) throw new InvalidModConfigurationException(configPath, "File not found");
-
-            //Load config
-            ModConfig config = LoadModConfig(configPath);
-            config.ModDirectory = modDir;
-            configs.Add(config);
-        }
-
+        foreach (string modDir in modDirs) configs.Add(LoadModFromFolder(modDir));
         return configs;
     }
 
+    /// <summary>
+    /// Loads <see cref="ModConfig"/> from <paramref name="modDir"/>
+    /// </summary>
+    /// <param name="modDir">Directory path where config.json is located</param>
+    /// <returns>Loaded config</returns>
+    /// <exception cref="InvalidModConfigurationException">Thrown if config file was not found</exception>
+    public static ModConfig LoadModFromFolder(string modDir)
+    {
+        List<ModConfig> configs;
+        //Check that config exists
+        string configPath = GetModConfigPath(modDir);
+        if (!File.Exists(configPath)) throw new InvalidModConfigurationException(configPath, "File not found");
+
+        //Load config
+        ModConfig config = LoadModConfig(configPath);
+        config.ModDirectory = modDir;
+        return config;
+    }
 
 
     /// <summary>
