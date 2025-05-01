@@ -7,7 +7,7 @@ using Serilog;
 namespace MonoPlus.Modding;
 
 /// <summary>
-/// used to create <see cref="Mod"/>s
+/// Used to create a <see cref="Mod"/>
 /// </summary>
 public class ModBuilder(ModBuilder.ModCreationInfo info)
 {
