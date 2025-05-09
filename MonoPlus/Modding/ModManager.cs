@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 
 namespace MonoPlus.Modding;
 
@@ -16,7 +17,7 @@ public static class ModManager
     /// <summary>
     /// Directory where mods should be installed
     /// </summary>
-    public static string ModsDirectory = $"{AppContext.BaseDirectory}Mods/";
+    public static string ModsDirectory = $"{AppContext.BaseDirectory}Mods{Path.DirectorySeparatorChar}";
 
     /// <summary>
     /// Amount of successfully loaded mods

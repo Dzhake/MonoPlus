@@ -39,6 +39,7 @@ public static class ModLoader
         configs = ModConfigSorter.SortModConfigs(configs);
 
         ModManager.TotalModsCount += configs.Count;
+        Log.Information("Loading {Count} mods", configs.Count);
 
         foreach (ModConfig config in configs)
             LoadModFromConfig(config);
@@ -55,7 +56,8 @@ public static class ModLoader
     public static List<ModConfig> LoadModConfigs(IEnumerable<string> modDirs)
     {
         List<ModConfig> configs = new();
-        foreach (string modDir in modDirs) configs.Add(LoadModFromFolder(modDir));
+        foreach (string modDir in modDirs)
+            configs.Add(LoadModFromFolder(modDir));
         return configs;
     }
 
@@ -67,7 +69,6 @@ public static class ModLoader
     /// <exception cref="InvalidModConfigurationException">Thrown if config file was not found</exception>
     public static ModConfig LoadModFromFolder(string modDir)
     {
-        List<ModConfig> configs;
         //Check that config exists
         string configPath = GetModConfigPath(modDir);
         if (!File.Exists(configPath)) throw new InvalidModConfigurationException(configPath, "File not found");
@@ -97,7 +98,7 @@ public static class ModLoader
     /// </summary>
     /// <param name="modDir">Directory, where "config.json" is located</param>
     /// <returns><see cref="File"/> path to config.json</returns>
-    [Pure] public static string GetModConfigPath(ReadOnlySpan<char> modDir) => $"{modDir}config.json";
+    [Pure] public static string GetModConfigPath(ReadOnlySpan<char> modDir) => Path.Join(modDir, "config.json");
 
     /// <summary>
     /// Loads <see cref="Mod"/> from already loaded <see cref="ModConfig"/>
@@ -106,10 +107,11 @@ public static class ModLoader
     /// <returns></returns>
     private static void LoadModFromConfig(ModConfig config)
     {
+        Log.Information("Loading mod: {ModName}", config.Id.Name);
         Mod mod = LoadModAssemblyAndGetMod(config.ModDirectory, config);
 
         //Create asset manager for mod
-        string modContentPath = string.Concat(config.ModDirectory, "Content");
+        string modContentPath = Path.Combine(config.ModDirectory, "Content");
         AssetManager? assets = ExternalAssetManagerBase.FolderOrZip(modContentPath);
         if (assets is not null)
         {
@@ -120,7 +122,7 @@ public static class ModLoader
 
         ModManager.Mods.Add(mod.Config.Id.Name, mod);
         mod.PreInitialize();
-        Log.Information("Loaded {ModName}", config.Id.Name);
+        Log.Information("Succesfully loaded mod: {ModName}", config.Id.Name);
     }
 
     /// <summary>
@@ -163,7 +165,7 @@ public static class ModLoader
         if (!string.IsNullOrEmpty(config.AssemblyFile))
         {
             string dllPath = Path.Join(modDir, config.AssemblyFile);
-            Log.Information("Loading assembly from {DllPath}..", dllPath);
+            Log.Information("Loading assembly from {DllPath}", dllPath);
             ModAssemblyLoadContext assemblyContext = LoadAssembly(config, dllPath);
             mod = ReflectionUtils.CreateInstance<Mod>(FindModType(assemblyContext.Assemblies.ElementAt(0)));
             mod.AssemblyContext = assemblyContext;

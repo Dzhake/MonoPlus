@@ -41,8 +41,6 @@ public static class LoggingHelper
             .Enrich.With(new ModNameEnricher())
             .MinimumLevel.ControlledBy(LevelSwitch)
             .CreateLogger();
-
-        WriteStartupInfo();
     }
 
     /// <summary>
@@ -55,7 +53,8 @@ public static class LoggingHelper
         if (entryAssembly is null) throw new InvalidOperationException("Hello..? Entry assembly is null..??");
         Log.Information("Entry Assembly: {AssemblyName}", entryAssembly.FullName);
         Log.Information("OS: {OS} ({OSID})", RuntimeInformation.OSDescription, RuntimeInformation.RuntimeIdentifier);
-        Log.Information("SystemMemory: {Memory} MB", GC.GetGCMemoryInfo().TotalAvailableMemoryBytes / 1024f / 1024f);
+        Log.Information("SystemMemory: {Memory} MB\r\n", GC.GetGCMemoryInfo().TotalAvailableMemoryBytes / 1024f / 1024f);
+        
     }
 
     /// <summary>

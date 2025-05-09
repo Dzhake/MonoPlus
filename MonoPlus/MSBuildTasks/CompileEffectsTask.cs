@@ -37,7 +37,7 @@ public class CompileEffectsTask : Task
     /// <summary>
     /// Constant to track changes
     /// </summary>
-    public const string Version = "1.0";
+    public const string Version = "1.2";
 
     /// <summary>
     /// Executes the task, called by MSBuild
@@ -63,8 +63,13 @@ public class CompileEffectsTask : Task
             Environment.Exit(3);
             return false;
         }
+
         Log.LogMessage(MessageImportance.High, $"Running CompileEffectsTask v{Version}");
         Log.LogMessage(MessageImportance.High, $"Effects: {Effects}");
+
+        Effects = Effects.Replace('\\', '/');
+        OutputPath = OutputPath.Replace('\\', '/');
+        PathToContent = PathToContent.Replace('\\', '/');
 
         string[] effects = Effects.Split(';');
 
@@ -74,12 +79,22 @@ public class CompileEffectsTask : Task
             string outputPath = Path.ChangeExtension(Path.Combine(OutputPath, effect), ".mgfx");
             if (File.GetLastWriteTimeUtc(inputPath) < File.GetLastWriteTimeUtc(outputPath)) return true;
 
-            Directory.CreateDirectory(outputPath);
+            Directory.CreateDirectory(Path.GetDirectoryName(outputPath) ?? "");
             try
-            {
-                var mgfxProcess = Process.Start("mgfxc", $"\"{inputPath}\" \"{outputPath}\"");
-                mgfxProcess.WaitForExit();
-                Log.LogMessage(MessageImportance.High, $"Compiled {effect}");
+            { 
+                Process mgfxcProcess = new();
+                ProcessStartInfo startInfo = new()
+                {
+                    FileName = "mgfxc",
+                    Arguments = $"\"{inputPath}\" \"{outputPath}\"",
+                    WindowStyle = ProcessWindowStyle.Hidden
+                };
+                mgfxcProcess.StartInfo = startInfo;
+                mgfxcProcess.Start();
+
+                mgfxcProcess.WaitForExit();
+
+                Log.LogMessage(MessageImportance.High, $"Compiled {inputPath}  {outputPath}");
             }
             catch (Exception exception)
             {

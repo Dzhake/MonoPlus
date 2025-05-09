@@ -3,6 +3,7 @@
  using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using Serilog;
 
 namespace MonoPlus.AssetsManagement;
 
@@ -29,6 +30,7 @@ public static class Assets
 
         managers.Add(prefix, assetManager);
         assetManager.registeredPrefix = prefix;
+        Log.Information("Registered asset manager with prefix: {Prefix}", prefix);
     }
     /// <summary>
     ///   <para>Removes the specified asset <paramref name="assetManager"/> from the global registry.</para>
@@ -40,8 +42,11 @@ public static class Assets
         if (assetManager?.registeredPrefix is { } prefix && managers.Remove(prefix))
         {
             assetManager.registeredPrefix = null;
+            Log.Information("Unregistered asset manager with prefix: {Prefix}", prefix);
             return true;
         }
+
+        Log.Information("Failed to unregister asset manager: {AssetManager}", assetManager);
         return false;
     }
 
@@ -62,6 +67,7 @@ public static class Assets
 
         return manager.LoadAsync<T>(relativePath);
     }
+
     /// <inheritdoc cref="LoadAsync{T}(ReadOnlySpan{char})"/>
     /// <exception cref="ArgumentNullException"><paramref name="fullPath"/> is <see langword="null"/>.</exception>
     [MustUseReturnValue]
