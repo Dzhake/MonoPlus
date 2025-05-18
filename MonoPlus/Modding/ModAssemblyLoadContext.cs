@@ -30,14 +30,18 @@ public class ModAssemblyLoadContext : AssemblyLoadContext, IDisposable
     /// <summary>
     /// Instances a new <see cref="ModAssemblyLoadContext"/>
     /// </summary>
+    /// <param name="config"></param> //TODO
+    /// <exception cref="InvalidOperationException"></exception>
     public ModAssemblyLoadContext(ModConfig config) : base(isCollectible: true)
     {
         if (config.AssemblyFile is null) throw new InvalidOperationException("Trying to create ModAssemblyLoadContext with config which has null AssemblyFile");
         
         Config = config;
 
-        watcher = new(config.ModDirectory, config.AssemblyFile);
+        watcher = new(Path.Combine(config.ModDirectory, Path.GetDirectoryName(config.AssemblyFile) ?? ""), Path.GetFileName(config.AssemblyFile));
+        watcher.NotifyFilter = NotifyFilters.LastWrite;
         watcher.Changed += OnFileChanged;
+        
         watcher.EnableRaisingEvents = true;
     }
 
@@ -45,6 +49,7 @@ public class ModAssemblyLoadContext : AssemblyLoadContext, IDisposable
     {
         if (watcher != sender) return;
         ModLoader.ReloadMod(Config);
+        watcher.EnableRaisingEvents = false; //since assembly is going to be reloaded soon, we don't need this. Also fixes issue with events being raised twice.
     }
 
     /// <summary>

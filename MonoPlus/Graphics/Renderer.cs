@@ -4,20 +4,44 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace MonoPlus.Graphics;
 
+/// <summary>
+/// Class for managing <see cref="GraphicsDeviceManager"/>, <see cref="SpriteBatch"/> and drawing.
+/// </summary>
 public static class Renderer
 {
     public static GraphicsDeviceManager? deviceManager;
-    public static SpriteBatch? spriteBatch;
     public static GraphicsDevice? device;
+    public static SpriteBatch? spriteBatch;
+
+    /// <summary>
+    /// 1x1 white pixel texture for drawing all primitive stuff like lines and rectangles.
+    /// </summary>
     public static Texture2D Pixel = null!;
+
+    /// <summary>
+    /// Window.Handle which can be used to manipulate window with SDL.
+    /// </summary>
     public static IntPtr WindowHandle;
+
+    /// <summary>
+    /// <see cref="GameWindow"/> of running game.
+    /// </summary>
     public static GameWindow? Window;
 
+    /// <summary>
+    /// Call in <see cref="Game"/>'s constructor.
+    /// </summary>
+    /// <param name="game">Created game.</param>
     public static void OnGameCreated(Game game)
     {
         deviceManager = new GraphicsDeviceManager(game);
     }
 
+    /// <summary>
+    /// Call in <see cref="Game.Initialize"/>.
+    /// </summary>
+    /// <param name="game">Initialized game.</param>
+    /// <exception cref="InvalidOperationException"><see cref="deviceManager"/> is null</exception>
     public static void Initialize(Game game)
     {
         if (deviceManager == null) throw new InvalidOperationException("deviceManager is null!");
@@ -50,8 +74,8 @@ public static class Renderer
     #region ShapesFunctions
     public static void DrawLine(Vector2 lineStart, Vector2 lineEnd, Color color, float width = 1f)
     {
-        //if (Pixel is null) throw new InvalidOperationException("DrawLine was called, but Pixel is null!");
-        DrawTexture(Pixel, lineStart, new Rectangle?(), color, (float)Math.Atan2(lineEnd.Y - lineStart.Y, lineEnd.X - lineStart.X), new Vector2(0f, 0.5f), new Vector2((lineStart - lineEnd).Length(), width));
+        if (Pixel is null) throw new InvalidOperationException("DrawLine was called, but Pixel is null!");
+        DrawTexture(Pixel, lineStart, null, color, (float)Math.Atan2(lineEnd.Y - lineStart.Y, lineEnd.X - lineStart.X), new Vector2(0f, 0.5f), new Vector2((lineStart - lineEnd).Length(), width));
     }
 
 
@@ -61,8 +85,12 @@ public static class Renderer
     /// <param name="p1">Rectangle's top left corner</param>
     /// <param name="p2">Rectangle's bottom right corner</param>
     /// <param name="color">Rectangle's color</param>
-    public static void DrawRect(Vector2 p1, Vector2 p2, Color color) =>
-        DrawTexture(Pixel, p1, new Rectangle?(), color, 0f, Vector2.Zero, new Vector2(-(p1.X - p2.X), -(p1.Y - p2.Y)));
+    public static void DrawRect(Vector2 p1, Vector2 p2, Color color)
+    {
+        if (Pixel is null) throw new InvalidOperationException("DrawRect was called, but Pixel is null!");
+        DrawTexture(Pixel, p1, null, color, 0f, Vector2.Zero, new Vector2(-(p1.X - p2.X), -(p1.Y - p2.Y)));
+    }
+        
 
     /// <summary>
     /// Draws a rectangle.

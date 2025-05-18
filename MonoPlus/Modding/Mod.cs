@@ -29,32 +29,22 @@ public class Mod
     /// <summary>
     /// Used to <see cref="Log"/> <see cref="Mod"/>-specific info by using <see cref="Mod.Config"/>'s <see cref="ModId.Name"/> in lines logged by this logger.
     /// </summary>
-    public ILogger? Logger;
+    public ILogger LoggerInstance = null!;
 
     /// <summary>
-    /// Used to patch methods, patches made with this will be correctly reloaded when reloading mod assembly
+    /// Used to patch methods, patches made with this will be correctly reloaded when reloading mod assembly. Is null before <see cref="AssignConfig"/> called.
     /// </summary>
-    public Harmony? HarmonyInstance;
-
-
-    /// <summary>
-    /// Throws <see cref="InvalidOperationException"/> if <see cref="Logger"/> is <see langword="null"/>
-    /// </summary>
-    /// <exception cref="InvalidOperationException"><see cref="Logger"/> is <see langword="null"/></exception>
-    public void ThrowExceptionIfLoggerIsNull()
-    {
-        if (Logger is null) throw new InvalidOperationException("Logger is null!");
-    }
+    public Harmony HarmonyInstance = null!;
 
     /// <summary>
-    /// Ties <paramref name="config"/> with <see langword="this"/>, and sets <see cref="Logger"/> and <see cref="HarmonyInstance"/> based on <paramref name="config"/>
+    /// Ties <paramref name="config"/> with <see langword="this"/>, and sets <see cref="LoggerInstance"/> and <see cref="HarmonyInstance"/> based on <paramref name="config"/>
     /// </summary>
     /// <param name="config"></param>
     public void AssignConfig(ModConfig config)
     {
         Config = config;
         Config.mod = this;
-        Logger = Log.ForContext("Mod", Config.Id.Name);
+        LoggerInstance = Log.ForContext("Mod", Config.Id.Name);
         HarmonyInstance = new(Config.Id.Name);
     }
 

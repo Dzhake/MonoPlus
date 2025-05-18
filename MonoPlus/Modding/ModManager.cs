@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace MonoPlus.Modding;
 
@@ -42,6 +43,22 @@ public static class ModManager
     /// </summary>
     public static void Update()
     {
+        for (int i = 0; i < ModLoader.ModReloadTasks.Count; i++)
+        {
+            Task modReloadTask = ModLoader.ModReloadTasks[i];
+
+            //if task crashed, then throw the error
+            modReloadTask.Exception?.Handle(_ =>
+                false); //Don't handle anything, it'll throw itself and error handler should catch it. TODO check if there's any other way to do this.
+
+            //otherwise just remove it from the list.
+            if (modReloadTask.IsCompleted)
+            {
+                ModLoader.ModReloadTasks.RemoveAt(i);
+                i--;
+            }
+        }
+
         foreach (Mod mod in Mods.Values)
             mod.Update();
     }

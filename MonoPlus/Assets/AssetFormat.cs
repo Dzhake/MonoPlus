@@ -14,7 +14,7 @@ public enum AssetFormat
     /// </summary>
     Unknown = 0,
 
-    // [1, 32] - reserved for direct mapping to and from AssetFormat
+    // [1, 32] - Audio
 
     /// <summary>
     /// Audio .mp3
@@ -31,12 +31,12 @@ public enum AssetFormat
     /// </summary>
     Wav = 3,
 
-    // [33, 64] - reserved for direct mapping to and from AssetFormat
+    // [33, 64] - Image
     /// <summary>
     /// Image/Texture2D .png
     /// </summary>
     Png = 33,
-    
+
     /// <summary>
     /// Image/Texture2D .jpg
     /// </summary>
@@ -90,8 +90,8 @@ public enum AssetFormat
     /// </summary>
     Mgfx = 161,
 
-    // [193, 224]
-    
+    // [193, 224] - fluent format
+
     /// <summary>
     /// <see cref="Localization.Locale"/>/Fluent .ftl
     /// </summary>
@@ -104,37 +104,37 @@ public enum AssetFormat
 public enum AssetType
 {
     /// <summary>
-    /// Unknown asset type, not supported by <see cref="MonoPlus.AssetsManagement"/>
+    /// Unknown asset type, not supported by <see cref="MonoPlus.AssetsManagement"/>.
     /// </summary>
     UNKNOWN,
 
     /// <summary>
-    /// Audio asset type, converted into <see cref="SoundEffect"/>
+    /// Audio asset type, converted into <see cref="SoundEffect"/>.
     /// </summary>
     AUDIO,
 
     /// <summary>
-    /// Image asset type, conveted into <see cref="Texture2D"/>
+    /// Image asset type, conveted into <see cref="Texture2D"/>.
     /// </summary>
     IMAGE,
 
     /// <summary>
-    /// Video asset type, TODO NOT YET SUPPORTED BECAUSE VIDEOS ARE NOT SUPPORTED BY MONOGAME
+    /// Video asset type, TODO NOT YET SUPPORTED BECAUSE VIDEOS ARE NOT SUPPORTED BY MONOGAME.
     /// </summary>
     VIDEO,
 
     /// <summary>
-    /// Text asset type, converted into <see cref="string"/>
+    /// Text asset type, converted into <see cref="string"/>.
     /// </summary>
     TEXT,
 
     /// <summary>
-    /// Binary asset type, converted into <see cref="T:byte[]"/>
+    /// Binary asset type, converted into <see cref="T:byte[]"/>.
     /// </summary>
     BINARY,
 
     /// <summary>
-    /// Effect asset type, converted into <see cref="Effect"/>
+    /// Effect asset type, converted into <see cref="Effect"/>.
     /// </summary>
     EFFECT,
 

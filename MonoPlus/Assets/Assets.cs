@@ -57,6 +57,7 @@ public static class Assets
     /// <param name="fullPath">A fully qualified path to the asset to get the handle of.</param>
     /// <returns>A value task containing either the loaded asset, or the asset loading task.</returns>
     /// <exception cref="InvalidCastException">The asset at the specified <paramref name="fullPath"/> could not be cast to type <typeparamref name="T"/>.</exception>
+    /// <exception cref="ArgumentException">Could not find specified asset manager prefix</exception>
     [MustUseReturnValue]
     public static ValueTask<T> LoadAsync<T>(ReadOnlySpan<char> fullPath)
     {
@@ -77,6 +78,20 @@ public static class Assets
         return LoadAsync<T>(fullPath.AsSpan());
     }
 
+    /// <summary>
+    /// Checks if <see cref="AssetManager"/> with specified <paramref name="prefix"/> is registered
+    /// </summary>
+    /// <param name="prefix"><see cref="AssetManager"/>'s prefix</param>
+    /// <returns>Whether <see cref="AssetManager"/> with specified <paramref name="prefix"/> is registered</returns>
+    public static bool AssetManagerRegistered(string prefix) => managers.ContainsKey(prefix);
+
+
+    /// <summary>
+    /// Splits asset path with prefix info prefix and asset path
+    /// </summary>
+    /// <param name="query">Path to split</param>
+    /// <param name="prefix">Prefix of asset manager</param>
+    /// <param name="path">Asset path for asset manager</param>
     private static void SplitPath(ReadOnlySpan<char> query, out ReadOnlySpan<char> prefix, out ReadOnlySpan<char> path)
     {
         int separatorIndex = query.IndexOf(":/");
@@ -93,7 +108,21 @@ public static class Assets
     }
 
 
-    public enum ResourcePriorityType {Performance, Memory}
+    /// <summary>
+    /// Types of priority for code
+    /// </summary>
+    public enum ResourcePriorityType
+    {
+        /// <summary>
+        /// Maximum preformance, don't care about memory usage
+        /// </summary>
+        Performance, 
+        
+        /// <summary>
+        /// Minimum memory usage, may affect performance
+        /// </summary>
+        Memory,
+    }
 
     /// <summary>
     /// <para>Represents should asset managers prefer performance or lower memory usage, used in rare cases.</para>

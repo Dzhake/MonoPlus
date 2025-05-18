@@ -6,6 +6,7 @@ using MonoPlus.AssetsManagement;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Text.Json;
 using System.Threading.Tasks;
 
@@ -18,9 +19,9 @@ public static class ModLoader
 {
 
     /// <summary>
-    /// Amount of currently reloading mods (including their assemblies). It's recommended to prevent player interacting with the game while this is greater than 0.
+    /// List of tasks which reload mods. If Count is higher than 0, then some mods are currently reloaded.
     /// </summary>
-    public static int ReloadingMods;
+    public static List<Task> ModReloadTasks = new();
 
     /// <summary>
     /// Whether any mods were successfully fully loaded, to check in <see cref="ModManager.Mods"/> too, when sorting mods by dependencies.
@@ -50,14 +51,12 @@ public static class ModLoader
     /// <summary>
     /// Loads mod from specified path
     /// </summary>
-    /// <param name="modDirs"></param>
-    /// <exception cref="InvalidModConfigurationException">Thrown if mod configuration is invalid or not found</exception>
-    /// <exception cref="TypeLoadException">Thrown if </exception>
+    /// <param name="modDirs"><see cref="IEnumerable{T}"/> of <see cref="Directory"/> paths, where each path is a directory with a mod.</param>
     public static List<ModConfig> LoadModConfigs(IEnumerable<string> modDirs)
     {
         List<ModConfig> configs = new();
         foreach (string modDir in modDirs)
-            configs.Add(LoadModFromFolder(modDir));
+            configs.Add(LoadModConfigFromFolder(modDir));
         return configs;
     }
 
@@ -67,7 +66,7 @@ public static class ModLoader
     /// <param name="modDir">Directory path where config.json is located</param>
     /// <returns>Loaded config</returns>
     /// <exception cref="InvalidModConfigurationException">Thrown if config file was not found</exception>
-    public static ModConfig LoadModFromFolder(string modDir)
+    public static ModConfig LoadModConfigFromFolder(string modDir)
     {
         //Check that config exists
         string configPath = GetModConfigPath(modDir);
@@ -81,16 +80,24 @@ public static class ModLoader
 
 
     /// <summary>
-    /// Loads <see cref="ModConfig"/> from specified path
+    /// Loads <see cref="ModConfig"/> from specified path.
     /// </summary>
-    /// <param name="configPath">Path to config <see cref="File"/></param>
-    /// <returns><see cref="ModConfig"/> parsed from that <see cref="File"/></returns>
-    /// <exception cref="InvalidModConfigurationException">Thrown if <see cref="ModConfig"/> couldn't be deseralized</exception>
+    /// <param name="configPath"><see cref="File"/> path to config.</param>
+    /// <returns><see cref="ModConfig"/> parsed from that <see cref="File"/>.</returns>
+    /// <exception cref="InvalidModConfigurationException">Thrown if <see cref="ModConfig"/> couldn't be deseralized.</exception>
     public static ModConfig LoadModConfig(string configPath)
     {
         //Load config
         using var configStream = File.OpenRead(configPath);
-        return JsonSerializer.Deserialize<ModConfig>(configStream) ?? throw new InvalidModConfigurationException(configPath, "Deserializer returned null.");
+        try
+        {
+            return JsonSerializer.Deserialize<ModConfig>(configStream) ??
+                   throw new InvalidModConfigurationException(configPath, "Deserializer returned null.");
+        }
+        catch (Exception exception)
+        {
+            throw new JsonException($"Got exception from deserializer while deserializing \"{configPath}\":\n {exception}");
+        }
     }
     
     /// <summary>
@@ -105,19 +112,22 @@ public static class ModLoader
     /// </summary>
     /// <param name="config"><see cref="ModConfig"/> with info related to mod</param>
     /// <returns></returns>
-    private static void LoadModFromConfig(ModConfig config)
+    private static void LoadModFromConfig(ModConfig config, bool tryCreateAssetManager = true)
     {
         Log.Information("Loading mod: {ModName}", config.Id.Name);
         Mod mod = LoadModAssemblyAndGetMod(config.ModDirectory, config);
 
-        //Create asset manager for mod
-        string modContentPath = Path.Combine(config.ModDirectory, "Content");
-        AssetManager? assets = ExternalAssetManagerBase.FolderOrZip(modContentPath);
-        if (assets is not null)
+        if (tryCreateAssetManager)
         {
-            mod.Assets = assets;
-            Assets.RegisterAssetManager(assets, config.Id.Name);
-            assets.PreloadAssets();
+            //Create asset manager for mod
+            string modContentPath = Path.Combine(config.ModDirectory, "Content");
+            AssetManager? assets = ExternalAssetManagerBase.FolderOrZip(modContentPath);
+            if (assets is not null)
+            {
+                mod.Assets = assets;
+                Assets.RegisterAssetManager(assets, config.Id.Name);
+                assets.PreloadAssets();
+            }
         }
 
         ModManager.Mods.Add(mod.Config.Id.Name, mod);
@@ -151,7 +161,6 @@ public static class ModLoader
     }
 
 
-
     /// <summary>
     /// Loads assembly from <see cref="ModConfig.AssemblyFile"/>, and tries to <see cref="FindModType"/> in it. If <see cref="ModConfig.AssemblyFile"/> is null or empty, returns <see langword="new"/> <see cref="Mod"/>() instead. Also calls <see cref="Mod.AssignConfig"/>.
     /// </summary>
@@ -172,8 +181,9 @@ public static class ModLoader
         }
         else
             mod = new();
-
+        
         mod.AssignConfig(config);
+
         return mod;
     }
 
@@ -185,7 +195,9 @@ public static class ModLoader
     public static ModAssemblyLoadContext LoadAssembly(ModConfig config, string dllPath)
     {
         ModAssemblyLoadContext assemblyContext = new(config);
-        assemblyContext.LoadFromAssemblyPath(dllPath);
+        FileStream assemblyFileStream = new(dllPath, FileMode.Open, FileAccess.Read, FileShare.Read);
+        assemblyContext.LoadFromStream(assemblyFileStream);
+        assemblyFileStream.Close();
         return assemblyContext;
     }
     
@@ -198,57 +210,67 @@ public static class ModLoader
     public static Type FindModType(Assembly assembly)
     {
         Type[] modTypes = assembly.GetExportedTypes().Where(type => type.IsSubclassOf(typeof(Mod)) && !type.IsAbstract).ToArray();
-        switch (modTypes.Length)
+        return modTypes.Length switch
         {
-            case 0:
-                return typeof(Mod);
-            //throw new TypeLoadException($"Subclass of Mod not found in {assembly.FullName}");
-            case > 1:
-                throw new TypeLoadException($"More than one class is subclass of Mod in {assembly.FullName}");
-        }
-
-        return modTypes[0];
+            0 => typeof(Mod),  //throw new TypeLoadException($"Subclass of Mod not found in {assembly.FullName}");
+            > 1 => throw new TypeLoadException($"More than one class is subclass of Mod in {assembly.FullName}"),
+            _ => modTypes[0]
+        };
     }
 
+    /// <summary>
+    /// Starts reloading mod related to the <paramref name="config"/>, including <see cref="ModAssemblyLoadContext"/> but excluding it's <see cref="AssetManager"/>
+    /// </summary>
+    /// <param name="config">Config related to mod</param>
+    public static void ReloadMod(ModConfig config)
+    {
+        ModReloadTasks.Add(ReloadModAsync(config));
+    }
 
     /// <summary>
     /// Reloads mod related to the <paramref name="config"/>, including <see cref="ModAssemblyLoadContext"/> but excluding it's <see cref="AssetManager"/>
     /// </summary>
-    /// <param name="config"></param>
-    /// <returns></returns>
-    public static async void ReloadMod(ModConfig config)
+    /// <param name="config">Config related to mod</param>
+    /// <returns>Mod reload task, which should be stored in <see cref="ModReloadTasks"/></returns>
+    private static async Task ReloadModAsync(ModConfig config)
     {
         if (config.mod is null) throw new InvalidOperationException("Tried to reload mod, but config.mod is null!");
-        ReloadingMods++;
         Log.Information("Reloading mod: {ModName}", config.Id.Name);
         AssetManager? assets = config.mod.Assets;
         await UnloadMod(config);
-        LoadModFromConfig(config);
+        LoadModFromConfig(config, false);
         config.mod.Assets = assets;
-        ReloadingMods--;
+        throw new Exception(":)"); //TODO remove
     }
 
     /// <summary>
     /// Unloads <see cref="Mod"/> related to specified <paramref name="config"/>, and doesn't return until it's <see cref="ModAssemblyLoadContext"/> is fully unloaded
     /// </summary>
     /// <param name="config"><see cref="ModConfig"/> related to <see cref="Mod"/> which should be unloaded</param>
-    /// <returns>uh   idk </returns> //TODO
-    public  static async Task UnloadMod(ModConfig config)
+    /// <returns>Mod unload task</returns>
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    public static async Task UnloadMod(ModConfig config)
     {
         Mod? mod = config.mod;
         if (mod is null) throw new InvalidOperationException("Trying to unload mod by config, but config.mod is null!");
         Log.Information("Unloading mod: {ModName}", config.Id.Name);
-        mod.HarmonyInstance?.UnpatchSelf();
+        mod.HarmonyInstance?.UnpatchSelf(); //TODO check patching
         WeakReference alcWeakReference = new(mod.AssemblyContext, trackResurrection: true);
         mod.AssemblyContext?.Dispose();
         ModManager.Mods.Remove(mod.Config.Id.Name);
 
-        //Remove references to the Mod because it might be type from that assembly
+
+        //Remove references to the Mod because it might be type from that assembly TODO check if needed
         mod = null;
         config.mod = null;
 
         //Wait until assembly is unloaded
-        while (alcWeakReference.IsAlive) await Task.Delay(1);
+        while (alcWeakReference.IsAlive)
+        {
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+            await Task.Delay(1);
+        }
         Log.Information("Assembly unloaded");
     }
 
@@ -257,9 +279,9 @@ public static class ModLoader
     /// </summary>
     private static void PostLoadMods()
     {
-        foreach (Mod mod in ModManager.Mods.Values)
+        foreach (Mod mod in ModManager.Mods.Values) //TODO this is awful
             mod.Initialize();
         
-        loadedAnyMods = true;
+        loadedAnyMods = true; //TODO this too
     }
 }
