@@ -3,7 +3,6 @@ using System.IO;
 using System.Reflection;
 using System.Runtime.Loader;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace MonoPlus.Modding;
 
