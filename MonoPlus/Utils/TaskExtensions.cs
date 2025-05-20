@@ -16,6 +16,7 @@
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
 using JetBrains.Annotations;
+using PureAttribute = System.Diagnostics.Contracts.PureAttribute;
 
 namespace MonoPlus;
 
@@ -65,24 +66,28 @@ public static class TaskExtensions
         return source.TrySetResult(result);
     }
 
-    [System.Diagnostics.Contracts.Pure] public static Task<T> CastUnsafe<T>(this Task task)
+    /// <summary>
+    /// Cast <paramref name="task"/> to <see cref="Task{T}"/> via <see cref="Unsafe"/>.
+    /// </summary>
+    /// <typeparam name="T">Return type of new task.</typeparam>
+    /// <param name="task">Task to cast.</param>
+    /// <returns>Casted task.</returns>
+    [Pure] public static Task<T> CastUnsafe<T>(this Task task)
         => Unsafe.As<Task, Task<T>>(ref task);
-    [System.Diagnostics.Contracts.Pure] public static object? GetResultUnsafe(this Task task)
-        => task.CastUnsafe<object?>().Result;
 
-    [System.Diagnostics.Contracts.Pure] public static T? GetImmediateResult<T>(this Task<T> task)
-        => task.IsCompletedSuccessfully ? task.Result : default;
-    [System.Diagnostics.Contracts.Pure] public static T? GetImmediateResult<T>(this ValueTask<T> valueTask)
-        => valueTask.IsCompletedSuccessfully ? valueTask.Result : default;
-
-    [System.Diagnostics.Contracts.Pure] public static ValueTask<TTo> Transform<TFrom, TTo>(this ValueTask<TFrom> valueTask, [InstantHandle] Func<TFrom, TTo> converter)
+    /// <summary>
+    /// Applies the specified <paramref name="converter"/> to the specified <paramref name="valueTask"/>.
+    /// </summary>
+    /// <typeparam name="TFrom">Return type of <paramref name="valueTask"/>.</typeparam>
+    /// <typeparam name="TTo">Return type of result.</typeparam>
+    /// <param name="valueTask">Task, to which <paramref name="converter"/> is applied.</param>
+    /// <param name="converter">Converter to apply to <paramref name="valueTask"/>.</param>
+    /// <returns></returns>
+    [Pure] public static ValueTask<TTo> Transform<TFrom, TTo>(this ValueTask<TFrom> valueTask, [InstantHandle] Func<TFrom, TTo> converter)
     {
-        if (valueTask.IsCompletedSuccessfully)
-            return new(converter(valueTask.Result));
+        return valueTask.IsCompletedSuccessfully ? new(converter(valueTask.Result)) : TransformSlow(valueTask, converter);
 
-        return TransformSlow(valueTask.AsTask(), converter);
-
-        static async ValueTask<TTo> TransformSlow(Task<TFrom> task, Func<TFrom, TTo> converter)
+        static async ValueTask<TTo> TransformSlow(ValueTask<TFrom> task, Func<TFrom, TTo> converter)
             => converter(await task)!;
     }
 

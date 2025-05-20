@@ -79,7 +79,7 @@ public class ModConfigSorter
             //if visited, then return
             return;
         default:
-            throw new InvalidOperationException("ModSortState is not any known state!");
+            throw new InvalidOperationException("ModSortState is not any known state");
         }
     }
 }

@@ -53,12 +53,12 @@ public static class Time
     /// Updates everything related to time: deltaTime, totalTime, timeScale.
     /// </summary>
     /// <param name="gameTime"><see cref="GameTime"/> from your <see cref="Game.Update"/>.</param>
-    /// <param name="isActive"></param>
+    /// <param name="isActive">Pass here <see cref="Game.IsActive"/>.</param>
     public static void Update(GameTime gameTime, bool isActive)
     {
-        if (!GraphicsSettings.PauseOnFocusLoss) isActive = true;
+        if (GraphicsSettings.FocusLossBehaviour == GraphicsSettings.OnFocusLossBehaviour.Continue) isActive = true;
 
-        if (wasActive)
+        if (wasActive || GraphicsSettings.FocusLossBehaviour > GraphicsSettings.OnFocusLossBehaviour.Eco)
             UnscaledDeltaTime = gameTime.ElapsedGameTime;
         else
             UnscaledDeltaTime += gameTime.ElapsedGameTime;
@@ -68,7 +68,7 @@ public static class Time
         UnscaledTotalTime += UnscaledDeltaTime;
         RunTimeScaleCallbacks();
         UpdateDeltaTime();
-        TotalTime += TimeSpan.FromSeconds(DeltaTime);
+        TotalTime += DeltaTimeSpan;
     }
 
     /// <summary>
@@ -81,11 +81,11 @@ public static class Time
     }
 
     /// <summary>
-    /// Updates <see cref="DeltaTimeSpan"/> and <see cref="DeltaTime"/> to match <see cref="UnscaledDeltaTime"/>
+    /// Updates <see cref="DeltaTimeSpan"/> and <see cref="DeltaTime"/> to match <see cref="UnscaledDeltaTime"/>.
     /// </summary>
     public static void UpdateDeltaTime()
     {
         DeltaTimeSpan = UnscaledDeltaTime * TimeScale;
-        DeltaTime = (float)DeltaTimeSpan.TotalMicroseconds / 1000000f; //maybe convert after multiplication instead? TODO: research.
+        DeltaTime = (float)DeltaTimeSpan.TotalSeconds;
     }
 }

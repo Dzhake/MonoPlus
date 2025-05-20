@@ -50,12 +50,12 @@ public class Mod
     /// <summary>
     /// Called when mod's assembly is loaded
     /// </summary>
-    public virtual void PreInitialize() { }
+    public virtual void Initialize() { }
 
     /// <summary>
     /// Called after all mods are loaded
     /// </summary>
-    public virtual void Initialize() { }
+    public virtual void PostInitialize() { }
 
     /// <summary>
     /// Called every frame

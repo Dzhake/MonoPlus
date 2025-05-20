@@ -104,9 +104,7 @@ public abstract class AssetManager : IDisposable
                 return entry.GetValueAsync();
 
             if (!startLoading)
-            {
                 return default;
-            }
 
             ValueTask<object?> loading = LoadNewAssetAsync(pathString);
 
@@ -125,7 +123,7 @@ public abstract class AssetManager : IDisposable
     }
 
     private ValueTask<T?> LoadCore<T>(ReadOnlySpan<char> path,  bool startLoading)
-        => LoadAssetCore(path,startLoading).Transform((asset => (T?)asset));
+        => LoadAssetCore(path,startLoading).Transform(asset => (T?)asset);
 
     [Pure] public ValueTask<T> LoadAsync<T>(string path)
         => LoadCore<T>(path, true)!;
@@ -164,7 +162,7 @@ public abstract class AssetManager : IDisposable
         private readonly object? _value;
 
         /// <summary>
-        /// Instances a new <see cref="AssetCacheEntry"/> with <see cref="_value"/> being <see cref="task"/>
+        /// Instances a new <see cref="AssetCacheEntry"/> with <see cref="_value"/> being <paramref name="task"/>
         /// </summary>
         /// <param name="task"><see cref="ValueTask{T}"/> with asset</param>
         public AssetCacheEntry(ValueTask<object?> task)

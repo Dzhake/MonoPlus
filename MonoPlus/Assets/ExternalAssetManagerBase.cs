@@ -62,10 +62,10 @@ public abstract class ExternalAssetManagerBase : AssetManager
     }
 
     /// <summary>
-    /// 
+    /// Creates <see cref="FileSystemAssetManager"/> or <see cref="ZipArchiveAssetManager"/> for specified path.
     /// </summary>
-    /// <param name="rootName">Folder name without trailing slash or zip archive name without extension (and dot)</param>
-    /// <returns><see cref="FileSystemAssetManager"/> if "<see cref="rootName"/>/" was found, <see cref="ZipArchiveAssetManager"/> if "<see cref="rootName"/>.zip" was found and null if neither found.</returns>
+    /// <param name="rootName">Folder name without trailing slash or zip archive name without extension (and dot).</param>
+    /// <returns><see cref="FileSystemAssetManager"/> if "<paramref name="rootName"/>/" was found, <see cref="ZipArchiveAssetManager"/> if "<paramref name="rootName"/>.zip" was found and null if neither found.</returns>
     public static AssetManager? FolderOrZip(string rootName)
     {
         string folder = $"{rootName}/";
@@ -74,16 +74,30 @@ public abstract class ExternalAssetManagerBase : AssetManager
             File.Exists(zip) ? new ZipArchiveAssetManager(zip) : null;
     }
 
+    /// <summary>
+    /// Represents information about external asset.
+    /// </summary>
     public struct ExternalAssetInfo
     {
+        /// <summary>
+        /// Stream, reading the asset.
+        /// </summary>
         public Stream? AssetStream;
+
+        /// <summary>
+        /// Format of the asset.
+        /// </summary>
         public AssetFormat Format;
 
+        /// <summary>
+        /// Instances a new <see cref="ExternalAssetInfo"/> with specified <paramref name="assetStream"/> and <paramref name="format"/>.
+        /// </summary>
+        /// <param name="assetStream">Stream, reading the asset.</param>
+        /// <param name="format">Format of the asset.</param>
         public ExternalAssetInfo(Stream? assetStream, AssetFormat format)
         {
             AssetStream = assetStream;
             Format = format;
         }
-
     }
 }

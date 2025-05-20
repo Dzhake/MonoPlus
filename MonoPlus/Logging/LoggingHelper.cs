@@ -65,7 +65,7 @@ public static class LoggingHelper
     public static void SetMinimumLogLevel(LogEventLevel level)
     {
         if (LevelSwitch is null)
-            throw new InvalidOperationException("SetMinimumLogLevel was called, but LevelSwitch is null!");
+            throw new InvalidOperationException("SetMinimumLogLevel was called, but LevelSwitch is null");
         LevelSwitch.MinimumLevel = level;
     }
 

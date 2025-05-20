@@ -114,12 +114,12 @@ public enum AssetType
     AUDIO,
 
     /// <summary>
-    /// Image asset type, conveted into <see cref="Texture2D"/>.
+    /// Image asset type, converted into <see cref="Texture2D"/>.
     /// </summary>
     IMAGE,
 
     /// <summary>
-    /// Video asset type, TODO NOT YET SUPPORTED BECAUSE VIDEOS ARE NOT SUPPORTED BY MONOGAME.
+    /// Video asset type, TODO not yet supported.
     /// </summary>
     VIDEO,
 

@@ -78,6 +78,14 @@ public static class StreamExtensions
         stream.CopyTo(temp);
         return temp.ToArray();
     }
+
+
+    /// <summary>
+    /// Converts current stream to <see cref="T:byte[]"/> asynchronously.
+    /// </summary>
+    /// <param name="stream">Stream to convert.</param>
+    /// <returns><see cref="T:byte[]"/> read from <paramref name="stream"/>.</returns>
+    /// <exception cref="InvalidOperationException">readCount doesn't match byteLength</exception>
     [Pure]
     public static async ValueTask<byte[]> ToByteArrayAsync(this Stream stream)
     {
@@ -87,13 +95,9 @@ public static class StreamExtensions
         {
             int byteLength = checked((int)byteLengthLong);
             // If the stream's size is known, allocate and populate an array
-#if NET5_0_OR_GREATER
             byte[] array = GC.AllocateUninitializedArray<byte>(byteLength);
-#else
-                byte[] array = new byte[byteLength];
-#endif
             int readCount = await stream.ReadAsync(array);
-            if (readCount != byteLength) throw new InvalidOperationException();
+            if (readCount != byteLength) throw new InvalidOperationException("readCount doesn't match byteLength");
             return array;
         }
         // If the stream's size cannot be determined, use a MemoryStream

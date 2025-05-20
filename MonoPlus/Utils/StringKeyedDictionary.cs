@@ -258,6 +258,7 @@ public sealed class StringKeyedDictionary<TValue>
         return false;
     }
 
+    /// <inheritdoc cref="Dictionary{TKey,TValue}.TryGetValue(TKey, out TValue)"/>
     public bool TryGetKey(ReadOnlySpan<char> key, [NotNullWhen(true)] out string? keyString)
     {
         ref Entry entry = ref FindEntry(key);
@@ -369,11 +370,31 @@ public sealed class StringKeyedDictionary<TValue>
         return ref buckets[hashCode % (uint)buckets.Length];
     }
 
+    /// <summary>
+    /// Represents a key-value pair for <see cref="StringKeyedDictionary{TValue}"/>.
+    /// </summary>
     public struct Entry
     {
+        /// <summary>
+        /// Entry's hash code.
+        /// </summary>
         public uint hashCode;
+
+        /// <summary>
+        /// 0-based index of next entry in chain: -1 means end of chain
+        /// also encodes whether this entry _itself_ is part of the free list by changing sign and subtracting 3,
+        /// so -2 means end of free list, -3 means index 0 but on free list, -4 means index 1 but on free list, etc.
+        /// </summary>
         public int next;
+
+        /// <summary>
+        /// Entry's key.
+        /// </summary>
         public string key;
+
+        /// <summary>
+        /// Entry's value.
+        /// </summary>
         public TValue value;
     }
     private enum InsertionBehavior : byte
@@ -383,6 +404,7 @@ public sealed class StringKeyedDictionary<TValue>
         ThrowOnExisting = 2,
     }
 }
+
 internal static class StringKeyedDictionaryHelper
 {
     public const uint HashCollisionThreshold = 100;
@@ -420,9 +442,10 @@ internal static class StringKeyedDictionaryHelper
         if (min < 0) throw new ArgumentException("", nameof(min));
 
         ReadOnlySpan<int> primes = primesArray;
-        for (int i = 0; i < primes.Length; i++)
-            if (primes[i] >= min)
-                return primes[i];
+        foreach (int t in primes)
+            if (t >= min)
+                return t;
+
         for (int i = min | 1; i < int.MaxValue; i += 2)
             if (IsPrime(i) && (i - 1) % HashPrime != 0)
                 return i;

@@ -114,7 +114,7 @@ public sealed class FileSystemAssetManager : ExternalAssetManagerBase
         return new(new ExternalAssetInfo(File.OpenRead(mainPath), AssetFormatUtils.DetectFormatByPath(mainPath)));
     }
 
-    public override void PreloadAssets()
+    /*public override void PreloadAssets()
     {
         if (!Directory.Exists(DirectoryPath)) return;
         int rootPathLength = DirectoryPath.Length;
@@ -122,5 +122,5 @@ public sealed class FileSystemAssetManager : ExternalAssetManagerBase
         foreach (string file in Directory.GetFiles(DirectoryPath, "*", SearchOption.AllDirectories))
             LoadIntoCache(Path.ChangeExtension(file.Remove(0, rootPathLength), null)); //Remove everything but relative directory, remove extension
             
-    }
+    }*/
 }

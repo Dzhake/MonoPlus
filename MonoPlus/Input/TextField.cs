@@ -7,18 +7,54 @@ using SDL3;
 
 namespace CardGames.Console;
 
+/// <summary>
+/// Represents text input field which captures input and may have selection.
+/// </summary>
 public class TextField
 {
+    /// <summary>
+    /// Current field input.
+    /// </summary>
     public StringBuilder text = new();
+
+    /// <summary>
+    /// Cursor's position in field.
+    /// </summary>
     public int CursorPos;
+
+    /// <summary>
+    /// Position of selection's start.
+    /// </summary>
     public int SelectionStart;
+
+    /// <summary>
+    /// Position of selection's end.
+    /// </summary>
     public int SelectionEnd;
+
+    /// <summary>
+    /// Total length of selection.
+    /// </summary>
     public int SelectionLength => SelectionEnd - SelectionStart;
 
-    protected float holdTime;
-    protected float totalHoldTime;
-    protected Keys holdKey;
+    /// <summary>
+    /// Time since last fake <see cref="heldKey"/> press.
+    /// </summary>
+    protected float heldTime;
 
+    /// <summary>
+    /// For how long <see cref="heldKey"/> is being held.
+    /// </summary>
+    protected float totalHeldTime;
+
+    /// <summary>
+    /// Key which user holds.
+    /// </summary>
+    protected Keys heldKey;
+
+    /// <summary>
+    /// Updates field if <see cref="Input.FocusedTextField"/> is <see langword="this"/>
+    /// </summary>
     public void Update()
     {
         if (Input.FocusedTextField != this || HandleInput() || Input.KeyString is null) return;
@@ -26,6 +62,10 @@ public class TextField
         CursorPos += Input.KeyString.Length;
     }
 
+    /// <summary>
+    /// Handles keybinds input.
+    /// </summary>
+    /// <returns>If any input was used.</returns>
     protected bool HandleInput()
     {
         if (KeyPressed(Keys.Back))
@@ -66,7 +106,6 @@ public class TextField
                 SelectionEnd = text.Length;
                 CursorPos = SelectionEnd;
             }
-            return true;
         }
         else
             return false;
@@ -74,27 +113,37 @@ public class TextField
         return true;
     }
 
+    /// <summary>
+    /// Check if key is pressed, or is being held and it's time for fake press, so holding a key repeats like it's being pressed.
+    /// </summary>
+    /// <param name="key">Key to check.</param>
+    /// <returns>Whether the key is pressed.</returns>
     protected bool KeyPressed(Keys key)
     {
         if (Input.Pressed(key))
         {
             ResetHoldInfo();
-            holdKey = key;
+            heldKey = key;
             return true;
         }
-        if (holdKey != key) return false;
-        if (Input.Down(holdKey))
+        if (heldKey != key) return false;
+        if (Input.Down(heldKey))
         {
-            holdTime += Time.DeltaTime;
-            totalHoldTime += Time.DeltaTime;
-            if (totalHoldTime < 0.5f || holdTime <= 0.05f) return false;
-            holdTime = 0;
+            heldTime += Time.DeltaTime;
+            totalHeldTime += Time.DeltaTime;
+            if (totalHeldTime < 0.5f || heldTime <= 0.05f) return false;
+            heldTime = 0;
             return true;
         }
         ResetHoldInfo();
         return false;
     }
 
+    /// <summary>
+    /// Removes symbol in <see cref="text"/> at specified <paramref name="index"/>.
+    /// </summary>
+    /// <param name="index">Index of the symbol in <see cref="text"/>.</param>
+    /// <param name="moveCursor">Should move cursor to match new string.</param>
     protected void RemoveSymbol(int index, bool moveCursor = false)
     {
         text.Remove(index, 1);
@@ -140,6 +189,11 @@ public class TextField
             (SelectionEnd, SelectionStart) = (SelectionStart, SelectionEnd);
     }
 
+    /// <summary>
+    /// Move cursor to specified position.
+    /// </summary>
+    /// <param name="to">New cursor's position.</param>
+    /// <param name="affectedBySelection">Whether the cursor should stick to selection's boundaries if selection exists and <see cref="Input.Shift"/> is not down.</param>
     protected void MoveCursor(int to, bool affectedBySelection = false)
     {
         if (Input.Shift)
@@ -148,8 +202,7 @@ public class TextField
         {
             if (affectedBySelection)
             {
-                if (to <= CursorPos) CursorPos = SelectionStart;
-                else CursorPos = SelectionEnd;
+                CursorPos = to <= CursorPos ? SelectionStart : SelectionEnd;
             }
             ResetSelection();
             if (affectedBySelection) return;
@@ -158,21 +211,28 @@ public class TextField
         CursorPos = Math.Clamp(to, 0, text.Length);
     }
 
+    /// <summary>
+    /// Reset all info about <see cref="heldKey"/>.
+    /// </summary>
     protected void ResetHoldInfo()
     {
-        holdTime = 0;
-        totalHoldTime = 0;
-        holdKey = Keys.None;
+        heldTime = 0;
+        totalHeldTime = 0;
+        heldKey = Keys.None;
     }
 
+    /// <summary>
+    /// Reset selection to non-existing.
+    /// </summary>
     protected void ResetSelection()
     {
         SelectionStart = 0;
         SelectionEnd = 0;
     }
 
-
-
+    /// <summary>
+    /// Reset entire field to default state.
+    /// </summary>
     public void Reset()
     {
         ResetSelection();
@@ -181,6 +241,10 @@ public class TextField
         text.Clear();
     }
 
+    /// <summary>
+    /// Try to remove all symbols from <see cref="SelectionStart"/> to <see cref="SelectionEnd"/>.
+    /// </summary>
+    /// <returns>Whether the selection was not empty.</returns>
     public bool TryRemoveSelection()
     {
         if (SelectionStart == SelectionEnd) return false;
@@ -188,6 +252,9 @@ public class TextField
         return true;
     }
 
+    /// <summary>
+    /// Remove all symbols from <see cref="SelectionStart"/> to <see cref="SelectionEnd"/>.
+    /// </summary>
     public void RemoveSelection()
     {
         if (CursorPos == SelectionEnd) CursorPos = SelectionStart;
@@ -195,6 +262,10 @@ public class TextField
         ResetSelection();
     }
 
+    /// <summary>
+    /// Get currently selected text.
+    /// </summary>
+    /// <returns>Currently selected text.</returns>
     public string GetSelection()
     {
         return text.ToString().Substring(SelectionStart, SelectionLength);

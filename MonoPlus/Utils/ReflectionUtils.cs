@@ -24,11 +24,11 @@ public static class ReflectionUtils
     public static T CreateInstance<T>(Type type) => (T)Activator.CreateInstance(type)!;
 
     /// <summary>
-    /// Finds all methods in specified <see cref="assembly"/> with <see cref="attributesTypes"/> attributes, and passes them to <see cref="callback"/>
+    /// Finds all methods in specified <paramref name="assembly"/> with <paramref name="attributesTypes"/> attributes, and passes them to <paramref name="callback"/>
     /// </summary>
     /// <param name="assembly"><see cref="Assembly"/> to look in</param>
     /// <param name="attributesTypes"><see cref="Array"/> of <see cref="Type"/>s which inherit <see cref="Attribute"/></param>
-    /// <param name="callback"><see cref="Action"/> which is called per attribute with type from <see cref="attributesTypes"/> on method</param>
+    /// <param name="callback"><see cref="Action"/> which is called per attribute with type from <paramref name="attributesTypes"/> on method</param>
     /// <param name="publicOnly">Look only at types and methods which are <see langword="public"/></param>
     public static void FindMethodAttributes(Assembly assembly, Type[] attributesTypes, Action<MethodInfo, CustomAttributeData> callback, bool publicOnly = false)
     {

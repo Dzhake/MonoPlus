@@ -45,18 +45,13 @@ public static class ModManager
     {
         for (int i = 0; i < ModLoader.ModReloadTasks.Count; i++)
         {
-            Task modReloadTask = ModLoader.ModReloadTasks[i];
+            Task modReloadTask = ModLoader.ModReloadTasks[i].Task;
 
-            //if task crashed, then throw the error
-            modReloadTask.Exception?.Handle(_ =>
-                false); //Don't handle anything, it'll throw itself and error handler should catch it. TODO check if there's any other way to do this.
+            if (!modReloadTask.IsCompleted) continue;
 
-            //otherwise just remove it from the list.
-            if (modReloadTask.IsCompleted)
-            {
-                ModLoader.ModReloadTasks.RemoveAt(i);
-                i--;
-            }
+            if (modReloadTask.Exception is not null) throw modReloadTask.Exception;
+            ModLoader.ModReloadTasks.RemoveAt(i);
+            i--;
         }
 
         foreach (Mod mod in Mods.Values)

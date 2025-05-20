@@ -4,12 +4,38 @@ using SDL3;
 namespace MonoPlus.Graphics;
 
 /// <summary>
-///     Contains graphics info which should be serialized in settings file and some methods to change those.
+/// Represents graphics info which should be serialized in settings file and some methods to change those..
 /// </summary>
 public static class GraphicsSettings
 {
     /// <summary>
-    /// List of common 16:9 window sizes/resolutions
+    /// Represents types of behaviour how game should act while not active.
+    /// </summary>
+    public enum OnFocusLossBehaviour
+    {
+        /// <summary>
+        /// Game continues running like it's active.
+        /// </summary>
+        Continue,
+
+        /// <summary>
+        /// Game will not update, but once it's active it'll run like all that time it was active, by storing deltaTime while not active, and once active using it all for first frame.
+        /// </summary>
+        Eco,
+
+        /// <summary>
+        /// Game will not update, and once it's active it'll continue like normal.
+        /// </summary>
+        TemporaryStop,
+
+        /// <summary>
+        /// Game will not update, and once it's active it will be paused.
+        /// </summary>
+        FullStop,
+    }
+
+    /// <summary>
+    /// List of common 16:9 window sizes/resolutions.
     /// </summary>
     public static Vector2[] CommonResolutions16x9 =
     {
@@ -17,13 +43,19 @@ public static class GraphicsSettings
     };
 
     /// <summary>
-    /// List of common 4:3 window sizes/resolutions
+    /// List of common 4:3 window sizes/resolutions.
     /// </summary>
     public static Vector2[] CommonResolutions4x3 = { new (640, 480), new(800, 600), new(1600, 1200) };
 
-
+    /// <summary>
+    /// Game window's size in pixels.
+    /// </summary>
     public static Vector2 WindowSize = new(1280, 720);
-    public static bool PauseOnFocusLoss;
+
+    /// <summary>
+    /// Whether the game should not update while the game is paused.
+    /// </summary>
+    public static OnFocusLossBehaviour FocusLossBehaviour = OnFocusLossBehaviour.Eco;
 
     /// <summary>
     /// Changes window behaviour to fullscreen or windowed.

@@ -6,6 +6,9 @@ using Microsoft.Xna.Framework.Input;
 
 namespace MonoPlus.InputHandling;
 
+/// <summary>
+/// Helper class to manage everything related to <see cref="Input"/>.
+/// </summary>
 public static class Input
 {
     /// <summary>

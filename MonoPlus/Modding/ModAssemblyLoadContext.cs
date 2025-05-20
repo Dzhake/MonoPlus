@@ -29,8 +29,8 @@ public class ModAssemblyLoadContext : AssemblyLoadContext, IDisposable
     /// <summary>
     /// Instances a new <see cref="ModAssemblyLoadContext"/>
     /// </summary>
-    /// <param name="config"></param> //TODO
-    /// <exception cref="InvalidOperationException"></exception>
+    /// <param name="config">Config related to the mod.</param>
+    /// <exception cref="InvalidOperationException"><paramref name="config.AssemblyFile"/> is <see langword="null"/></exception>
     public ModAssemblyLoadContext(ModConfig config) : base(isCollectible: true)
     {
         if (config.AssemblyFile is null) throw new InvalidOperationException("Trying to create ModAssemblyLoadContext with config which has null AssemblyFile");
