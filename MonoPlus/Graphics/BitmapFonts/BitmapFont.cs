@@ -76,12 +76,17 @@ public class BitmapFont
         color ??= Color.White;
         scale ??= Vector2.One;
         origin ??= Vector2.Zero;
+
         Point stringSize = MeasureString(text);
-        GraphicsDevice graphicsDevice = Renderer.device;
-        
-        RenderTarget2D renderTarget = new(graphicsDevice, stringSize.X, stringSize.Y);
-        
+
+        RenderTarget2D? previousRenderTarget = Renderer.RenderTarget;
+        RenderTarget2D renderTarget = Renderer.CreateRenderTarget(stringSize.X, stringSize.Y);
+
+        Renderer.SetRenderTarget(renderTarget);
         DrawText(text, Renderer.spriteBatch, Vector2.Zero, color, rotation, origin, scale, effects, layerDepth);
+
+        Renderer.SetRenderTarget(previousRenderTarget);
+
         return renderTarget;
     }
 
@@ -131,7 +136,7 @@ public class BitmapFont
     public Rectangle GetGlyphSourceRectangle(int index) => new(GlyphSize.X * index, 0, GlyphSize.X, GlyphSize.Y);
 
     /// <summary>
-    /// Get source rectangle of glyph in <see cref="Texture"/> based in it's char. Uses <see cref="GetGlyphSourceRectangle(int)"/> internally.
+    /// Get source rectangle of glyph in <see cref="Texture"/> based in it's char. Uses <see cref="GetGlyphSourceRectangle(int)"/> internally. If glyph is not found in <see cref="Glyphs"/>, returns <see cref="Rectangle"/> with values (0,0,0,0).
     /// </summary>
     /// <param name="glyph">Glyph's char.</param>
     /// <returns>Source rectangle of the glyph.</returns>
