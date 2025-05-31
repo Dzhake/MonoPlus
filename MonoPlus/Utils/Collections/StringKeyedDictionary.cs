@@ -24,7 +24,7 @@ using System.Security.Cryptography;
 // but with everything unnecessary removed, and with added methods
 // taking read-only spans as parameters.
 
-namespace MonoPlus;
+namespace MonoPlus.Utils.Collections;
 
 /// <summary>
 ///   <para>Represents a collection of <see cref="string"/> keys and <typeparamref name="TValue"/> values.<br/>Provides methods that use read-only spans of characters, mimicking the functionality of alternate lookups in .NET 9.</para>

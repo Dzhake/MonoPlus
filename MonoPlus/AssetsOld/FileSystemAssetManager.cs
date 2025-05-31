@@ -20,7 +20,7 @@ public sealed class FileSystemAssetManager : ExternalAssetManagerBase
     /// <inheritdoc/>
     public override string DisplayName => $"\"{DirectoryPath}{Path.DirectorySeparatorChar}**\"";
 
-    private readonly object stateLock = new();
+    private readonly Lock stateLock = new();
     private FileSystemWatcher? _watcher;
 
     /// <summary>
@@ -31,7 +31,7 @@ public sealed class FileSystemAssetManager : ExternalAssetManagerBase
         get => _watcher is not null;
         set
         {
-            ObjectDisposedException.ThrowIf(disposed != 0, this);
+            ObjectDisposedException.ThrowIf(disposed, this);
 
             lock (stateLock)
             {
@@ -62,6 +62,11 @@ public sealed class FileSystemAssetManager : ExternalAssetManagerBase
         if (disposing) DisposeWatcher();
     }
 
+    protected override string[] LoadAssetsCore()
+    {
+        return Directory.EnumerateFiles(DirectoryPath, "*", SearchOption.AllDirectories).Select(file => Path.GetRelativePath(DirectoryPath, file)).ToArray();
+    }
+
     private void InitWatcher()
     {
         _watcher = new(DirectoryPath);
@@ -84,16 +89,18 @@ public sealed class FileSystemAssetManager : ExternalAssetManagerBase
         if (_watcher != sender) return;
         RefreshAssetAtFilePath(args.FullPath);
     }
+
     private void OnFileRenamed(object? sender, RenamedEventArgs args)
     {
         if (_watcher != sender) return;
         RefreshAssetAtFilePath(args.OldFullPath);
         RefreshAssetAtFilePath(args.FullPath);
     }
+
     private void RefreshAssetAtFilePath(string filePath)
     {
         string assetPath = Path.GetRelativePath(DirectoryPath, filePath).Replace('\\', '/');
-        RefreshAsset(assetPath);
+        ReloadAssets(new [] { assetPath });
     }
 
     /// <inheritdoc/>
@@ -113,14 +120,4 @@ public sealed class FileSystemAssetManager : ExternalAssetManagerBase
         string mainPath = matchedFiles[0];
         return new(new ExternalAssetInfo(File.OpenRead(mainPath), AssetFormatUtils.DetectFormatByPath(mainPath)));
     }
-
-    /*public override void PreloadAssets()
-    {
-        if (!Directory.Exists(DirectoryPath)) return;
-        int rootPathLength = DirectoryPath.Length;
-
-        foreach (string file in Directory.GetFiles(DirectoryPath, "*", SearchOption.AllDirectories))
-            LoadIntoCache(Path.ChangeExtension(file.Remove(0, rootPathLength), null)); //Remove everything but relative directory, remove extension
-            
-    }*/
 }

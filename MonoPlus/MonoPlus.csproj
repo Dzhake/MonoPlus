@@ -14,11 +14,20 @@
 
     <ItemGroup>
         <!-- Separate project -->
+        <Compile Remove="AssetsOld\**" />
+        <Compile Remove="Modding\**" />
+        <EmbeddedResource Remove="AssetsOld\**" />
+        <EmbeddedResource Remove="Modding\**" />
+        <None Remove="AssetsOld\**" />
+
         <Compile Remove="MSBuildTasks\**" />
-        <Compile Remove="TemplateMod\**" />
-        <EmbeddedResource Remove="MSBuildTasks\**" />
-        <EmbeddedResource Remove="TemplateMod\**" />
+
+        <None Remove="Modding\**" />
         <None Remove="MSBuildTasks\**" />
+        <EmbeddedResource Remove="MSBuildTasks\**" />
+
+        <Compile Remove="TemplateMod\**" />
+        <EmbeddedResource Remove="TemplateMod\**" />
         <None Remove="TemplateMod\**" />
 
         <PackageReference Include="Chasm.SemanticVersioning" Version="2.8.2" />

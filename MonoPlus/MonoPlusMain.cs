@@ -11,6 +11,11 @@ namespace MonoPlus;
 public static class MonoPlusMain
 {
     /// <summary>
+    /// Whether the program should do operations related to hot reloading assets/.dlls etc. at cost of performance and memory.
+    /// </summary>
+    public static bool HotReload = true;
+
+    /// <summary>
     /// Call as early as possible. Initializes <see cref="LoggingHelper"/> and <see cref="OS"/>.
     /// </summary>
     public static void EarlyInitialize()

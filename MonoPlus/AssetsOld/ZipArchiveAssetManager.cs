@@ -36,7 +36,7 @@ public sealed class ZipArchiveAssetManager : ExternalAssetManagerBase
         get => _watcher is not null;
         set
         {
-            ObjectDisposedException.ThrowIf(disposed != 0, this);
+            ObjectDisposedException.ThrowIf(disposed, this);
 
             lock (stateLock)
             {
@@ -59,7 +59,9 @@ public sealed class ZipArchiveAssetManager : ExternalAssetManagerBase
     {
         ArgumentNullException.ThrowIfNull(archivePath);
         ArchivePath = Path.GetFullPath(archivePath);
+        Reloadable = false;
     }
+
     /// <inheritdoc/>
     protected override void Dispose(bool disposing)
     {
@@ -78,7 +80,7 @@ public sealed class ZipArchiveAssetManager : ExternalAssetManagerBase
         watcher.Changed += OnFileChanged;
         watcher.Renamed += OnFileChanged;
 
-        watcher.EnableRaisingEvents = true;
+        //watcher.EnableRaisingEvents = true;
         _watcher = watcher;
     }
     private void DisposeWatcher()
@@ -90,6 +92,11 @@ public sealed class ZipArchiveAssetManager : ExternalAssetManagerBase
     {
         if (_watcher != sender) return;
         reloadTask = ReloadArchiveAsync();
+    }
+
+    protected override string[] LoadAssetsCore()
+    {
+        return null!;
     }
 
     private async Task ReloadArchiveAsync()
@@ -133,10 +140,6 @@ public sealed class ZipArchiveAssetManager : ExternalAssetManagerBase
             entry.AssetCrc32 = crc32;
             entry.Format = AssetFormatUtils.DetectFormatByPath(assetExtension);
 
-            //load entry into cache
-            //LoadIntoCache(zipEntryName.ToString());
-            //TODO: make a good way to preload assets instead of by path.
-
             // Overwrite entry if exists, or create if not found
             newLookup[assetName] = entry;
 
@@ -155,12 +158,11 @@ public sealed class ZipArchiveAssetManager : ExternalAssetManagerBase
                 // Trigger removed or updated assets
                 foreach (var (key, oldEntry) in oldLookup)
                     if (!newLookup.TryGetValue(key, out Entry newEntry) || !oldEntry.EqualsCrc32(newEntry))
-                        RefreshAsset(key);
+                        ReloadAssets(new [] { key });
 
                 // Trigger added assets
                 foreach (var (key, _) in newLookup)
-                    if (!oldLookup.ContainsKey(key))
-                        RefreshAsset(key);
+                    if (!oldLookup.ContainsKey(key))ReloadAssets(new [] { key });
             }
         }
     }

@@ -9,6 +9,7 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using MonoPlus.AssetsManagement;
 using MonoPlus.Utils;
+using MonoPlus.Utils.Tasks;
 using Serilog;
 
 namespace MonoPlus.Modding;
@@ -18,11 +19,7 @@ namespace MonoPlus.Modding;
 /// </summary>
 public static class ModLoader
 {
-
-    /// <summary>
-    /// List of tasks which reload mods. If Count is higher than 0, then some mods are currently reloaded.
-    /// </summary>
-    public static List<ModReloadTask> ModReloadTasks = new();
+    public static MultiTaskWithContextManager<ModConfig> reloadTaskManager;
 
     /// <summary>
     /// Whether any mods were successfully fully loaded, to check in <see cref="ModManager.Mods"/> too, when sorting mods by dependencies.
@@ -197,9 +194,8 @@ public static class ModLoader
     public static ModAssemblyLoadContext LoadAssembly(ModConfig config, string dllPath)
     {
         ModAssemblyLoadContext assemblyContext = new(config);
-        FileStream assemblyFileStream = new(dllPath, FileMode.Open, FileAccess.Read, FileShare.Read);
+        using FileStream assemblyFileStream = new(dllPath, FileMode.Open, FileAccess.Read, FileShare.Read);
         assemblyContext.LoadFromStream(assemblyFileStream);
-        assemblyFileStream.Close();
         return assemblyContext;
     }
     
@@ -226,7 +222,8 @@ public static class ModLoader
     /// <param name="config">Config related to mod</param>
     public static void ReloadMod(ModConfig config)
     {
-        ModReloadTasks.Add(new(ReloadModAsync(config), config));
+        Task task = ReloadModAsync(config);
+        reloadTaskManager.Add(ReloadModAsync(config), config);
     }
 
     /// <summary>

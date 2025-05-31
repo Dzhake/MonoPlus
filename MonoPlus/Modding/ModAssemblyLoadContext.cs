@@ -19,7 +19,7 @@ public class ModAssemblyLoadContext : AssemblyLoadContext, IDisposable
     /// <summary>
     /// <see cref="FileSystemWatcher"/> which watches for .dll <see cref="File"/>
     /// </summary>
-    private FileSystemWatcher watcher;
+    private FileSystemWatcher? watcher;
 
     /// <summary>
     /// <see cref="ModConfig"/> for same <see cref="Mod"/> as this <see cref="ModAssemblyLoadContext"/>
@@ -37,11 +37,14 @@ public class ModAssemblyLoadContext : AssemblyLoadContext, IDisposable
         
         Config = config;
 
-        watcher = new(Path.Combine(config.ModDirectory, Path.GetDirectoryName(config.AssemblyFile) ?? ""), Path.GetFileName(config.AssemblyFile));
-        watcher.NotifyFilter = NotifyFilters.LastWrite;
-        watcher.Changed += OnFileChanged;
+        if (MonoPlusMain.HotReload)
+        {
+            watcher = new(Path.Combine(config.ModDirectory, Path.GetDirectoryName(config.AssemblyFile) ?? ""), Path.GetFileName(config.AssemblyFile));
+            watcher.NotifyFilter = NotifyFilters.LastWrite;
+            watcher.Changed += OnFileChanged;
         
-        watcher.EnableRaisingEvents = true;
+            watcher.EnableRaisingEvents = true;
+        }
     }
 
     private void OnFileChanged(object sender, FileSystemEventArgs e)
@@ -59,7 +62,7 @@ public class ModAssemblyLoadContext : AssemblyLoadContext, IDisposable
     {
         if (Interlocked.Exchange(ref disposed, true) || !disposing) return;
         
-        watcher.Dispose();
+        watcher?.Dispose();
         Unload();
     }
 
@@ -73,6 +76,7 @@ public class ModAssemblyLoadContext : AssemblyLoadContext, IDisposable
     /// <inheritdoc/>
     protected override Assembly? Load(AssemblyName name)
     {
+        //TODO check if needed
         return null;
     }
 }

@@ -25,11 +25,11 @@ public static class Assets
     {
         ArgumentNullException.ThrowIfNull(assetManager);
         ArgumentNullException.ThrowIfNull(prefix);
-        if (assetManager.registeredPrefix is not null)
+        if (assetManager.RegisteredPrefix is not null)
             throw new ArgumentException("The specified manager already has a registered prefix.", nameof(assetManager));
 
         managers.Add(prefix, assetManager);
-        assetManager.registeredPrefix = prefix;
+        assetManager.RegisteredPrefix = prefix;
         Log.Information("Registered asset manager with prefix: {Prefix}", prefix);
     }
     /// <summary>
@@ -39,9 +39,9 @@ public static class Assets
     /// <returns><see langword="true"/>, if the specified asset <paramref name="assetManager"/> was successfully removed; otherwise, <see langword="false"/>.</returns>
     public static bool UnRegisterAssetManager([NotNullWhen(true)] AssetManager? assetManager)
     {
-        if (assetManager?.registeredPrefix is { } prefix && managers.Remove(prefix))
+        if (assetManager?.RegisteredPrefix is { } prefix && managers.Remove(prefix))
         {
-            assetManager.registeredPrefix = null;
+            assetManager.RegisteredPrefix = null;
             Log.Information("Unregistered asset manager with prefix: {Prefix}", prefix);
             return true;
         }
@@ -59,23 +59,23 @@ public static class Assets
     /// <exception cref="InvalidCastException">The asset at the specified <paramref name="fullPath"/> could not be cast to type <typeparamref name="T"/>.</exception>
     /// <exception cref="ArgumentException">Could not find specified asset manager prefix</exception>
     [MustUseReturnValue]
-    public static ValueTask<T> LoadAsync<T>(ReadOnlySpan<char> fullPath)
+    public static T Load<T>(ReadOnlySpan<char> fullPath)
     {
         SplitPath(fullPath, out var prefix, out var relativePath);
 
         if (!managers.TryGetValue(prefix.ToString(), out AssetManager? manager))
             throw new ArgumentException("Could not find specified asset manager prefix.", nameof(fullPath));
 
-        return manager.LoadAsync<T>(relativePath);
+        return manager.Load<T>(relativePath.ToString());
     }
 
-    /// <inheritdoc cref="LoadAsync{T}(ReadOnlySpan{char})"/>
+    /// <inheritdoc cref="Load{T}(ReadOnlySpan{char})"/>
     /// <exception cref="ArgumentNullException"><paramref name="fullPath"/> is <see langword="null"/>.</exception>
     [MustUseReturnValue]
-    public static ValueTask<T> LoadAsync<T>(string fullPath)
+    public static T LoadAsync<T>(string fullPath)
     {
         ArgumentNullException.ThrowIfNull(fullPath);
-        return LoadAsync<T>(fullPath.AsSpan());
+        return Load<T>(fullPath.AsSpan());
     }
 
     /// <summary>
@@ -105,6 +105,12 @@ public static class Assets
         // <prefix> ':/' <path>
         prefix = query[..separatorIndex];
         path = query[(separatorIndex + 2)..];
+    }
+
+    public static void Update()
+    {
+        foreach (AssetManager assetManager in managers.Values)
+            assetManager.Update();
     }
 
 

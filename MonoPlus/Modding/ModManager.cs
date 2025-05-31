@@ -43,16 +43,7 @@ public static class ModManager
     /// </summary>
     public static void Update()
     {
-        for (int i = 0; i < ModLoader.ModReloadTasks.Count; i++)
-        {
-            Task modReloadTask = ModLoader.ModReloadTasks[i].Task;
-
-            if (!modReloadTask.IsCompleted) continue;
-
-            if (modReloadTask.Exception is not null) throw modReloadTask.Exception;
-            ModLoader.ModReloadTasks.RemoveAt(i);
-            i--;
-        }
+        ModLoader.reloadTaskManager?.Update();
 
         foreach (Mod mod in Mods.Values)
             mod.Update();

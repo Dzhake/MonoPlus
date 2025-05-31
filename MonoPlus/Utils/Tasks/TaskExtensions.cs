@@ -18,7 +18,7 @@ using System.Threading.Tasks;
 using JetBrains.Annotations;
 using PureAttribute = System.Diagnostics.Contracts.PureAttribute;
 
-namespace MonoPlus;
+namespace MonoPlus.Utils.Tasks;
 
 /// <summary>
 ///   <para>Provides a set of extension methods for <see cref="Task{T}"/> and related types.</para>
