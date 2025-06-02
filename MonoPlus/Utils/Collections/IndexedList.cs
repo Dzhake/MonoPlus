@@ -38,10 +38,25 @@ public class IndexedList<T> : ICollection<T>
     protected T?[] array;
 
     /// <summary>
-    /// Value, caching minimum index of empty index in the <see cref="array"/>.
+    /// Value, caching minimum index of empty value in the <see cref="array"/>.
     /// </summary>
-    /// <remarks>At any moment, no empty index might be lower than this value. Methods may use this value to share index where to add new element.</remarks>
+    /// <remarks>At any moment, no index empty value might be lower than this value. Methods may use this value to share index where to add new element.</remarks>
     protected int MinFreeIndex;
+
+    /// <summary>
+    /// Whether <see cref="MinFreeIndex"/> contains index of empty value.
+    /// </summary>
+    protected bool FoundMinFreeIndex;
+
+    /// <summary>
+    /// Get or set current capacity of the list.
+    /// </summary>
+    /// <remarks>New capacity can't be smaller than current capacity.</remarks>
+    public int Capacity
+    {
+        get => array.Length;
+        set => Resize(value);
+    }
 
     /// <inheritdoc />
     public void Add(T item) => Add(item, out _);
@@ -53,11 +68,11 @@ public class IndexedList<T> : ICollection<T>
     /// <param name="index">Index where the <paramref name="item"/> was added.</param>
     public void Add(T item, out int index)
     {
-        ArgumentNullException.ThrowIfNull(item);
         FindFreeMinIndex();
         array[MinFreeIndex] = item;
         index = MinFreeIndex;
         MinFreeIndex++;
+        FoundMinFreeIndex = false;
     }
 
     /// <inheritdoc />
@@ -93,20 +108,22 @@ public class IndexedList<T> : ICollection<T>
     /// <param name="item">Item to find in the list.</param>
     public void AddIfNotFound(T item)
     {
-        if (IndexOf(item, true) < 0) array[MinFreeIndex] = item;
+        if (IndexOf(item, true) >= 0) return;
+        array[MinFreeIndex] = item;
         MinFreeIndex++;
+        FoundMinFreeIndex = false;
     }
 
     /// <summary>
     /// Returns index of the item in the specified
     /// </summary>
-    /// <param name="item"></param>
+    /// <param name="item">TODO</param>
     /// <param name="findFreeIndex"></param>
-    /// <returns></returns>
+    /// <returns>Zero-based index of the <paramref name="item"/> in the list, or -1 if not found.</returns>
     public int IndexOf(T item, bool findFreeIndex = false)
     {
         ArgumentNullException.ThrowIfNull(item);
-        bool foundMinFreeIndex = false;
+        bool foundMinFreeIndex = FoundMinFreeIndex;
         int result = -1;
 
         for (int i = 0; i < array.Length; i++)
@@ -117,6 +134,7 @@ public class IndexedList<T> : ICollection<T>
                 if (foundMinFreeIndex) continue;
                 MinFreeIndex = i;
                 foundMinFreeIndex = true;
+                FoundMinFreeIndex = true;
                 if (result > 0) return result;
             }
             else if (existing.Equals(item))
@@ -130,6 +148,7 @@ public class IndexedList<T> : ICollection<T>
 
         //if we got here then no empty indexes were found, but we need them.
         MinFreeIndex = array.Length;
+        FoundMinFreeIndex = true;
         Resize();
 
         return result;
@@ -175,6 +194,7 @@ public class IndexedList<T> : ICollection<T>
     /// </summary>
     protected void FindFreeMinIndex()
     {
+        if (FoundMinFreeIndex) return;
         while (MinFreeIndex < array.Length && array[MinFreeIndex] is not null) MinFreeIndex++;
         if (MinFreeIndex == array.Length) Resize();
     }
@@ -182,9 +202,18 @@ public class IndexedList<T> : ICollection<T>
     /// <summary>
     /// Reszies the <see cref="array"/> to be bigger than before at least by 1 index.
     /// </summary>
-    protected void Resize()
+    protected void Resize() => Resize(array.Length >= 4 ? array.Length * 2 : 4);
+
+    /// <summary>
+    /// Reszies the <see cref="array"/> to make it's size match <paramref name="newCapacity"/>.
+    /// </summary>
+    /// <param name="newCapacity">New capacity of the list.</param>
+    /// <exception cref="ArgumentException"><paramref name="newCapacity"/> is less than current capacity.</exception>
+    protected void Resize(int newCapacity)
     {
-        T?[] newArray = new T[array.Length >= 4 ? array.Length * 2 : 4];
+        if (newCapacity < array.Length)
+            throw new ArgumentException($"New capacity ({newCapacity}) can't be less than current capacity ({array.Length})", nameof(newCapacity));
+        T?[] newArray = new T[newCapacity];
         array.CopyTo(newArray);
         array = newArray;
     }
@@ -203,20 +232,20 @@ public class IndexedList<T> : ICollection<T>
         /// <summary>
         /// Current index of enumerator.
         /// </summary>
-        private int index;
+        private int index = -1;
 
         /// <inheritdoc />
         public bool MoveNext()
         {
             index++;
-            while (array[index] is null && index < array.Length) index++;
+            while (index < array.Length && array[index] is null) index++;
             return index < array.Length;
         }
 
         /// <inheritdoc />
         public void Reset()
         {
-            index = 0;
+            index = -1;
         }
 
         /// <inheritdoc />

@@ -1,6 +1,5 @@
 ﻿using System.Linq;
 using System.Text;
-using CardGames.Console;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 

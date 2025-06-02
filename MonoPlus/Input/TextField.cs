@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Text;
 using Microsoft.Xna.Framework.Input;
-using MonoPlus.InputHandling;
-using MonoPlus.Time;
 using SDL3;
 
-namespace CardGames.Console;
+namespace MonoPlus.InputHandling;
 
 /// <summary>
 /// Represents text input field which captures input and may have selection.
