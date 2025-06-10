@@ -2,7 +2,7 @@
 using Microsoft.Xna.Framework;
 using MonoPlus.Graphics;
 
-namespace MonoPlus.Time;
+namespace MonoPlus;
 
 /// <summary>
 /// Class for managing <see cref="DeltaTime"/> and <see cref="TotalTime"/>, and quick access to those.

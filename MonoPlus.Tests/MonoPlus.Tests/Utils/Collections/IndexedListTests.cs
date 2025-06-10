@@ -1,133 +1,286 @@
-﻿using MonoPlus.Utils.Collections;
-using Newtonsoft.Json.Linq;
-
-namespace MonoPlus.Tests;
+﻿namespace MonoPlus.Utils.Collections.Tests;
 
 [TestClass]
-public sealed class IndexedListTests
+public class IndexedListTests
 {
     [TestMethod]
-    public void TestCtorValues()
+    public void ConstructorCapacity4()
     {
-        List<int> values = [2, 4, 6, 8, 10];
-        IndexedList<int?> list = new(values.Select<int, int?>(value => value));
-        for (var i = 0; i < values.Count; i++)
-            Assert.AreEqual(values[i], list[i]);
-    }
-
-    [TestMethod]
-    public void TestGetCapacity()
-    {
-        IndexedList<int?> list = [2, 4, 6, 8, 10];
-        Assert.AreEqual(8, list.Capacity);
-    }
-
-    public void TestAdd()
-    {
-        List<int> values = [2, 4, 6, 8, 10];
-        IndexedList<int?> list = new();
-        foreach (int value in values)
-            list.Add(value);
-
-        for (var i = 0; i < values.Count; i++)
-            Assert.AreEqual(values[i], list[i]);
-    }
-
-    public void TestAddOut()
-    {
-        IndexedList<int?> list = new();
+        var list = new IndexedList<int?>();
         Assert.AreEqual(4, list.Capacity);
-        list.Add(1);
-        list.Add(2);
-        list.Add(3);
-        list.Add(4);
-        list.RemoveAt(2);
-        Assert.AreEqual(null, list[2]);
-        list.Add(5, out int index);
-        Assert.AreEqual(2, index);
-    }
-
-    public void TestClear()
-    {
-        IndexedList<int?> list = [2, 4, 6, 8, 10];
-        Assert.AreEqual(5, list.Capacity);
-        list.Clear();
-        for (int i = 0; i < list.Capacity - 1; i++)
-            Assert.AreEqual(null, list[i]);
+        Assert.AreEqual(4, list.Count);
     }
 
     [TestMethod]
-    public void TestCapacityIncrease()
+    public void ConstructorSpecifiedCapacity()
     {
-        IndexedList<int?> list = new();
-        Assert.AreEqual(4, list.Capacity);
-        for (int i = 0; i < 10; i++)
-            list.Add(i);
-        Assert.AreEqual(16, list.Capacity);
+        var list = new IndexedList<int?>(10);
+        Assert.AreEqual(10, list.Capacity);
+        Assert.AreEqual(10, list.Count);
     }
 
     [TestMethod]
-    public void TestSetCapacityException()
+    public void ConstructorCopiesElements()
     {
-        IndexedList<int?> list = [2, 4, 6, 8, 10];
-        Assert.ThrowsException<ArgumentException>(() => list.Capacity = 4);
+        var collection = new List<int?> { 1, 2, 3 };
+        var list = new IndexedList<int?>(collection);
+            
+        Assert.AreEqual(3, list.Count);
+        Assert.AreEqual(1, list[0]);
+        Assert.AreEqual(2, list[1]);
+        Assert.AreEqual(3, list[2]);
     }
 
     [TestMethod]
-    public void TestSetCapacity()
+    public void Add()
     {
-        IndexedList<int?> list = [2, 4, 6, 8, 10];
-        list.Capacity = 13;
-        Assert.AreEqual(13, list.Capacity);
-        for (int i = 0; i < 15; i++)
-            list.Add(i);
-        Assert.AreEqual(26, list.Capacity);
-    }
-
-    [TestMethod]
-    public void TestEnumerator()
-    {
-        List<int> values = [0, 2, 4, 6, 10];
-        IndexedList<int?> list = [0, null, 2, 4, 6, null, 10, null];
-        int i = 0;
-        foreach (int? value in list)
+        var list = new IndexedList<string>
         {
-            Assert.AreEqual(values[i], value);
-            i++;
-        }
-        Assert.AreEqual(5, i);
+            "first",
+            "second"
+        };
+
+        Assert.AreEqual("first", list[0]);
+        Assert.AreEqual("second", list[1]);
+        Assert.IsNull(list[2]);
+        Assert.IsNull(list[3]);
     }
 
     [TestMethod]
-    public void TestIndexOf()
+    public void AddUsesRemovedIndexes()
     {
-        IndexedList<int?> list = [2, 4, 6, 8, 10];
-        Assert.AreEqual(3, list.IndexOf(8));
+        var list = new IndexedList<string>
+        {
+            "first",
+            "second",
+            "third"
+        };
+        list.RemoveAt(1);
+            
+        list.Add("new");
+            
+        Assert.AreEqual("first", list[0]);
+        Assert.AreEqual("new", list[1]);
+        Assert.AreEqual("third", list[2]);
     }
 
     [TestMethod]
-    public void TestAddIfNotFound()
+    public void AddReturnsIndex()
     {
-        IndexedList<int?> list = [2, 4, 6, 8, 10];
-        list.AddIfNotFound(8);
-        list.AddIfNotFound(3);
-        int i = 0;
-        foreach (int? _ in list) i++;
-        Assert.AreEqual(6, i);
+        var list = new IndexedList<string>();
+        list.Add("first", out int index1);
+        list.Add("second", out int index2);
+            
+        Assert.AreEqual(0, index1);
+        Assert.AreEqual(1, index2);
     }
 
     [TestMethod]
-    public void TestInsertException()
+    public void Remove()
     {
-        IndexedList<int?> list = [2];
-        Assert.ThrowsException<ArgumentException>(() => list.Insert(0, 2));
+        var list = new IndexedList<string>
+        {
+            "first",
+            "second"
+        };
+
+        bool result = list.Remove("first");
+            
+        Assert.IsTrue(result);
+        Assert.IsNull(list[0]);
+        Assert.AreEqual("second", list[1]);
     }
 
     [TestMethod]
-    public void TestInsert()
+    public void RemoveNonExistentItem()
     {
-        IndexedList<int?> list = [2, 4, null, 8, 10];
-        list.Insert(2, 6);
-        Assert.AreEqual(6, list[2]);
+        var list = new IndexedList<string> { "first" };
+
+        bool result = list.Remove("nonexistent");
+            
+        Assert.IsFalse(result);
+    }
+
+    [TestMethod]
+    public void RemoveAt()
+    {
+        var list = new IndexedList<string>
+        {
+            "first",
+            "second"
+        };
+
+        list.RemoveAt(0);
+            
+        Assert.IsNull(list[0]);
+        Assert.AreEqual("second", list[1]);
+    }
+
+    [TestMethod]
+    public void Contains()
+    {
+        var list = new IndexedList<string> { "first" };
+
+        Assert.IsTrue(list.Contains("first"));
+        Assert.IsFalse(list.Contains("second"));
+    }
+
+    [TestMethod]
+    public void IndexOf()
+    {
+        var list = new IndexedList<string>
+        {
+            "first",
+            "second"
+        };
+
+        Assert.AreEqual(0, list.IndexOf("first"));
+        Assert.AreEqual(1, list.IndexOf("second"));
+        Assert.AreEqual(-1, list.IndexOf("second"));
+    }
+
+    [TestMethod]
+    [ExpectedException(typeof(ArgumentNullException))]
+    public void IndexOfNullItem()
+    {
+        var list = new IndexedList<string>();
+        list.IndexOf(null!);
+    }
+
+    [TestMethod]
+    public void Insert()
+    {
+        var list = new IndexedList<string>(2);
+        list.Insert(1, "item");
+            
+        Assert.IsNull(list[0]);
+        Assert.AreEqual("item", list[1]);
+    }
+
+    [TestMethod]
+    [ExpectedException(typeof(ArgumentException))]
+    public void InsertException()
+    {
+        var list = new IndexedList<string> { "first" };
+        list.Insert(0, "second");
+    }
+
+    [TestMethod]
+    public void Clear()
+    {
+        var list = new IndexedList<string>
+        {
+            "first",
+            "second"
+        };
+
+        list.Clear();
+            
+        Assert.IsNull(list[0]);
+        Assert.IsNull(list[1]);
+    }
+
+    [TestMethod]
+    public void CapacityResize()
+    {
+        var list = new IndexedList<string>(2)
+        {
+            Capacity = 4
+        };
+
+        Assert.AreEqual(4, list.Capacity);
+        Assert.AreEqual(4, list.Count);
+    }
+
+    [TestMethod]
+    [ExpectedException(typeof(ArgumentException))]
+    public void CapacityException()
+    {
+        var list = new IndexedList<string>(4);
+        list.Capacity = 2;
+    }
+
+    [TestMethod]
+    public void Indexer()
+    {
+        var list = new IndexedList<string>
+        {
+            [0] = "first",
+            [1] = "second"
+        };
+
+        Assert.AreEqual("first", list[0]);
+        Assert.AreEqual("second", list[1]);
+    }
+
+    [TestMethod]
+    public void AddIfNotFound()
+    {
+        var list = new IndexedList<string>();
+        list.AddIfNotFound("first");
+        list.AddIfNotFound("first");
+            
+        Assert.AreEqual("first", list[0]);
+        Assert.IsNull(list[1]);
+    }
+
+    [TestMethod]
+    public void Enumerator()
+    {
+        var list = new IndexedList<string>
+        {
+            "first",
+            "second"
+        };
+        list.RemoveAt(1);
+            
+        var items = new List<string>();
+        foreach (var item in list)
+            items.Add(item);
+            
+        CollectionAssert.AreEqual(new[] { "first" }, items);
+    }
+
+    [TestMethod]
+    public void CopyTo()
+    {
+        var list = new IndexedList<string>
+        {
+            "first",
+            "second"
+        };
+
+        var array = new string[2];
+        list.CopyTo(array, 0);
+            
+        CollectionAssert.AreEqual(new[] { "first", "second" }, array);
+    }
+
+    [TestMethod]
+    public void Resize()
+    {
+        var list = new IndexedList<string>(2)
+        {
+            "first",
+            "second",
+            "third" // Should trigger resize
+        };
+
+        Assert.AreEqual(4, list.Capacity);
+    }
+
+    [TestMethod]
+    public void WorksWithNullable()
+    {
+        var list = new IndexedList<int?>
+        {
+            1,
+            2
+        };
+        list.RemoveAt(0);
+        list.Add(3);
+            
+        Assert.AreEqual(3, list[0]);
+        Assert.AreEqual(2, list[1]);
     }
 }
