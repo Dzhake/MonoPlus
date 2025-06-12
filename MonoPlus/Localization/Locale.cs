@@ -6,7 +6,7 @@ using Linguini.Bundle.Builder;
 using Linguini.Bundle.Errors;
 using Serilog;
 
-namespace MonoPlus.Localization;
+namespace MonoPlus.LocalizationSystem;
 
 /// <summary>
 /// Class to manage localization.

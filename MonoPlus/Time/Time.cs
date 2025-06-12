@@ -1,6 +1,6 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
-using MonoPlus.Graphics;
+using MonoPlus.GraphicsSystem;
 
 namespace MonoPlus;
 

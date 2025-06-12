@@ -1,6 +1,6 @@
 ﻿using Microsoft.Xna.Framework;
 
-namespace MonoPlus.Graphics;
+namespace MonoPlus.GraphicsSystem;
 
 /// <summary>
 /// Extesions for <see cref="Point"/> class.

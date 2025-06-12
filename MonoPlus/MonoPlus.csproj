@@ -41,4 +41,9 @@
 
         <ProjectReference Include="..\SDL3-CS\SDL3\SDL3.Core.csproj" />
     </ItemGroup>
+
+
+    <ItemGroup>
+      <Folder Include="Assets\Exceptions\" />
+    </ItemGroup>
 </Project>

@@ -3,7 +3,7 @@ using System.Text;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 
-namespace MonoPlus.InputHandling;
+namespace MonoPlus.InputSystem;
 
 /// <summary>
 /// Helper class to manage everything related to <see cref="Input"/>.

@@ -16,18 +16,24 @@ namespace MonoPlus.Utils.Collections;
 /// <para><b>DO NOT USE WITH VALUE TYPES!</b> <see cref="IndexedList{T}"/> uses mix of <see langword="default"/> and <see langword="null"/> for empty indexes. For value types those don't match, so collection will be considered having no empty indexes, and whenever you try to add an element it'll resize, because no empty indexes are found. As result, each time you add an element size of the collection doubles. Consider using "T?" (e.g. "<see cref="int"/>?" instead of "<see cref="int"/>" instead, so <see langword="default"/> for it will match <see langword="null"/>.</para>
 /// </remarks>
 [CollectionBuilder(typeof(IndexedListBuilder), nameof(IndexedListBuilder.Create))]
-public class IndexedList<T> : ICollection<T>
+public class IndexedList<T> : ICollection<T> //do not implement IList<T> because it would break polymorphism
 {
     /// <summary>
     /// Initializes a new instance of <see cref="IndexedList{T}"/> with capacity 4.
     /// </summary>
-    public IndexedList() => array = new T[4];
+    public IndexedList()
+    {
+        array = new T[4];
+    }
 
     /// <summary>
     /// Initializes a new instance of <see cref="IndexedList{T}"/> with capacity set to <paramref name="capacity"/>.
     /// </summary>
     /// <param name="capacity">Capacity of the list.</param>
-    public IndexedList(int capacity) => array = new T[capacity];
+    public IndexedList(int capacity)
+    {
+        array = new T[capacity];
+    }
 
     /// <summary>
     /// Initializes a new instance of <see cref="IndexedList{T}"/> with same values as in the <paramref name="values"/>.

@@ -1,9 +1,9 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using MonoPlus.Graphics.BitmapFonts;
+using MonoPlus.GraphicsSystem.BitmapFonts;
 
-namespace MonoPlus.Graphics;
+namespace MonoPlus.GraphicsSystem;
 
 /// <summary>
 /// Class for managing <see cref="GraphicsDeviceManager"/>, <see cref="SpriteBatch"/> and drawing.

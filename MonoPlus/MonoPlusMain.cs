@@ -1,7 +1,7 @@
-﻿using Microsoft.Xna.Framework;
-using MonoPlus.Graphics;
-using MonoPlus.InputHandling;
-using MonoPlus.Logging;
+﻿using LogSystem;
+using Microsoft.Xna.Framework;
+using MonoPlus.GraphicsSystem;
+using MonoPlus.InputSystem;
 
 namespace MonoPlus;
 
@@ -16,12 +16,12 @@ public static class MonoPlusMain
     public static bool HotReload = true;
 
     /// <summary>
-    /// Call as early as possible. Initializes <see cref="LoggingHelper"/> and <see cref="OS"/>.
+    /// Call as early as possible. Initializes <see cref="LogHelper"/> and <see cref="OS"/>.
     /// </summary>
     public static void EarlyInitialize()
     {
         OS.Initialize();
-        LoggingHelper.Initialize();
+        LogHelper.Initialize();
     }
 
     /// <summary>
