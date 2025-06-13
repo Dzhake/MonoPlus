@@ -4,7 +4,7 @@ using System.IO;
 namespace MonoPlus.AssetsSystem;
 
 /// <summary>
-///   <para>The exception that is thrown when <see cref="FileSystemAssetManager"/> found more than asset with same path and name but different extensions</para>
+///   <para>The exception that is thrown when <see cref="FileAssetsManager"/> found more than asset with same path and name but different extensions</para>
 /// </summary>
 public sealed class DuplicateAssetException : Exception
 {
@@ -18,7 +18,7 @@ public sealed class DuplicateAssetException : Exception
     public string AssetExtensions { get; }
 
     /// <summary>
-    ///     <para>Path where <see cref="FileSystemAssetManager"/> tried to find asset</para>
+    ///     <para>Path where <see cref="FileAssetsManager"/> tried to find asset</para>
     /// </summary>
     public string RootPath { get; }
 

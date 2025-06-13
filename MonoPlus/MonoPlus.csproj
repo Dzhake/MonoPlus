@@ -10,22 +10,25 @@
         <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
         <OutputPath>$(ProjectDir)bin\</OutputPath>
     </PropertyGroup>
-
+    
 
     <ItemGroup>
-        <!-- Separate project -->
+        <!-- Temporary, delete after rewrite -->
         <Compile Remove="AssetsOld\**" />
+        <EmbeddedResource Remove="AssetsOld\**"/>
+        <None Remove="AssetsOld\**"/>
+        
+        <!-- Temporary, include back after rewrite -->
         <Compile Remove="Modding\**" />
-        <EmbeddedResource Remove="AssetsOld\**" />
-        <EmbeddedResource Remove="Modding\**" />
-        <None Remove="AssetsOld\**" />
+        <EmbeddedResource Remove="Modding\**"/>
+        <None Remove="Modding\**"/>
 
+        <!-- Separate project -->
         <Compile Remove="MSBuildTasks\**" />
-
-        <None Remove="Modding\**" />
         <None Remove="MSBuildTasks\**" />
         <EmbeddedResource Remove="MSBuildTasks\**" />
 
+        <!-- Separate project -->
         <Compile Remove="TemplateMod\**" />
         <EmbeddedResource Remove="TemplateMod\**" />
         <None Remove="TemplateMod\**" />
@@ -40,10 +43,5 @@
         <PackageReference Include="Linguini.Bundle" Version="0.9.0" />
 
         <ProjectReference Include="..\SDL3-CS\SDL3\SDL3.Core.csproj" />
-    </ItemGroup>
-
-
-    <ItemGroup>
-      <Folder Include="Assets\Exceptions\" />
     </ItemGroup>
 </Project>

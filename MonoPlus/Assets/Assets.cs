@@ -37,7 +37,7 @@ public static class Assets
     /// </summary>
     /// <param name="assetsManager">The asset manager to remove from the global registry.</param>
     /// <returns><see langword="true"/>, if the specified asset <paramref name="assetsManager"/> was successfully removed; otherwise, <see langword="false"/>.</returns>
-    public static bool UnRegisterAssetManager([NotNullWhen(true)] AssetsManager? assetsManager)
+    public static bool UnRegisterAssetsManager([NotNullWhen(true)] AssetsManager? assetsManager)
     {
         if (assetsManager?.Prefix is { } prefix && Managers.Remove(prefix))
         {
@@ -73,7 +73,7 @@ public static class Assets
     /// </summary>
     /// <param name="prefix"><see cref="AssetsManager"/>'s prefix.</param>
     /// <returns>Whether <see cref="AssetsManager"/> with specified <paramref name="prefix"/> is registered.</returns>
-    public static bool AssetManagerRegistered(string prefix) => Managers.ContainsKey(prefix);
+    public static bool AssetsManagerRegistered(string prefix) => Managers.ContainsKey(prefix);
 
     /// <summary>
     /// Splits asset path with prefix info prefix and asset path
@@ -116,4 +116,25 @@ public static class Assets
     /// Whether <see cref="AssetsManager"/>s should prefer maximum performance, or lower memory usage. Used in rare cases, where <see cref="ResourcePriorityType.Performance"/> can use a lot of memory.
     /// </summary>
     public static ResourcePriorityType ResourcePriority = ResourcePriorityType.Performance;
+
+    /// <summary>
+    /// Types of action <see cref="AssetsManager"/> will do if the specified asset was not found.
+    /// </summary>
+    public enum NotFoundPolicyType
+    {
+        /// <summary>
+        /// Throw <see cref="AssetNotFoundException"/>.
+        /// </summary>
+        Exception,
+        
+        /// <summary>
+        /// Fallback to default asset.
+        /// </summary>
+        Fallback,
+    }
+
+    /// <summary>
+    /// Action <see cref="AssetsManager"/> will do if the specified asset was not found.
+    /// </summary>
+    public static NotFoundPolicyType NotFoundPolicy = NotFoundPolicyType.Fallback;
 }

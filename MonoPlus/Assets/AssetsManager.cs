@@ -82,7 +82,12 @@ public abstract class AssetsManager : IDisposable
         {
             cacheRwl.EnterReadLock();
             if (!cache.TryGetValue(path, out object? asset))
-                throw new AssetNotFoundException(this, path);
+                return Assets.NotFoundPolicy switch
+                {
+                    Assets.NotFoundPolicyType.Exception => throw new AssetNotFoundException(this, path),
+                    Assets.NotFoundPolicyType.Fallback => GetDefault<T>() ?? throw new AssetFallbackNotFoundException(this, typeof(T)),
+                    _ => throw new IndexOutOfRangeException($"{nameof(Assets)}.{nameof(Assets.NotFoundPolicy)} was not any known type: {Assets.NotFoundPolicy}")
+                };
             if (asset is T castedAsset) return castedAsset;
             throw new AssetTypeMismatchException(this, path, typeof(T), asset.GetType());
         }
@@ -90,6 +95,18 @@ public abstract class AssetsManager : IDisposable
         {
             cacheRwl.ExitReadLock();
         }
+    }
+    
+    /// <summary>
+    /// Returns default (fallback) asset with the specified <typeparamref name="T"/> for asset that you could not be found.
+    /// </summary>
+    /// <typeparam name="T">Type of the fallback.</typeparam>
+    /// <returns>Fallback asset for that type.</returns>
+    /// <exception cref="AssetFallbackNotFoundException">Thrown if asset fallback was not found, or could not be loaded.</exception>
+    public static T? GetDefault<T>()
+    {
+        T fallback = default; //TODO
+        return fallback;
     }
 
     /// <summary>
@@ -117,17 +134,17 @@ public abstract class AssetsManager : IDisposable
     
 
     /// <summary>
-    /// Loads all assets related to this manager, e.g. all files from it's directory for file-based all manager.
+    /// Loads all assets related to this manager, e.g. all files from its directory for file-based all manager.
     /// </summary>
     public void LoadAssets()
     {
         ObjectDisposedException.ThrowIf(disposed, this);
         LoadedAmount = 0;
         Log.Information("{AssetManager} is loading assets", this);
-        string[] paths = GetAllAssetsPaths();
-        TotalAmount = paths.Length;
-        foreach (string path in paths)
-            MainThread.Add(LoadIntoCacheAsync(path));
+        string[] assetPaths = GetAllAssetsPaths();
+        TotalAmount = assetPaths.Length;
+        foreach (string assetPath in assetPaths)
+            MainThread.Add(Task.Run(async () => await LoadIntoCacheAsync(assetPath)));
     }
 
     /// <summary>
@@ -139,20 +156,20 @@ public abstract class AssetsManager : IDisposable
     /// <summary>
     /// Loads asset into cache using <see cref="LoadNewAssetAsync"/>, ignoring previous asset at that path.
     /// </summary>
-    /// <param name="path">Path of the asset in this <see cref="AssetsManager"/></param>
-    private async Task LoadIntoCacheAsync(string path)
+    /// <param name="assetPath">Path of the asset in this <see cref="AssetsManager"/></param>
+    private async Task LoadIntoCacheAsync(string assetPath)
     {
         try
         {
-            object asset = await LoadNewAssetAsync(path);
+            object? asset = await LoadNewAssetAsync(assetPath);
             cacheRwl.EnterWriteLock();
-            cache[path] = asset;
+            cache[assetPath] = asset!; // Possible null reference assignment. Not an error, if asset was not found then null will be stored, and Get() will return GetDefault() or will crash (based on Assets.NotFoundPolicy). If we store GetDefault(), then if reference to the asset (the path) is changed, cache will have unused value. That's a memory leak.
         }
         finally
         {
             cacheRwl.ExitWriteLock();
             Interlocked.Add(ref LoadedAmount, 1);
-            Log.Verbose("Loaded asset at path {Prefix}:/{Path} into cache", Prefix, path);
+            Log.Verbose("Loaded asset at path {Prefix}:/{Path} into cache", Prefix, assetPath);
         }
     }
 
@@ -160,30 +177,30 @@ public abstract class AssetsManager : IDisposable
     /// <summary>
     /// Reloads asset at specified path and invokes listeners if old asset is found in cache.
     /// </summary>
-    /// <param name="path">Path of the asset in this <see cref="AssetsManager"/></param>
+    /// <param name="assetPath">Path of the asset in this <see cref="AssetsManager"/></param>
     /// <exception cref="AssetNotFoundException">Could not load new asset at the specified path.</exception>
-    public void ReloadAsset(string path)
+    public void ReloadAsset(string assetPath)
     {
         ObjectDisposedException.ThrowIf(disposed, this);
         if (!Reload) return;
-        MainThread.Add(ReloadAssetAsync(path));
+        MainThread.Add(ReloadAssetAsync(assetPath));
     }
     
     /// <summary>
-    /// Loads asset into cache using <see cref="LoadNewAssetAsync"/>, and invokes listeners if cache already had asset at the specified <paramref name="path"/>.
+    /// Loads asset into cache using <see cref="LoadNewAssetAsync"/>, and invokes listeners if cache already had asset at the specified <paramref name="assetPath"/>.
     /// </summary>
-    /// <param name="path">Path of the asset in this <see cref="AssetsManager"/></param>
-    private async Task ReloadAssetAsync(string path)
+    /// <param name="assetPath">Path of the asset in this <see cref="AssetsManager"/></param>
+    private async Task ReloadAssetAsync(string assetPath)
     {
         try
         {
-            object asset = await LoadNewAssetAsync(path);
+            object? asset = await LoadNewAssetAsync(assetPath);
 
             //store old asset, replace, invoke listeners.
             cacheRwl.EnterWriteLock();
-            cache.TryGetValue(path, out object? oldAsset);
+            cache.TryGetValue(assetPath, out object? oldAsset);
 
-            cache[path] = asset;
+            cache[assetPath] = asset!; //See same line in LoadIntoCacheAsync() for more info about why we suppress the warning here.
 
             if (oldAsset is null) return;
 
@@ -194,16 +211,16 @@ public abstract class AssetsManager : IDisposable
         {
             cacheRwl.ExitWriteLock();
             Interlocked.Add(ref LoadedAmount, 1);
-            Log.Verbose("Reloaded asset at path {Prefix}:/{Path}.", Prefix, path);
+            Log.Verbose("Reloaded asset at path {Prefix}:/{Path}.", Prefix, assetPath);
         }
     }
 
     /// <summary>
     /// Loads the asset without using cache. Useful for first load and reloading.
     /// </summary>
-    /// <param name="path">Path of the asset in this <see cref="AssetsManager"/></param>
+    /// <param name="assetPath">Path of the asset in this <see cref="AssetsManager"/></param>
     /// <returns>Just loaded asset.</returns>
-    protected abstract Task<object> LoadNewAssetAsync(string path);
+    protected abstract Task<object?> LoadNewAssetAsync(string assetPath);
 
     /// <summary>
     /// Adds the specified <paramref name="listener"/> to the <see cref="IAssetListener"/>'s listeners.
@@ -254,11 +271,14 @@ public abstract class AssetsManager : IDisposable
     /// <param name="disposing">Whether to release managed resources too.</param>
     protected virtual void Dispose(bool disposing)
     {
+        Assets.UnRegisterAssetsManager(this);
         if (!disposing) return;
-        Assets.UnRegisterAssetManager(this);
         cache = null!;
     }
 
+    /// <summary>
+    /// Deconstructor for <see cref="AssetsManager"/>, which doesn't dispose managed resources.
+    /// </summary>
     ~AssetsManager()
     {
         Dispose(false);

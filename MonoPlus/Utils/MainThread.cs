@@ -5,6 +5,9 @@ using MonoPlus.Utils.Collections;
 
 namespace MonoPlus.Utils;
 
+/// <summary>
+/// Helper class for keeping track of <see cref="Tasks"/>, and throwing exceptions to main thread.
+/// </summary>
 public static class MainThread
 {
     private static IndexedList<Task> Tasks = new();
@@ -16,6 +19,8 @@ public static class MainThread
     /// <exception cref="AggregateException">One or more task threw an exception.</exception>
     public static void Update()
     {
+        if (Exceptions.Count != 0) throw new AggregateException(Exceptions);
+        
         if (Tasks.Count == 0) return;
 
         for (var i = 0; i < Tasks.Count; i++)
@@ -35,7 +40,7 @@ public static class MainThread
     /// </summary>
     /// <param name="exception">Exception to throw at main thread.</param>
     /// <exception cref="Exception">The <paramref name="exception"/>.</exception>
-    public static void Add(Exception exception) => Tasks.Add(new Task(() => throw exception));
+    public static void Add(Exception exception) => Exceptions.Add(exception);
 
     /// <summary>
     /// Adds the specified <paramref name="task"/> to the list of tasks managed by <see cref="MainThread"/>.

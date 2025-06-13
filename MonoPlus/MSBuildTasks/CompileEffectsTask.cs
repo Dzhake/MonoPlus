@@ -10,13 +10,6 @@ namespace MonoPlus.MSBuild;
 /// <summary>
 /// Used to compile .fx asset files using MGFXC.
 /// </summary>
-/// <remarks>
-///     <para>Exit codes:
-/// 0 — success
-/// 1 — reserved
-/// 2 — Win32 error after starting MGFXC process
-/// 3 — Not enough arguments</para>
-/// </remarks>
 public class CompileEffectsTask : Task
 {
     /// <summary>
