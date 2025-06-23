@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Text;
 using Microsoft.Xna.Framework.Input;
+using MonoPlus.TimeSystem;
 using SDL3;
 
 namespace MonoPlus.InputSystem;
@@ -13,7 +14,7 @@ public class TextField
     /// <summary>
     /// Current field input.
     /// </summary>
-    public StringBuilder text = new();
+    public readonly StringBuilder text = new();
 
     /// <summary>
     /// Cursor's position in field.
@@ -112,7 +113,7 @@ public class TextField
     }
 
     /// <summary>
-    /// Check if key is pressed, or is being held and it's time for fake press, so holding a key repeats like it's being pressed.
+    /// Check if key is pressed, or is being held, and it's time for fake press, so holding a key repeats like it's being pressed.
     /// </summary>
     /// <param name="key">Key to check.</param>
     /// <returns>Whether the key is pressed.</returns>

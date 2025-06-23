@@ -13,17 +13,18 @@ namespace MonoPlus.Utils.Collections;
 /// <remarks>
 /// <para>Collection similar to the <see cref="List{T}"/>, but instead of moving elements around when removing elements <see cref="IndexedList{T}"/> places <see langword="null"/> at their place, and when adding new elements searches for indexes with <see langword="null"/>, or resizes collection if needed. Because of this behaviour indexes of the elements in <see cref="IndexedList{T}"/> never change, unless the element is removed, so you can store indexes for any amount of time, allowing you to remove elements from the <see cref="IndexedList{T}"/> much quicker than from the <see cref="List{T}"/>. But if you don't store indexes, then both <see cref="Add(T)"/> and <see cref="Remove"/> operation iterate the collection, unlike only <see cref="List{T}.Remove"/> for the <see cref="List{T}"/>.</para>
 /// <para><see cref="IndexedList{T}"/> is also probably much worse if you only modify early indexes of the collection, as <see cref="List{T}"/> would shift items to early indexes and only modify late indexes, and <see cref="IndexedList{T}"/> will iterate all the indexes when adding item to end of the collection.</para>
-/// <para><b>DO NOT USE WITH VALUE TYPES!</b> <see cref="IndexedList{T}"/> uses mix of <see langword="default"/> and <see langword="null"/> for empty indexes. For value types those don't match, so collection will be considered having no empty indexes, and whenever you try to add an element it'll resize, because no empty indexes are found. As result, each time you add an element size of the collection doubles. Consider using "T?" (e.g. "<see cref="int"/>?" instead of "<see cref="int"/>" instead, so <see langword="default"/> for it will match <see langword="null"/>.</para>
+/// <para><b>DO NOT USE WITH VALUE TYPES!</b> <see cref="IndexedList{T}"/> uses mix of <see langword="default"/> and <see langword="null"/> for empty indexes. For value types those don't match, so collection will be considered having no empty indexes, and whenever you try to add an element it'll resize, because no empty indexes are found. As result, each time you add an element size of the collection doubles. Consider using "T?" (e.g. "<see cref="int"/>?") instead of "<see cref="int"/>" instead, so <see langword="default"/> for it will match <see langword="null"/>.</para>
 /// </remarks>
 [CollectionBuilder(typeof(IndexedListBuilder), nameof(IndexedListBuilder.Create))]
-public class IndexedList<T> : ICollection<T> //do not implement IList<T> because it would break polymorphism
+public class IndexedList<T> : ICollection<T>
+//do not implement IList<T> because it would break polymorphism, because Remove doesn't shift indexes.
 {
     /// <summary>
     /// Initializes a new instance of <see cref="IndexedList{T}"/> with capacity 4.
     /// </summary>
     public IndexedList()
     {
-        array = new T[4];
+        array = new T?[4];
     }
 
     /// <summary>
@@ -32,14 +33,14 @@ public class IndexedList<T> : ICollection<T> //do not implement IList<T> because
     /// <param name="capacity">Capacity of the list.</param>
     public IndexedList(int capacity)
     {
-        array = new T[capacity];
+        array = new T?[capacity];
     }
 
     /// <summary>
     /// Initializes a new instance of <see cref="IndexedList{T}"/> with same values as in the <paramref name="values"/>.
     /// </summary>
     /// <param name="values">Values to copy to the list.</param>
-    public IndexedList(IEnumerable<T> values)
+    public IndexedList(IEnumerable<T?> values)
     {
         array = values.ToArray();
         MinFreeIndex = array.Length;
@@ -81,13 +82,30 @@ public class IndexedList<T> : ICollection<T> //do not implement IList<T> because
     public void Add(T item) => Add(item, out _);
 
     /// <summary>
+    /// Adds an item to the <see cref="IndexedList{T}"/> using the specified <paramref name="handler"/> to determine the item.
+    /// </summary>
+    /// <param name="handler"><see cref="Func{T, TResult}"/>, which should return valid item for the list when index for that item is passed as a parameter. (The <see cref="IndexedList{T}"/> won't have any element at that index at the moment of calling <paramref name="handler"/>).</param>
+    public int Add(Func<int, T> handler)
+    {
+        FindMinFreeIndex();
+        T item = handler(MinFreeIndex);
+        if (item is null) throw new Exception("Handler returned null");
+        array[MinFreeIndex] = item;
+        int index = MinFreeIndex;
+        MinFreeIndex++;
+        FoundMinFreeIndex = false;
+        return index;
+    }
+
+    /// <summary>
     /// Adds an item to the <see cref="IndexedList{T}"/>.
     /// </summary>
     /// <param name="item">The object to add to the <see cref="LinkedList{T}"/>.</param>
     /// <param name="index">Index where the <paramref name="item"/> was added.</param>
     public void Add(T item, out int index)
     {
-        FindFreeMinIndex();
+        ArgumentNullException.ThrowIfNull(item);
+        FindMinFreeIndex();
         array[MinFreeIndex] = item;
         index = MinFreeIndex;
         MinFreeIndex++;
@@ -112,7 +130,7 @@ public class IndexedList<T> : ICollection<T> //do not implement IList<T> because
     /// <inheritdoc />
     public bool Remove(T item)
     {
-        int index = IndexOf(item);
+        int index = IndexOf(item, false);
         if (index < 0) return false;
         RemoveAt(index);
         return true;
@@ -126,25 +144,26 @@ public class IndexedList<T> : ICollection<T> //do not implement IList<T> because
     /// <inheritdoc />
     public bool IsReadOnly => false;
 
+
     /// <summary>
     /// Adds the item to the list if it's not in the list already.
     /// </summary>
     /// <param name="item">Item to find in the list.</param>
     public void AddIfNotFound(T item)
     {
-        if (IndexOf(item, true) >= 0) return;
+        if (IndexOf(item) >= 0) return;
         array[MinFreeIndex] = item;
         MinFreeIndex++;
         FoundMinFreeIndex = false;
     }
 
     /// <summary>
-    /// Returns index of the item in the specified
+    /// Returns zero-based index of the <paramref name="item"/> in the list, or -1 if not found.
     /// </summary>
-    /// <param name="item">TODO</param>
-    /// <param name="findFreeIndex"></param>
+    /// <param name="item">Item to find.</param>
+    /// <param name="findFreeIndex">Whether to look for <see cref="MinFreeIndex"/>, making next <see cref="Add(T)"/> faster by reducing need to search for it.</param>
     /// <returns>Zero-based index of the <paramref name="item"/> in the list, or -1 if not found.</returns>
-    public int IndexOf(T item, bool findFreeIndex = false)
+    public int IndexOf(T item, bool findFreeIndex = true)
     {
         ArgumentNullException.ThrowIfNull(item);
         bool foundMinFreeIndex = FoundMinFreeIndex;
@@ -179,7 +198,7 @@ public class IndexedList<T> : ICollection<T> //do not implement IList<T> because
     }
 
     /// <summary>
-    /// Inserts item to the list at specified <paramref name="index"/>, <b>or throws an exception if <paramref name="index"/> is already taken!</b>
+    /// Inserts item to the list at specified <paramref name="index"/>, <b>or throws an exception if <paramref name="index"/> is already taken</b>.
     /// </summary>
     /// <param name="index">The zero-based index at which item should be inserted.</param>
     /// <param name="item">The object to insert into the list.</param>
@@ -199,7 +218,11 @@ public class IndexedList<T> : ICollection<T> //do not implement IList<T> because
     public void RemoveAt(int index)
     {
         array[index] = default(T);
-        if (index < MinFreeIndex) MinFreeIndex = index;
+        if (index <= MinFreeIndex)
+        {
+            MinFreeIndex = index;
+            FoundMinFreeIndex = true;
+        }
     }
 
     /// <summary>
@@ -216,7 +239,7 @@ public class IndexedList<T> : ICollection<T> //do not implement IList<T> because
     /// <summary>
     /// Sets <see cref="MinFreeIndex"/> to lowest free index in the <see cref="LinkedList{T}"/>, resizing <see cref="array"/> if needed.
     /// </summary>
-    protected void FindFreeMinIndex()
+    protected void FindMinFreeIndex()
     {
         if (FoundMinFreeIndex) return;
         while (MinFreeIndex < array.Length && array[MinFreeIndex] is not null) MinFreeIndex++;
@@ -224,33 +247,51 @@ public class IndexedList<T> : ICollection<T> //do not implement IList<T> because
     }
 
     /// <summary>
-    /// Reszies the <see cref="array"/> to be bigger than before at least by 1 index.
+    /// Resizes the <see cref="array"/> to be bigger than before at least by 1 index.
     /// </summary>
     protected void Resize() => Resize(array.Length >= 4 ? array.Length * 2 : 4);
 
     /// <summary>
-    /// Reszies the <see cref="array"/> to make it's size match <paramref name="newCapacity"/>.
+    /// Resizes the <see cref="array"/> to make it's size match <paramref name="newCapacity"/>. If new capacity is less than a valid index for non-null element, it's set to that index instead.
     /// </summary>
     /// <param name="newCapacity">New capacity of the list.</param>
-    /// <exception cref="ArgumentException"><paramref name="newCapacity"/> is less than current capacity.</exception>
     protected void Resize(int newCapacity)
     {
-        if (newCapacity < array.Length)
-            throw new ArgumentException($"New capacity ({newCapacity}) can't be less than current capacity ({array.Length})", nameof(newCapacity));
+        int minPossibleSize = FindLastNonNullIndex();
+        if (newCapacity < minPossibleSize)
+            newCapacity = minPossibleSize;
         T?[] newArray = new T[newCapacity];
         array.CopyTo(newArray);
         array = newArray;
     }
 
+    /// <summary>
+    /// Minimizes the <see cref="IndexedList{T}"/> to be as small as possible, without removing existing elements.
+    /// </summary>
+    public void Minimize() => Resize(0);
+
+    /// <summary>
+    /// Finds index of last element in the <see cref="array"/> which is not <see langword="null"/>. Never returns less than 0.
+    /// </summary>
+    /// <returns>Index of last element in the <see cref="array"/> which is not <see langword="null"/>.</returns>
+    protected int FindLastNonNullIndex()
+    {
+        for (int i = Count - 1; i > -1; i--)
+            if (array[i] is not null) return i;
+
+        return 0;
+    }
+
     /// <inheritdoc />
     public IEnumerator<T> GetEnumerator() => new IndexedListEnumerator(array);
 
+    /// <inheritdoc />
     IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
     /// <summary>
     /// Enumerator for <see cref="IndexedList{T}"/>.
     /// </summary>
-    /// <param name="array"><see cref="IndexedList{T}.array"/></param>
+    /// <param name="array"><see cref="IndexedList{T}.array"/>.</param>
     protected sealed class IndexedListEnumerator(T?[] array) : IEnumerator<T>
     {
         /// <summary>
@@ -275,6 +316,7 @@ public class IndexedList<T> : ICollection<T> //do not implement IList<T> because
         /// <inheritdoc />
         public T Current => array[index]!;
 
+        /// <inheritdoc />
         object? IEnumerator.Current => Current;
 
         /// <inheritdoc />

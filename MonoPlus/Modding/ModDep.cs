@@ -2,7 +2,7 @@
 using System.Text.Json.Serialization;
 using Chasm.SemanticVersioning.Ranges;
 
-namespace MonoPlus.Modding;
+namespace MonoPlus.ModSystem;
 
 /// <summary>
 /// Represents info about <see cref="Mod"/>'s dependency

@@ -76,6 +76,19 @@ public class IndexedListTests
     }
 
     [TestMethod]
+    public void AddHandler()
+    {
+        var list = new IndexedList<int?>();
+        Func<int, int?> handler = index => index * 2 + 1;
+        list.Add(handler);
+        list.Add(handler);
+        list.Add(handler);
+        Assert.AreEqual(1, list[0]);
+        Assert.AreEqual(3, list[1]);
+        Assert.AreEqual(5, list[2]);
+    }
+    
+    [TestMethod]
     public void Remove()
     {
         var list = new IndexedList<string>
@@ -136,7 +149,7 @@ public class IndexedListTests
 
         Assert.AreEqual(0, list.IndexOf("first"));
         Assert.AreEqual(1, list.IndexOf("second"));
-        Assert.AreEqual(-1, list.IndexOf("second"));
+        Assert.AreEqual(-1, list.IndexOf("nonexistent"));
     }
 
     [TestMethod]
@@ -267,20 +280,5 @@ public class IndexedListTests
         };
 
         Assert.AreEqual(4, list.Capacity);
-    }
-
-    [TestMethod]
-    public void WorksWithNullable()
-    {
-        var list = new IndexedList<int?>
-        {
-            1,
-            2
-        };
-        list.RemoveAt(0);
-        list.Add(3);
-            
-        Assert.AreEqual(3, list[0]);
-        Assert.AreEqual(2, list[1]);
     }
 }

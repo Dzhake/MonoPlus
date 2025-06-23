@@ -2,38 +2,33 @@
 using System.IO;
 using System.Text.Json.Serialization;
 
-namespace MonoPlus.Modding;
+namespace MonoPlus.ModSystem;
 
 /// <summary>
-/// Represents configuration data for <see cref="Mod"/>
+/// Represents serialized configuration for a <see cref="Mod"/>,
 /// </summary>
 public class ModConfig
 {
     /// <summary>
-    /// Mod's Id — <see cref="Mod"/>'s unique name and version
+    /// Mod's Id — <see cref="Mod"/>'s unique name and version.
     /// </summary>
     [JsonInclude]
     public required ModId Id;
 
     /// <summary>
-    /// <see cref="File"/> path, relative to mod's directory, to .dll file related to mod
+    /// <see cref="File"/> path, relative to mod's directory, to .dll file related to mod.
     /// </summary>
     [JsonInclude]
     public string? AssemblyFile;
 
     /// <summary>
-    /// Dependencies of the mod
+    /// Dependencies of the mod, which must be loaded for mod to run.
     /// </summary>
     [JsonInclude]
-    public List<ModDep>? Dependencies;
+    public List<ModDep>? HardDeps;
 
     /// <summary>
-    /// <see cref="Mod"/> related to this config
+    /// Dependencies of the mod, which must be loaded for mod to run.
     /// </summary>
-    public Mod? mod;
-
-    /// <summary>
-    /// <see cref="Directory"/> path where this config was located.
-    /// </summary>
-    public string ModDirectory = null!;
+    [JsonInclude] public List<ModDep>? SoftDeps;
 }

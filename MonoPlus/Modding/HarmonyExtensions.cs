@@ -2,7 +2,7 @@
 using System;
 using HarmonyLib;
 
-namespace MonoPlus.Modding;
+namespace MonoPlus.ModSystem;
 
 /// <summary>
 /// Small utility class for <see cref="Harmony"/> extensions

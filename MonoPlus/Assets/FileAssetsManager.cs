@@ -154,16 +154,16 @@ public class FileAssetsManager : AssetsManager
         return new(new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.Read), AssetsUtils.DetectTypeByPath(filePath));
     }
 
-    private class ExternalAssetInfo(FileStream stream, AssetType type)
+    private record ExternalAssetInfo(FileStream stream, AssetType type)
     {
         /// <summary>
         /// <see cref="FileStream"/>, reading asset's data.
         /// </summary>
-        public FileStream stream = stream;
+        public readonly FileStream stream = stream;
         
         /// <summary>
         /// Type of the asset.
         /// </summary>
-        public AssetType type = type;
+        public readonly AssetType type = type;
     }
 }

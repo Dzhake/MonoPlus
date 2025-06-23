@@ -13,16 +13,6 @@
     
 
     <ItemGroup>
-        <!-- Temporary, delete after rewrite -->
-        <Compile Remove="AssetsOld\**" />
-        <EmbeddedResource Remove="AssetsOld\**"/>
-        <None Remove="AssetsOld\**"/>
-        
-        <!-- Temporary, include back after rewrite -->
-        <Compile Remove="Modding\**" />
-        <EmbeddedResource Remove="Modding\**"/>
-        <None Remove="Modding\**"/>
-
         <!-- Separate project -->
         <Compile Remove="MSBuildTasks\**" />
         <None Remove="MSBuildTasks\**" />

@@ -4,7 +4,7 @@ using System.Reflection;
 using System.Runtime.Loader;
 using System.Threading;
 
-namespace MonoPlus.Modding;
+namespace MonoPlus.ModSystem;
 
 /// <summary>
 /// Represents <see cref="Assembly"/> for <see cref="Mod"/>s
@@ -19,45 +19,43 @@ public class ModAssemblyLoadContext : AssemblyLoadContext, IDisposable
     /// <summary>
     /// <see cref="FileSystemWatcher"/> which watches for .dll <see cref="File"/>
     /// </summary>
-    private FileSystemWatcher? watcher;
+    private readonly FileSystemWatcher? watcher;
 
     /// <summary>
     /// <see cref="ModConfig"/> for same <see cref="Mod"/> as this <see cref="ModAssemblyLoadContext"/>
     /// </summary>
-    private ModConfig Config;
+    private readonly Mod mod;
 
     /// <summary>
-    /// Instances a new <see cref="ModAssemblyLoadContext"/>
+    /// Instances a new <see cref="ModAssemblyLoadContext"/>.
     /// </summary>
-    /// <param name="config">Config related to the mod.</param>
-    /// <exception cref="InvalidOperationException"><paramref name="config.AssemblyFile"/> is <see langword="null"/></exception>
-    public ModAssemblyLoadContext(ModConfig config) : base(isCollectible: true)
+    /// <param name="mod">Mod related to the newly created assembly context.</param>
+    /// <exception cref="InvalidOperationException"><paramref name="mod.Config.AssemblyFile"/> is <see langword="null"/></exception>
+    public ModAssemblyLoadContext(Mod mod) : base(isCollectible: true)
     {
+        ModConfig config = mod.Config;
         if (config.AssemblyFile is null) throw new InvalidOperationException("Trying to create ModAssemblyLoadContext with config which has null AssemblyFile");
-        
-        Config = config;
+        this.mod = mod;
 
-        if (MonoPlusMain.HotReload)
-        {
-            watcher = new(Path.Combine(config.ModDirectory, Path.GetDirectoryName(config.AssemblyFile) ?? ""), Path.GetFileName(config.AssemblyFile));
-            watcher.NotifyFilter = NotifyFilters.LastWrite;
-            watcher.Changed += OnFileChanged;
+        if (!MonoPlusMain.HotReload) return;
+        watcher = new(Path.Combine(mod.Directory, Path.GetDirectoryName(config.AssemblyFile) ?? ""), Path.GetFileName(config.AssemblyFile));
+        watcher.NotifyFilter = NotifyFilters.LastWrite;
+        watcher.Changed += OnFileChanged;
         
-            watcher.EnableRaisingEvents = true;
-        }
+        watcher.EnableRaisingEvents = true;
     }
 
     private void OnFileChanged(object sender, FileSystemEventArgs e)
     {
         if (watcher != sender) return;
-        ModLoader.ReloadMod(Config);
-        watcher.EnableRaisingEvents = false; //since assembly is going to be reloaded soon, we don't need this. Also fixes issue with events being raised twice.
+        ModManager.ReloadAssembly(mod);
+        watcher.EnableRaisingEvents = false; //since assembly is going to be reloaded, "this" will be disposed, so we don't need watcher anymore. Also fixes issue with events being raised twice.
     }
 
     /// <summary>
-    /// Unloads the context, 
+    /// Disposes the <see cref="ModAssemblyLoadContext"/>.
     /// </summary>
-    /// <param name="disposing"></param>
+    /// <param name="disposing">Whether to dispose managed resources.</param>
     public void Dispose(bool disposing)
     {
         if (Interlocked.Exchange(ref disposed, true) || !disposing) return;

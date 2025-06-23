@@ -2,7 +2,7 @@
 using Microsoft.Xna.Framework;
 using MonoPlus.GraphicsSystem;
 
-namespace MonoPlus;
+namespace MonoPlus.TimeSystem;
 
 /// <summary>
 /// Class for managing <see cref="DeltaTime"/> and <see cref="TotalTime"/>, and quick access to those.
@@ -20,7 +20,7 @@ public static class Time
     public static TimeSpan DeltaTimeSpan;
 
     /// <summary>
-    /// Time since last update, multiplied by time scale multipliers, in seconds.
+    /// Time since last update, multiplied by timescale multipliers, in seconds.
     /// </summary>
     public static float DeltaTime;
     
@@ -30,7 +30,7 @@ public static class Time
     public static TimeSpan UnscaledTotalTime;
 
     /// <summary>
-    /// Time since program started, multiplied by time scale multipliers at moment those were active.
+    /// Time since program started, multiplied by timescale multipliers at moment those were active.
     /// </summary>
     public static TimeSpan TotalTime;
 
@@ -45,7 +45,7 @@ public static class Time
     public static event Action TimeScaleCallback = delegate { };
 
     /// <summary>
-    /// Was the game window active preivous frame.
+    /// Was the game window active previous frame.
     /// </summary>
     private static bool wasActive = true;
 
