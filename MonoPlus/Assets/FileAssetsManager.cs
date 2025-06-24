@@ -23,7 +23,7 @@ public class FileAssetsManager : AssetsManager
     public string DirectoryPath { get; }
 
     /// <inheritdoc/>
-    protected override string DisplayName => $"\"{DirectoryPath}{Path.DirectorySeparatorChar}**\"";
+    protected override string DisplayName => $"{DirectoryPath}{Path.DirectorySeparatorChar}**";
 
     private readonly Lock watcherLock = new();
     private FileSystemWatcher? _watcher;

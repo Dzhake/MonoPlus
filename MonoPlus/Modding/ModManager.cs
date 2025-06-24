@@ -108,10 +108,10 @@ public static class ModManager
         if (InProgress) throw new InvalidOperationException("Can't start loading more mods while some mods already load"); //TODO maybe try to fix this? Sync "PreventModLock" by having one at max, and it should probably work
 
         SkipLoading = false;
-        IEnumerable<string> modDirs = Directory.EnumerateDirectories(modsDir, "*", SearchOption.TopDirectoryOnly);
+        string[] modDirs = Directory.EnumerateDirectories(modsDir, "*", SearchOption.TopDirectoryOnly).ToArray();
         
-        if (modsDir.Length == 0) return; //to not waste time
-        TotalModsCount += modsDir.Length;
+        if (modDirs.Length == 0) return; //to not waste time
+        TotalModsCount += modDirs.Length;
         
         foreach (string modDir in modDirs)
             MainThread.Add(LoadModAsync(modDir));

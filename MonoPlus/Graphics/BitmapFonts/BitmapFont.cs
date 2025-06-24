@@ -19,6 +19,12 @@ public class BitmapFont
         /// </summary>
         [JsonInclude]
         public Point GlyphSize;
+
+        /// <summary>
+        /// Amount of empty pixels between letters. X spacing is between letters in same line, Y spacing is between lines.
+        /// </summary>
+        [JsonInclude] public Point Spacing;
+        
         /// <summary>
         /// List of glyphs in <see cref="Texture"/>.
         /// </summary>
@@ -29,7 +35,7 @@ public class BitmapFont
     /// <summary>
     /// Texture with all the glyphs in a row of same <see cref="GlyphSize"/>.
     /// </summary>
-    public Texture2D Texture;
+    public readonly Texture2D Texture;
 
     /// <summary>
     /// Size of each glyph in <see cref="Texture"/>.
@@ -37,20 +43,27 @@ public class BitmapFont
     public Point GlyphSize;
 
     /// <summary>
+    /// Amount of empty pixels between letters. X spacing is between letters in same line, Y spacing is between lines.
+    /// </summary>
+    public Point Spacing;
+
+    /// <summary>
     /// List of glyphs in <see cref="Texture"/>.
     /// </summary>
-    public string Glyphs;
+    public readonly string Glyphs;
 
     /// <summary>
     /// Instances a new <see cref="BitmapFont"/> with the specified <see cref="Texture"/>, <see cref="GlyphSize"/> and <see cref="Glyphs"/>.
     /// </summary>
     /// <param name="texture">Texture with all the glyphs in a row of same <see cref="GlyphSize"/>.</param>
     /// <param name="glyphSize">Size of each glyph in <see cref="Texture"/>.</param>
+    /// <param name="spacing">Amount of empty pixels between letters. X spacing is between letters in same line, Y spacing is between lines.</param>
     /// <param name="glyphs">List of glyphs in <see cref="Texture"/>.</param>
-    public BitmapFont(Texture2D texture, Point glyphSize, string glyphs)
+    public BitmapFont(Texture2D texture, Point glyphSize, Point spacing, string glyphs)
     {
         Texture = texture;
         GlyphSize = glyphSize;
+        Spacing = spacing;
         Glyphs = glyphs;
     }
 
@@ -59,10 +72,10 @@ public class BitmapFont
     /// </summary>
     /// <param name="texture">Texture with all the glyphs in a row of same <see cref="GlyphSize"/>.</param>
     /// <param name="info">Information about bitmap font.</param>
-    public BitmapFont(Texture2D texture, Info info) : this(texture, info.GlyphSize, info.Glyphs) {}
+    public BitmapFont(Texture2D texture, Info info) : this(texture, info.GlyphSize, info.Spacing,info.Glyphs) {}
 
     /// <summary>
-    /// Get texture of rendered <paramref name="text"/> for caching. Requires <see cref="Renderer.spriteBatch"/> being active.
+    /// Get texture of rendered <paramref name="text"/> for caching. Uses <see cref="Renderer.spriteBatch"/>.
     /// </summary>
     /// <param name="text">Text to render with this <see cref="BitmapFont"/>.</param>
     /// <param name="color">A color mask.</param>
@@ -107,26 +120,54 @@ public class BitmapFont
         color ??= Color.White;
         scale ??= Vector2.One;
         origin ??= Vector2.Zero;
+        Vector2 currentPos = position;
         foreach (char glyph in text)
         {
-            spriteBatch.Draw(Texture, position, GetGlyphSourceRectangle(glyph), (Color)color, rotation, (Vector2)origin, (Vector2)scale, effects, layerDepth);
-            position.X += GlyphSize.X * scale.Value.X;
+            Rectangle sourceRectangle = GetGlyphSourceRectangle(glyph);
+            
+            if (sourceRectangle.X < 0) //Glyph not found.
+            {
+                switch (glyph)
+                {
+                    case '\n':
+                        currentPos.Y += (GlyphSize.Y + Spacing.Y) * scale.Value.Y;
+                        currentPos.X = position.X;
+                        continue;
+                    case ' ':
+                        sourceRectangle = Rectangle.Empty;
+                        break;
+                }
+            }
+            
+            spriteBatch.Draw(Texture, currentPos, sourceRectangle, (Color)color, rotation, (Vector2)origin, (Vector2)scale, effects, layerDepth);
+            currentPos.X += (GlyphSize.X + Spacing.X) * scale.Value.X;
         }
     }
 
     /// <summary>
-    /// Get size of <paramref name="text"/>, if it would be rendered. Uses <see cref="MeasureString(int)"/> internally.
+    /// Get size of <paramref name="text"/>, if it would be rendered. Unlike <see cref="MeasureOneLine"/> uses newlines.
     /// </summary>
-    /// <param name="text">Text, whos size to check.</param>
+    /// <param name="text">Text, whose size to check.</param>
     /// <returns>Size of <paramref name="text"/> if it would be rendered.</returns>
-    public Point MeasureString(string text) => MeasureString(text.Length);
+    public Point MeasureString(string text)
+    {
+        string[] lines = text.Split('\n');
+        int maxLength = lines[0].Length;
+        for (int i = 1; i < lines.Length; i++)
+        {
+            int length = lines[i].Length;
+            if (length > maxLength) maxLength = length;
+        }
+
+        return new(MeasureOneLine(maxLength), GlyphSize.Y + lines.Length * (GlyphSize.Y + Spacing.Y));
+    }
 
     /// <summary>
-    /// Get size of text with <paramref name="glyphsAmount"/> chars, if it would be rendered.
+    /// Get size X of text with <paramref name="glyphsAmount"/> chars, if it would be rendered, ignoring newlines.
     /// </summary>
     /// <param name="glyphsAmount">Amount of chars in given text.</param>
-    /// <returns>Size of text with <paramref name="glyphsAmount"/> chars, if it would be rendered.</returns>
-    public Point MeasureString(int glyphsAmount) => new(GlyphSize.X * glyphsAmount, GlyphSize.Y);
+    /// <returns>Size X of text with <paramref name="glyphsAmount"/> chars, if it would be rendered.</returns>
+    public int MeasureOneLine(int glyphsAmount) => (GlyphSize.X + Spacing.X) * glyphsAmount;
 
     /// <summary>
     /// Get source rectangle of glyph in <see cref="Texture"/> based on it's char index in <see cref="Glyphs"/>.
@@ -136,7 +177,7 @@ public class BitmapFont
     public Rectangle GetGlyphSourceRectangle(int index) => new(GlyphSize.X * index, 0, GlyphSize.X, GlyphSize.Y);
 
     /// <summary>
-    /// Get source rectangle of glyph in <see cref="Texture"/> based in it's char. Uses <see cref="GetGlyphSourceRectangle(int)"/> internally. If glyph is not found in <see cref="Glyphs"/>, returns <see cref="Rectangle"/> with values (0,0,0,0).
+    /// Get source rectangle of glyph in <see cref="Texture"/> based in it's char. Uses <see cref="GetGlyphSourceRectangle(int)"/> internally. If glyph is not found in <see cref="Glyphs"/>, X of returned <see cref="Rectangle"/> will be negative.
     /// </summary>
     /// <param name="glyph">Glyph's char.</param>
     /// <returns>Source rectangle of the glyph.</returns>

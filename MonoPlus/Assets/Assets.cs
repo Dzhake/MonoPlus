@@ -69,6 +69,24 @@ public static class Assets
     }
 
     /// <summary>
+    ///   <para>Same as <see cref="Get{T}"/>, but returns <see langword="null"/> if asset was not found, instead of using <see cref="Assets.NotFoundPolicy"/>.</para>
+    /// </summary>
+    /// <typeparam name="T">The type of the asset to load.</typeparam>
+    /// <param name="fullPath">A fully qualified path to the asset to get the handle of.</param>
+    /// <returns>A value task containing either the loaded asset, or the asset loading task.</returns>
+    /// <exception cref="InvalidCastException">The asset at the specified <paramref name="fullPath"/> could not be cast to type <typeparamref name="T"/>.</exception>
+    /// <exception cref="ArgumentException">Could not find asset with the specified prefix.</exception>
+    [MustUseReturnValue]
+    public static T? GetOrDefault<T>(string fullPath)
+    {
+        SplitPath(fullPath, out var prefix, out var relativePath);
+
+        if (!Managers.TryGetValue(prefix.ToString(), out AssetsManager? manager))
+            throw new ArgumentException("Could not find asset with the specified prefix.", nameof(fullPath));
+        return manager.GetOrDefault<T>(relativePath.ToString());
+    }
+
+    /// <summary>
     /// Checks if <see cref="AssetsManager"/> with specified <paramref name="prefix"/> is registered.
     /// </summary>
     /// <param name="prefix"><see cref="AssetsManager"/>'s prefix.</param>

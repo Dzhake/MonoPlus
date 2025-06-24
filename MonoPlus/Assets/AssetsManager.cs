@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using MonoPlus.Utils;
@@ -76,6 +77,7 @@ public abstract class AssetsManager : IDisposable
     /// <typeparam name="T"><see cref="Type"/> of the asset to return. Throws an exception if types of asset in memory and requested types don't match.</typeparam>
     /// <param name="path">Path of the asset in this <see cref="AssetsManager"/></param>
     /// <returns>Asset at the specified <paramref name="path"/></returns>
+    /// <exception cref="AssetTypeMismatchException"><typeparamref name="T"/> does not match type of the loaded asset.</exception>
     public T Get<T>(string path)
     {
         try
@@ -88,6 +90,29 @@ public abstract class AssetsManager : IDisposable
                     Assets.NotFoundPolicyType.Fallback => GetDefault<T>() ?? throw new AssetFallbackNotFoundException(this, typeof(T)),
                     _ => throw new IndexOutOfRangeException($"{nameof(Assets)}.{nameof(Assets.NotFoundPolicy)} was not any known type: {Assets.NotFoundPolicy}")
                 };
+            if (asset is T castedAsset) return castedAsset;
+            throw new AssetTypeMismatchException(this, path, typeof(T), asset.GetType());
+        }
+        finally
+        {
+            cacheRwl.ExitReadLock();
+        }
+    }
+
+    /// <summary>
+    /// Same as <see cref="Get{T}"/>, but returns <see langword="null"/> if asset was not found, instead of using <see cref="Assets.NotFoundPolicy"/>.
+    /// </summary>
+    /// <typeparam name="T"><see cref="Type"/> of the asset to return. Throws an exception if types of asset in memory and requested types don't match.</typeparam>
+    /// <param name="path">Path of the asset in this <see cref="AssetsManager"/>.</param>
+    /// <returns>Asset at the specified <paramref name="path"/>, or <see langword="null"/> if not found.</returns>
+    /// <exception cref="AssetTypeMismatchException"><typeparamref name="T"/> does not match type of the loaded asset.</exception>
+    public T? GetOrDefault<T>(string path)
+    {
+        try
+        {
+            cacheRwl.EnterReadLock();
+            if (!cache.TryGetValue(path, out object? asset))
+                return default;
             if (asset is T castedAsset) return castedAsset;
             throw new AssetTypeMismatchException(this, path, typeof(T), asset.GetType());
         }
@@ -144,7 +169,7 @@ public abstract class AssetsManager : IDisposable
         string[] assetPaths = GetAllAssetsPaths();
         TotalAmount = assetPaths.Length;
         foreach (string assetPath in assetPaths)
-            MainThread.Add(Task.Run(async () => await LoadIntoCacheAsync(assetPath)));
+            MainThread.Add(Task.Run(async () => await LoadIntoCacheAsync(Path.GetFileNameWithoutExtension(assetPath))));
     }
 
     /// <summary>
@@ -159,17 +184,19 @@ public abstract class AssetsManager : IDisposable
     /// <param name="assetPath">Path of the asset in this <see cref="AssetsManager"/></param>
     private async Task LoadIntoCacheAsync(string assetPath)
     {
+        bool enteredLock = false;
         try
         {
             object? asset = await LoadNewAssetAsync(assetPath);
             cacheRwl.EnterWriteLock();
+            enteredLock = true;
             cache[assetPath] = asset!; // Possible null reference assignment. Not an error, if asset was not found then null will be stored, and Get() will return GetDefault() or will crash (based on Assets.NotFoundPolicy). If we store GetDefault(), then if reference to the asset (the path) is changed, cache will have unused value. That's a memory leak.
         }
         finally
         {
-            cacheRwl.ExitWriteLock();
+            if (enteredLock) cacheRwl.ExitWriteLock();
             Interlocked.Add(ref LoadedAmount, 1);
-            Log.Verbose("Loaded asset at path {Prefix}:/{Path} into cache", Prefix, assetPath);
+            Log.Verbose("Loaded asset at path \"{Prefix:l}:/{Path:l}\" into cache", Prefix, assetPath);
         }
     }
 
