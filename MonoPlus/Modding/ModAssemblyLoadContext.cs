@@ -70,11 +70,4 @@ public class ModAssemblyLoadContext : AssemblyLoadContext, IDisposable
         Dispose(false);
         GC.SuppressFinalize(this);
     }
-
-    /// <inheritdoc/>
-    protected override Assembly? Load(AssemblyName name)
-    {
-        //TODO check if needed
-        return null;
-    }
 }
