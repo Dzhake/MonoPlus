@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.IO;
 using JetBrains.Annotations;
+using Microsoft.Xna.Framework.Graphics;
 using Serilog;
 
 namespace MonoPlus.AssetsSystem;
@@ -11,6 +13,12 @@ namespace MonoPlus.AssetsSystem;
 /// </summary>
 public static class Assets
 {
+    /// <summary>
+    /// Dictionary, which maps <see cref="File"/> extension <b>(WITH the period)</b> to function which accepts <see cref="FileStream"/> and returns an asset, similar to <see cref="Texture2D.FromStream(GraphicsDevice, Stream)"/>. Use it if you want to load asset of your own format, not supported by MonoPlus. Keep in mind multiply mods might try to add values with same keys to this.
+    /// </summary>
+    public static readonly Dictionary<string, Func<FileStream, object>> CustomFormats = new();
+        
+        
     private static readonly Dictionary<string, AssetsManager> Managers = new();
 
     /// <summary>
@@ -51,6 +59,14 @@ public static class Assets
     }
 
     /// <summary>
+    /// Checks if <see cref="AssetsManager"/> with specified <paramref name="prefix"/> is registered.
+    /// </summary>
+    /// <param name="prefix"><see cref="AssetsManager"/>'s prefix.</param>
+    /// <returns>Whether <see cref="AssetsManager"/> with specified <paramref name="prefix"/> is registered.</returns>
+    public static bool AssetsManagerRegistered(string prefix) => Managers.ContainsKey(prefix);
+    
+
+    /// <summary>
     ///   <para>Loads and returns an asset at the specified <paramref name="fullPath"/>.</para>
     /// </summary>
     /// <typeparam name="T">The type of the asset to load.</typeparam>
@@ -87,13 +103,6 @@ public static class Assets
     }
 
     /// <summary>
-    /// Checks if <see cref="AssetsManager"/> with specified <paramref name="prefix"/> is registered.
-    /// </summary>
-    /// <param name="prefix"><see cref="AssetsManager"/>'s prefix.</param>
-    /// <returns>Whether <see cref="AssetsManager"/> with specified <paramref name="prefix"/> is registered.</returns>
-    public static bool AssetsManagerRegistered(string prefix) => Managers.ContainsKey(prefix);
-
-    /// <summary>
     /// Splits asset path with prefix info prefix and asset path
     /// </summary>
     /// <param name="query">Path to split.</param>
@@ -113,6 +122,8 @@ public static class Assets
         prefix = query[..separatorIndex];
         path = query[(separatorIndex + 2)..];
     }
+    
+    
 
     /// <summary>
     /// Type of resource program should aim for.
@@ -134,6 +145,8 @@ public static class Assets
     /// Whether <see cref="AssetsManager"/>s should prefer maximum performance, or lower memory usage. Used in rare cases, where <see cref="ResourcePriorityType.Performance"/> can use a lot of memory.
     /// </summary>
     public static ResourcePriorityType ResourcePriority = ResourcePriorityType.Performance;
+    
+    
 
     /// <summary>
     /// Types of action <see cref="AssetsManager"/> will do if the specified asset was not found.

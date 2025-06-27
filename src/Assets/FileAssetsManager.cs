@@ -118,8 +118,8 @@ public class FileAssetsManager : AssetsManager
             case AssetType.Text:
                 return Assets.ResourcePriority switch
                 {
-                    Assets.ResourcePriorityType.Performance => await new StreamReader(info.stream, Encoding.UTF8).ReadToEndAsync(),
-                    Assets.ResourcePriorityType.Memory => Encoding.UTF8.GetString(info.stream.ToByteArrayDangerous()),
+                    Assets.ResourcePriorityType.Performance => Encoding.UTF8.GetString(info.stream.ToByteArrayDangerous()),
+                    Assets.ResourcePriorityType.Memory => await new StreamReader(info.stream, Encoding.UTF8).ReadToEndAsync(),
                     _ => throw new IndexOutOfRangeException()
                 };
             case AssetType.Binary:
@@ -132,6 +132,8 @@ public class FileAssetsManager : AssetsManager
                 return null;
             case AssetType.Unknown:
             default:
+                if (Assets.CustomFormats.TryGetValue(Path.GetExtension(assetPath), out var fallbackFunc))
+                    return fallbackFunc(info.stream);
                 throw new UnknownAssetFormatException(this, assetPath);
         }
     }
