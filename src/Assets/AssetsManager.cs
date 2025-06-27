@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Xna.Framework.Graphics;
 using MonoPlus.Utils;
 using MonoPlus.Utils.Collections;
 using Serilog;
@@ -130,8 +132,7 @@ public abstract class AssetsManager : IDisposable
     /// <exception cref="AssetFallbackNotFoundException">Thrown if asset fallback was not found, or could not be loaded.</exception>
     public static T? GetDefault<T>()
     {
-        T fallback = default; //TODO
-        return fallback;
+        return Assets.GetOrDefault<T>($"fallbacks:/{typeof(T)}");
     }
 
     /// <summary>
