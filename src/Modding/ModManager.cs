@@ -110,6 +110,7 @@ public static class ModManager
         
         if (modDirs.Length == 0) return; //to not waste time
         TotalModsCount += modDirs.Length;
+        Log.Information("Loading {ModsCount} mods", modDirs.Length);
         
         foreach (string modDir in modDirs)
             MainThread.Add(LoadModAsync(modDir));
