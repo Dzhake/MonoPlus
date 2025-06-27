@@ -23,7 +23,7 @@
     
     <Using Include="Microsoft.VisualStudio.TestTools.UnitTesting" />
 
-    <ProjectReference Include="..\..\MonoPlus\MonoPlus.csproj" />
+    <ProjectReference Include="..\..\src\MonoPlus.csproj" />
   </ItemGroup>
 
 </Project>
