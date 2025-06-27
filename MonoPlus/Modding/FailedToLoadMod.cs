@@ -42,7 +42,7 @@ public static class FailedToLoadMod
         };
 
     /// <summary>
-    /// <see cref="JsonSerializer"/> returned <see langword="null"/> for config.json at the specified <see cref="configPath"/>.
+    /// <see cref="JsonSerializer"/> returned <see langword="null"/> for config.json at the specified <paramref name="configPath"/>.
     /// </summary>
     /// <param name="configPath"><see cref="File"/> path of the "config.json".</param>
     /// <param name="modName">Name of mod related to this config. Usually a name of directory where config.json was located.</param>
