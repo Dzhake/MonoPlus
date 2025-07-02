@@ -38,9 +38,4 @@ public enum AssetType
     /// Effect asset type, converted into <see cref="Effect"/>.
     /// </summary>
     Effect,
-
-    /// <summary>
-    /// Fluent file asset type, loaded directly into <see cref="FluentBundle"/> if filename matches currently selected language
-    /// </summary>
-    Localization,
 }

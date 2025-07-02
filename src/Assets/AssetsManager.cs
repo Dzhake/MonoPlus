@@ -52,11 +52,6 @@ public abstract class AssetsManager : IDisposable
     public bool Loading => LoadedAmount < TotalAmount;
 
     /// <summary>
-    /// Whether the <see cref="AssetsManager"/> should reload assets, by itself or via <see cref="ReloadAllAssets"/>.
-    /// </summary>
-    public bool Reload = true;
-
-    /// <summary>
     /// Unique prefix for this <see cref="AssetsManager"/>, which should be used for <see cref="Assets.Get{T}"/>
     /// </summary>
     public string? Prefix = null;
@@ -141,7 +136,7 @@ public abstract class AssetsManager : IDisposable
     public void ReloadAllAssets()
     {
         ObjectDisposedException.ThrowIf(disposed, this);
-        if (!Reload) return;
+        if (!MonoPlusMain.HotReload) return;
         
         try
         {
@@ -210,7 +205,7 @@ public abstract class AssetsManager : IDisposable
     public void ReloadAsset(string assetPath)
     {
         ObjectDisposedException.ThrowIf(disposed, this);
-        if (!Reload) return;
+        if (!MonoPlusMain.HotReload) return;
         MainThread.Add(ReloadAssetAsync(assetPath));
     }
     

@@ -2,6 +2,7 @@
 using Microsoft.Xna.Framework;
 using MonoPlus.GraphicsSystem;
 using MonoPlus.InputSystem;
+using MonoPlus.LocalizationSystem;
 
 namespace MonoPlus;
 
@@ -11,7 +12,7 @@ namespace MonoPlus;
 public static class MonoPlusMain
 {
     /// <summary>
-    /// Whether the program should do operations related to hot reloading assets/.dlls etc. at cost of performance and memory.
+    /// Whether the program should do operations related to hot reloading assets/.dlls etc. at cost of performance and memory. This does not include <b>fully</b> reloading mods.
     /// </summary>
     public static bool HotReload = true;
 
@@ -31,6 +32,7 @@ public static class MonoPlusMain
     public static void OnGameCreated(Game game)
     {
         Renderer.OnGameCreated(game);
+        Locale.FullLoad();
     }
 
     /// <summary>

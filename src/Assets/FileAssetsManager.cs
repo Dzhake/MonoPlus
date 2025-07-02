@@ -92,13 +92,13 @@ public class FileAssetsManager : AssetsManager
 
     private void OnFileChanged(object? sender, FileSystemEventArgs args)
     {
-        if (!Reload || _watcher != sender) return;
+        if (!MonoPlusMain.HotReload || _watcher != sender) return;
         ReloadAsset(args.FullPath);
     }
 
     private void OnFileRenamed(object? sender, RenamedEventArgs args)
     {
-        if (!Reload || _watcher != sender) return;
+        if (!MonoPlusMain.HotReload || _watcher != sender) return;
         ReloadAsset(args.OldFullPath);
         ReloadAsset(args.FullPath);
     }
@@ -126,10 +126,6 @@ public class FileAssetsManager : AssetsManager
                 return info.stream.ToByteArrayDangerous();
             case AssetType.Effect:
                 return new Effect(Renderer.device, info.stream.ToByteArrayDangerous());
-            case AssetType.Localization:
-                if (Locale.CurrentLanguage == Path.GetFileNameWithoutExtension(assetPath))
-                    Locale.Load(new(info.stream));
-                return null;
             case AssetType.Unknown:
             default:
                 if (Assets.CustomFormats.TryGetValue(Path.GetExtension(assetPath), out var fallbackFunc))

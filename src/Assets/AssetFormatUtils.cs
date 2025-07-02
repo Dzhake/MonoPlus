@@ -33,7 +33,7 @@ public static class AssetsUtils
             "wav" => AssetType.Audio,
 
             "png" => AssetType.Image,
-            "jpg" or ".jpeg" => AssetType.Image,
+            "jpg" or "jpeg" => AssetType.Image,
 
             "txt" => AssetType.Text,
             "csv" => AssetType.Text,
@@ -44,8 +44,6 @@ public static class AssetsUtils
             "bin" or "bytes" => AssetType.Binary,
 
             "mgfx" => AssetType.Effect,
-
-            "ftl" => AssetType.Localization,
 
             _ => AssetType.Unknown,
         };

@@ -233,7 +233,7 @@ public static class Renderer
     /// <exception cref="InvalidOperationException"><see cref="Pixel"/> is null</exception>
     public static void DrawLine(Vector2 lineStart, Vector2 lineEnd, Color color, float width = 1f)
     {
-        if (Pixel is null) throw new InvalidOperationException("DrawLine was called, but Pixel is null");
+        if (Pixel is null) throw new InvalidOperationException("Pixel is null");
         DrawTexture(Pixel, lineStart, null, color, (float)Math.Atan2(lineEnd.Y - lineStart.Y, lineEnd.X - lineStart.X), new Vector2(0f, 0.5f), new Vector2((lineStart - lineEnd).Length(), width));
     }
 
@@ -245,7 +245,7 @@ public static class Renderer
     /// <param name="color">Rectangle's color.</param>
     public static void DrawRect(Vector2 p1, Vector2 p2, Color color)
     {
-        if (Pixel is null) throw new InvalidOperationException("DrawRect was called, but Pixel is null");
+        if (Pixel is null) throw new InvalidOperationException("Pixel is null");
         DrawTexture(Pixel, p1, null, color, 0f, Vector2.Zero, new Vector2(-(p1.X - p2.X), -(p1.Y - p2.Y)));
     }
         
