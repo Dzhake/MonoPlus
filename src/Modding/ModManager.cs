@@ -8,7 +8,9 @@ using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
 using MonoPlus.AssetsSystem;
+using MonoPlus.SaveSystem;
 using MonoPlus.Utils;
+using MonoPlus.Utils.General;
 using Serilog;
 
 namespace MonoPlus.ModSystem;
@@ -28,16 +30,49 @@ public static class ModManager
     /// </summary>
     public static ReaderWriterLockSlim ModsLock = null!;
 
+    
+    /// <summary>
+    /// <see cref="HashSet{T}"/> of enabled mods' names. Saves to "%Saves%/ModManager/ModDirsCache.json"
+    /// </summary>
+    public static HashSet<string> EnabledMods = null!;
+
+    /// <summary>
+    /// Cache for accessing mod directory name by mod name, as those might not match. Serialized to "%Saves%/ModManager/ModDirsCache.json".
+    /// </summary>
+    public static Dictionary<string, string> ModDirsCache = null!;
+
+    /// <summary>
+    /// <see cref="ModManagerConfig"/> defining <see cref="ModManager"/>'s behaviour. Serialized to "%Saves%/ModManager/Config.json".
+    /// </summary>
+    public static ModManagerConfig Config = null!; 
+    
+    /// <summary>
+    /// Whether each value in EnabledMods has a key in ModNameToDirCache.
+    /// </summary>
+    public static bool FoundEnabledMods = true;
+
+    /// <summary>
+    /// Whether to load disabled mods even if <see cref="FoundEnabledMods"/> is <see langword="true"/>
+    /// </summary>
+    public static bool ForceLoadDisabledMods;
+
+    /// <summary>
+    /// Whether to load disabled mods too, or only enabled ones.
+    /// </summary>
+    public static bool LoadDisabledMods => !FoundEnabledMods || ForceLoadDisabledMods;
+    
+
     /// <summary>
     /// <see cref="Directory"/> path from where the mods are loaded by default.
     /// </summary>
-    public static readonly string ModsDirectory = $"{AppContext.BaseDirectory}Mods{Path.DirectorySeparatorChar}";
-    
+    public static readonly string ModsDirectory = $"{AppContext.BaseDirectory}Mods";
 
+    
     /// <summary>
     /// Whether <see cref="Initialize"/> was called.
     /// </summary>
     public static bool Initialized;
+    
     
     /// <summary>
     /// Whether <see cref="ModManager"/> currently loads or unloads some mods.
@@ -45,15 +80,14 @@ public static class ModManager
     public static bool InProgress => LoadedModsCount != TotalModsCount;
 
     /// <summary>
-    /// Amount of successfully loaded mods.
-    /// </summary>
-    public static int LoadedModsCount;
-
-    /// <summary>
     /// Amount of successfully loaded mods, or mods which are about to load.
     /// </summary>
     public static int TotalModsCount;
     
+    /// <summary>
+    /// Amount of successfully loaded mods.
+    /// </summary>
+    public static int LoadedModsCount;
 
     /// <summary>
     /// Amount of mods which are currently waiting for their dependencies to load. After all dependencies for some mod are loaded, this value is decreased by one, and when the mod is loaded <see cref="LoadedModsCount"/> is increased by one.
@@ -67,7 +101,7 @@ public static class ModManager
 
 
     /// <summary>
-    /// Initializes mod manager, setting all static fields.
+    /// Initializes mod manager, setting all static fields. Does nothing if <see cref="Initialized"/> is <see langword="true"/>.
     /// </summary>
     public static void Initialize()
     {
@@ -75,6 +109,10 @@ public static class ModManager
         Initialized = true;
         Mods = new();
         ModsLock = new();
+        EnabledMods = SaveManager.Load<HashSet<string>>(Path.Join(SaveManager.SavesLocation, "ModManager", "EnabledModsJson")) ?? new HashSet<string>();
+        ModDirsCache = SaveManager.Load<Dictionary<string, string>>(Path.Join(SaveManager.SavesLocation, "ModManager", "ModDirsCache.json")) ?? new();
+        Config = SaveManager.Load<ModManagerConfig>(Path.Join(SaveManager.SavesLocation, "ModManager", "Config.json")) ?? new();
+        ForceLoadDisabledMods = Config.PreloadMods;
     }
 
 
@@ -89,32 +127,59 @@ public static class ModManager
             mod.Listener?.Update();
     }
     
-    
-    
     /// <summary>
     /// Loads all mods from <see cref="ModsDirectory"/>.
     /// </summary>
     public static void LoadMods()
     {
-        ModManager.LoadMods(ModsDirectory);
+        string[] modDirs = new string[EnabledMods.Count];
+        
+        int i = 0;
+        foreach (string enabledModName in EnabledMods)
+        {
+            if (!ModDirsCache.TryGetValue(enabledModName, out string? enabledModDir))
+            {
+                FoundEnabledMods = false;
+                break;
+            }
+
+            modDirs[i] = enabledModDir;
+            i++;
+        }
+
+        if (!FoundEnabledMods)
+            LoadMods(ModsDirectory);
+        LoadMods(modDirs);
     }
     
     /// <summary>
-    /// Loads all mods from specified directory.
+    /// Load all mods from specified directory.
     /// </summary>
-    /// <param name="modsDir"><see cref="Directory"/> path to <see cref="Directory"/> with Directories, where each folder contains config.json .</param>
+    /// <param name="modsDir"><see cref="Directory"/> path to dir with other dirs, where each subdir contains config.json file.</param>
     public static void LoadMods(string modsDir)
     {
-        SkipLoading = false;
         string[] modDirs = Directory.EnumerateDirectories(modsDir, "*", SearchOption.TopDirectoryOnly).ToArray();
+        LoadMods(modDirs);
+    }
+
+    /// <summary>
+    /// Load all mods from the specified directories and run <see cref="PreventModLockAsync"/>. Each directory must contain config.json file.
+    /// </summary>
+    /// <param name="modDirs">Array of <see cref="Directory"/> paths to mods' dirs.</param>
+    /// <exception cref="InvalidOperationException">ModManager is not Initialized.</exception>
+    public static void LoadMods(string[] modDirs)
+    {
+        if (!Initialized) throw new InvalidOperationException("ModManager is not Initialized");
         
-        if (modDirs.Length == 0) return; //to not waste time
+        SkipLoading = false;
+        
+        if (modDirs.Length == 0) return;
         TotalModsCount += modDirs.Length;
         Log.Information("Loading {ModsCount} mods", modDirs.Length);
-        
+
         foreach (string modDir in modDirs)
             MainThread.Add(LoadModAsync(modDir));
-        
+
         MainThread.Add(PreventModLockAsync());
     }
 
@@ -125,22 +190,27 @@ public static class ModManager
     {
         int tries = 0;
         const int maxTries = 3;
+        int previousLoadedModsCount = LoadedModsCount;
         
         while (true)
         {
+            await Task.Delay(1); //1ms delay between checks.
+            
+            //Technically if this is condition is true then second one is true too, but this is 'the good ending' and second condition is 'the bad ending'.
+            
             if (!InProgress) //All mods are loaded
             {
                 Log.Information("Finished loading mods");
                 return;
             }
 
-            if (WaitingModsCount + LoadedModsCount == TotalModsCount)
+            if (WaitingModsCount + LoadedModsCount == TotalModsCount && previousLoadedModsCount == LoadedModsCount)
             {
-                //All mod configs were loaded, and some of the configs wait. Maybe last mod successfully loaded mod loaded just now, and waiting mods didn't check dependencies yet, and actually one of them can load. Wait a few moments to be sure that no mod will load.
+                // All mod configs were loaded, and some of the configs wait. Maybe last mod successfully loaded mod loaded just now, and waiting mods didn't check dependencies yet, and actually one of them can load. Wait a few moments to be sure that no mod will load.    But what if a mod loads between these checks? The condition is still true, so this thread thinks that the mods are still stuck. Track loaded mods count, to check that no mods loaded between checks. If some did, then previousLoadedModsCount doesn't match LoadedModsCount, so the loading is not stuck and we reset tries. 
                 if (tries < maxTries)
                 {
                     tries++;
-                    await Task.Delay(1);
+                    previousLoadedModsCount = LoadedModsCount;
                     continue;
                 }
 
@@ -150,10 +220,9 @@ public static class ModManager
             }
 
             tries = 0;
-            await Task.Delay(1);
+            previousLoadedModsCount = LoadedModsCount;
         }
     }
-    
     
     /// <summary>
     /// Load mod from the specified <paramref name="modDir"/> asynchronously. Requires <see cref="PreventModLockAsync"/> being active to run correctly.
@@ -170,6 +239,36 @@ public static class ModManager
         ModConfig? config = LoadModConfig(configPath);
         if (config is null) return; //invalid config, handled by LoadModConfig() .
 
+        string modName = config.Id.Name;
+        if (Mods is null) throw new Exception($"ModManager.Mods is null while loading mod: {modName}");
+
+        try
+        {
+            ModsLock.EnterReadLock();
+            if (Mods.TryGetValue(modName, out Mod? existingMod))
+            {
+                switch (existingMod.Status)
+                {
+                case ModStatus.Disabled:
+                    Log.Warning("Trying to load mod that's already loaded and marked as Disabled. Mark it AwaitingLoad first, then load.");
+                    return;
+                case ModStatus.Enabled:
+                    
+                    return;
+                case ModStatus.FailedToLoad:
+                    break;
+                
+                default:
+                    throw new IndexOutOfRangeException($"Status for mod {existingMod.Config.Id.Name} is not any valid value: {existingMod.Status} (while overwriting the mod)");
+                }
+            }
+                
+        }
+        finally
+        {
+            ModsLock.ExitReadLock();
+        }
+
         if (RemoveLoadedDeps(config))
         { //Config is ready to load.
             LoadModFromConfig(config, modDir);
@@ -177,10 +276,8 @@ public static class ModManager
         }
 
         Interlocked.Add(ref WaitingModsCount, 1);
-        if (Mods is null) throw new Exception($"ModManager.Mods is null while loading mod: {config.Id.Name}");
         Log.Information("Delaying mod: {ModName}", config.Id.Name);
         int loadedModsCount = Mods.Count;
-        
         
         while (true)
         {
@@ -205,7 +302,7 @@ public static class ModManager
 
             loadedModsCount = newLoadedModsCount;
         }
-
+        
         Interlocked.Add(ref WaitingModsCount, -1);
         LoadModFromConfig(config, modDir);
     }
@@ -224,7 +321,7 @@ public static class ModManager
         string contentDir = GetContentDirectory(modDir);
         if (Directory.Exists(contentDir))
         {
-            mod.Assets = new FileAssetsManager(contentDir);
+            mod.Assets = new FileAssetManager(contentDir);
             Assets.RegisterAssetManager(mod.Assets, mod.Config.Id.Name);
             mod.ContentType |= ModContentType.Assets;
         }
@@ -322,7 +419,7 @@ public static class ModManager
         try
         {
             ModsLock.EnterWriteLock();
-            Mods[mod.Config.Id.Name] = mod;
+            Mods.TryAdd(mod.Config.Id.Name, mod);
         }
         finally
         {

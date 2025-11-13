@@ -3,6 +3,7 @@ using Microsoft.Xna.Framework;
 using MonoPlus.GraphicsSystem;
 using MonoPlus.InputSystem;
 using MonoPlus.LocalizationSystem;
+using MonoPlus.Utils.General;
 
 namespace MonoPlus;
 

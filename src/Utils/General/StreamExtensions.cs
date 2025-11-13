@@ -12,12 +12,13 @@
    The above copyright notice and this permission notice shall be included in all
    copies or substantial portions of the Software.
 */
+
 using System;
 using System.Diagnostics.Contracts;
 using System.IO;
 using System.Threading.Tasks;
 
-namespace MonoPlus;
+namespace MonoPlus.Utils.General;
 
 /// <summary>
 ///   <para>Provides a set of extension methods for the <see cref="Stream"/> class.</para>

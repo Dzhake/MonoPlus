@@ -37,7 +37,7 @@ public static class Locale
     /// <summary>
     /// Currently selected language identifier, which should match filenames of loaded strings (without extension and period).
     /// </summary>
-    public static string CurrentLanguage = "ru";
+    public static string CurrentLanguage = "en";
 
     /// <summary>
     /// Fallback language identifier, which should match filenames of strings loaded to fallback bundle (without extension and period).

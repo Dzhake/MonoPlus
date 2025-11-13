@@ -130,9 +130,6 @@ public static class Renderer
     /// Sets <see cref="renderTarget"/> and calls binds <paramref name="newRenderTarget"/> to <see cref="device"/>. Everything will be draw to <paramref name="newRenderTarget"/> until new one is set.
     /// </summary>
     /// <param name="newRenderTarget">New render target where to draw, or null to reset to BackBuffer.</param>
-    /// <remarks>
-    /// Use <see langword="null"/> to reset to BackBuffer. Pass <see cref="RenderTarget"/> to get current renderTarget.
-    /// </remarks>
     public static void SetRenderTarget(RenderTarget2D? newRenderTarget)
     {
         renderTarget = newRenderTarget;

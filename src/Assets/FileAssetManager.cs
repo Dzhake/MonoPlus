@@ -9,13 +9,14 @@ using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 using MonoPlus.GraphicsSystem;
 using MonoPlus.LocalizationSystem;
+using MonoPlus.Utils.General;
 
 namespace MonoPlus.AssetsSystem;
 
 /// <summary>
 ///     <para>Represents an asset manager, that loads assets from a directory in the file system.</para>
 /// </summary>
-public class FileAssetsManager : AssetsManager
+public class FileAssetManager : AssetManager
 {
     /// <summary>
     ///   <para>Gets the full path to the directory that this asset manager loads assets from.</para>
@@ -48,14 +49,14 @@ public class FileAssetsManager : AssetsManager
     }
 
     /// <summary>
-    ///   <para>Initializes a new instance of the <see cref="FileAssetsManager"/> class with the specified <paramref name="directoryPath"/>.</para>
+    ///   <para>Initializes a new instance of the <see cref="FileAssetManager"/> class with the specified <paramref name="directoryPath"/>.</para>
     /// </summary>
     /// <param name="directoryPath">A path to the directory to load assets from.</param>
     /// <exception cref="ArgumentNullException"><paramref name="directoryPath"/> is <see langword="null"/>.</exception>
     /// <exception cref="ArgumentException"><paramref name="directoryPath"/> is not a valid directory path.</exception>
     /// <exception cref="NotSupportedException"><paramref name="directoryPath"/> contains a colon (":") that is not part of a volume identifier (for example, "c:\").</exception>
     /// <exception cref="PathTooLongException">The specified path, file name, or both exceed the system-defined maximum length.</exception>
-    public FileAssetsManager(string directoryPath)
+    public FileAssetManager(string directoryPath)
     {
         ArgumentNullException.ThrowIfNull(directoryPath);
         DirectoryPath = Path.GetFullPath(directoryPath);

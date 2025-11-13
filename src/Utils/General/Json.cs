@@ -1,6 +1,6 @@
 ﻿using System.Text.Json;
 
-namespace MonoPlus.Utils;
+namespace MonoPlus.Utils.General;
 
 /// <summary>
 /// Small class for caching and reusing <see cref="JsonSerializerOptions"/>.

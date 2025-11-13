@@ -15,7 +15,7 @@ public enum ModContentType
     None = 0,
     
     /// <summary>
-    /// Assets loaded by <see cref="AssetsManager"/>. <see cref="Mod.Assets"/> is not null if mod has this.
+    /// Assets loaded by <see cref="AssetManager"/>. <see cref="Mod.Assets"/> is not null if mod has this.
     /// </summary>
     Assets = 1,
 

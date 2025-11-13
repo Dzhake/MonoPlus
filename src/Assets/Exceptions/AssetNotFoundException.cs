@@ -10,7 +10,7 @@ public sealed class AssetNotFoundException : Exception
     /// <summary>
     ///   <para>Gets the asset manager that the specified asset could not be found in.</para>
     /// </summary>
-    public AssetsManager AssetManager { get; }
+    public AssetManager AssetManager { get; }
 
     /// <summary>
     ///   <para>Gets a relative path to the asset that could not be found.</para>
@@ -21,15 +21,15 @@ public sealed class AssetNotFoundException : Exception
     public override string Message => $"Asset '{RelativePath}' could not be found in {AssetManager}.";
 
     /// <summary>
-    ///   <para>Initializes a new instance of the <see cref="AssetNotFoundException"/> class with the specified <paramref name="assetsManager"/> and <paramref name="relativePath"/>.</para>
+    ///   <para>Initializes a new instance of the <see cref="AssetNotFoundException"/> class with the specified <paramref name="assetManager"/> and <paramref name="relativePath"/>.</para>
     /// </summary>
-    /// <param name="assetsManager">The asset manager that the specified asset could not be found in.</param>
+    /// <param name="assetManager">The asset manager that the specified asset could not be found in.</param>
     /// <param name="relativePath">A relative path to the asset that could not be found.</param>
-    public AssetNotFoundException(AssetsManager assetsManager, string relativePath)
+    public AssetNotFoundException(AssetManager assetManager, string relativePath)
     {
-        ArgumentNullException.ThrowIfNull(assetsManager);
+        ArgumentNullException.ThrowIfNull(assetManager);
         ArgumentNullException.ThrowIfNull(relativePath);
-        AssetManager = assetsManager;
+        AssetManager = assetManager;
         RelativePath = relativePath;
     }
 }

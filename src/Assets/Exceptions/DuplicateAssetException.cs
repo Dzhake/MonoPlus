@@ -4,39 +4,39 @@ using System.IO;
 namespace MonoPlus.AssetsSystem;
 
 /// <summary>
-///   <para>The exception that is thrown when <see cref="FileAssetsManager"/> found more than asset with same path and name but different extensions</para>
+///   <para>The exception that is thrown when <see cref="FileAssetManager"/> found more than asset with same path and name but different extensions</para>
 /// </summary>
 public sealed class DuplicateAssetException : Exception
 {
     /// <summary>
     ///   <para>Gets the asset manager that the specified asset could not be found in.</para>
     /// </summary>
-    public AssetsManager assetsManager { get; }
+    public AssetManager AssetManager { get; }
     /// <summary>
     ///   <para>Gets a relative path to the asset that could not be found.</para>
     /// </summary>
     public string AssetExtensions { get; }
 
     /// <summary>
-    ///     <para>Path where <see cref="FileAssetsManager"/> tried to find asset</para>
+    ///     <para>Path where <see cref="FileAssetManager"/> tried to find asset</para>
     /// </summary>
     public string RootPath { get; }
 
     /// <inheritdoc/>
-    public override string Message => $"{assetsManager} found multiply assets at path {RootPath} with extensions: {AssetExtensions}.";
+    public override string Message => $"{AssetManager} found multiply assets at path {RootPath} with extensions: {AssetExtensions}.";
 
     /// <summary>
     ///     <para>Initializes a new instance of the <see cref="DuplicateAssetException"/> class.</para>
     /// </summary>
-    /// <param name="assetsManager"><see cref="AssetsManager"/> that found duplicated assets.</param>
+    /// <param name="assetManager"><see cref="AssetManager"/> that found duplicated assets.</param>
     /// <param name="rootPath"><see cref="Directory"/> where assets were found</param>
     /// <param name="assetExtensions"><see cref="Array"/> of file extensions of duplicate assets.</param>
-    public DuplicateAssetException(AssetsManager assetsManager, string rootPath, string[] assetExtensions)
+    public DuplicateAssetException(AssetManager assetManager, string rootPath, string[] assetExtensions)
     {
-        ArgumentNullException.ThrowIfNull(assetsManager);
+        ArgumentNullException.ThrowIfNull(assetManager);
         ArgumentNullException.ThrowIfNull(rootPath);
         ArgumentNullException.ThrowIfNull(assetExtensions);
-        this.assetsManager = assetsManager;
+        this.AssetManager = assetManager;
         RootPath = rootPath;
         AssetExtensions = string.Join(',', assetExtensions);
     }

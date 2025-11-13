@@ -1,6 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 
-namespace MonoPlus;
+namespace MonoPlus.Utils.General;
 
 /// <summary>
 /// Small helper class to store current <see cref="OSPlatform"/> in <see cref="Platform"/>

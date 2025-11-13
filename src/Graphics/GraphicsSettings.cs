@@ -62,8 +62,7 @@ public static class GraphicsSettings
     /// </summary>
     public static void ApplyFullscreenChanges(bool fullscreen)
     {
-        GraphicsDeviceManager? deviceManager = Renderer.deviceManager;
-        if (deviceManager is null || Renderer.Window is null) return;
+        GraphicsDeviceManager deviceManager = Renderer.deviceManager;
 
         switch (fullscreen)
         {
@@ -89,7 +88,6 @@ public static class GraphicsSettings
     /// </summary>
     public static unsafe void ApplyWindowSizeChanges()
     {
-        if (Renderer.deviceManager is null || Renderer.Window is null) return;
         Renderer.deviceManager.PreferredBackBufferWidth = (int)WindowSize.X;
         Renderer.deviceManager.PreferredBackBufferHeight = (int)WindowSize.Y;
 

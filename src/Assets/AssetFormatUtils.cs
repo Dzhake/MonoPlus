@@ -6,7 +6,7 @@ using System.Diagnostics.Contracts;
 namespace MonoPlus.AssetsSystem;
 
 /// <summary>
-/// Util methods related to <see cref="Assets"/> and <see cref="AssetsManager"/>s.
+/// Util methods related to <see cref="Assets"/> and <see cref="AssetManager"/>s.
 /// </summary>
 public static class AssetsUtils
 {

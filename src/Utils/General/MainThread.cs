@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using MonoPlus.Utils.Collections;
 
-namespace MonoPlus.Utils;
+namespace MonoPlus.Utils.General;
 
 /// <summary>
 /// Helper class for keeping track of <see cref="Tasks"/>, and throwing exceptions to main thread.
@@ -47,4 +47,10 @@ public static class MainThread
     /// </summary>
     /// <param name="task">Task to add.</param>
     public static void Add(Task task) => Tasks.Add(task);
+
+    /// <summary>
+    /// Adds the specified <paramref name="tasks"/> to the list of tasks managed by <see cref="MainThread"/>.
+    /// </summary>
+    /// <param name="tasks">Tasks to add.</param>
+    public static void Add(IEnumerable<Task> tasks) => Tasks.AddRange(tasks);
 }

@@ -4,7 +4,7 @@ using HarmonyLib;
 using MonoPlus.AssetsSystem;
 using Serilog;
 
-namespace MonoPlus.ModSystem;
+namespace MonoPlus.ModdingNew;
 
 /// <summary>
 /// Represents a <see cref="Mod"/> with an assembly, assets, and <see cref="ModListener"/>.

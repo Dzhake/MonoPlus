@@ -19,24 +19,24 @@ public static class Assets
     public static readonly Dictionary<string, Func<FileStream, object>> CustomFormats = new();
         
         
-    private static readonly Dictionary<string, AssetsManager> Managers = new();
+    private static readonly Dictionary<string, AssetManager> Managers = new();
 
     /// <summary>
-    ///   <para>Adds the specified asset <paramref name="assetsManager"/> to the global registry under the specified <paramref name="prefix"/>.</para>
+    ///   <para>Adds the specified asset <paramref name="assetManager"/> to the global registry under the specified <paramref name="prefix"/>.</para>
     /// </summary>
-    /// <param name="assetsManager">The asset manager to register under the specified <paramref name="prefix"/>.</param>
-    /// <param name="prefix">The global prefix to register the specified asset <paramref name="assetsManager"/> under.</param>
-    /// <exception cref="ArgumentNullException"><paramref name="assetsManager"/> or <paramref name="prefix"/> is <see langword="null"/>.</exception>
-    /// <exception cref="ArgumentException"><paramref name="assetsManager"/> already has a registered prefix, or the specified prefix is already occupied by another asset manager.</exception>
-    public static void RegisterAssetManager(AssetsManager assetsManager, string prefix)
+    /// <param name="assetManager">The asset manager to register under the specified <paramref name="prefix"/>.</param>
+    /// <param name="prefix">The global prefix to register the specified asset <paramref name="assetManager"/> under.</param>
+    /// <exception cref="ArgumentNullException"><paramref name="assetManager"/> or <paramref name="prefix"/> is <see langword="null"/>.</exception>
+    /// <exception cref="ArgumentException"><paramref name="assetManager"/> already has a registered prefix, or the specified prefix is already occupied by another asset manager.</exception>
+    public static void RegisterAssetManager(AssetManager assetManager, string prefix)
     {
-        ArgumentNullException.ThrowIfNull(assetsManager);
+        ArgumentNullException.ThrowIfNull(assetManager);
         ArgumentNullException.ThrowIfNull(prefix);
-        if (assetsManager.Prefix is not null)
-            throw new ArgumentException("The specified manager already has a registered prefix.", nameof(assetsManager));
+        if (assetManager.Prefix is not null)
+            throw new ArgumentException("The specified manager already has a registered prefix.", nameof(assetManager));
 
-        Managers.Add(prefix, assetsManager);
-        assetsManager.Prefix = prefix;
+        Managers.Add(prefix, assetManager);
+        assetManager.Prefix = prefix;
         Log.Information("Registered asset manager with prefix: {Prefix}", prefix);
     }
     
@@ -45,7 +45,7 @@ public static class Assets
     /// </summary>
     /// <param name="assetsManager">The asset manager to remove from the global registry.</param>
     /// <returns><see langword="true"/>, if the specified asset <paramref name="assetsManager"/> was successfully removed; otherwise, <see langword="false"/>.</returns>
-    public static bool UnRegisterAssetsManager([NotNullWhen(true)] AssetsManager? assetsManager)
+    public static bool UnRegisterAssetsManager([NotNullWhen(true)] AssetManager? assetsManager)
     {
         if (assetsManager?.Prefix is { } prefix && Managers.Remove(prefix))
         {
@@ -59,10 +59,10 @@ public static class Assets
     }
 
     /// <summary>
-    /// Checks if <see cref="AssetsManager"/> with specified <paramref name="prefix"/> is registered.
+    /// Checks if <see cref="AssetManager"/> with specified <paramref name="prefix"/> is registered.
     /// </summary>
-    /// <param name="prefix"><see cref="AssetsManager"/>'s prefix.</param>
-    /// <returns>Whether <see cref="AssetsManager"/> with specified <paramref name="prefix"/> is registered.</returns>
+    /// <param name="prefix"><see cref="AssetManager"/>'s prefix.</param>
+    /// <returns>Whether <see cref="AssetManager"/> with specified <paramref name="prefix"/> is registered.</returns>
     public static bool AssetsManagerRegistered(string prefix) => Managers.ContainsKey(prefix);
     
 
@@ -79,7 +79,7 @@ public static class Assets
     {
         SplitPath(fullPath, out var prefix, out var relativePath);
 
-        if (!Managers.TryGetValue(prefix.ToString(), out AssetsManager? manager))
+        if (!Managers.TryGetValue(prefix.ToString(), out AssetManager? manager))
             throw new ArgumentException("Could not find asset with the specified prefix.", nameof(fullPath));
         return manager.Get<T>(relativePath.ToString());
     }
@@ -97,7 +97,7 @@ public static class Assets
     {
         SplitPath(fullPath, out var prefix, out var relativePath);
 
-        if (!Managers.TryGetValue(prefix.ToString(), out AssetsManager? manager))
+        if (!Managers.TryGetValue(prefix.ToString(), out AssetManager? manager))
             throw new ArgumentException("Could not find asset with the specified prefix.", nameof(fullPath));
         return manager.GetOrDefault<T>(relativePath.ToString());
     }
@@ -142,14 +142,14 @@ public static class Assets
     }
 
     /// <summary>
-    /// Whether <see cref="AssetsManager"/>s should prefer maximum performance, or lower memory usage. Used in rare cases, where <see cref="ResourcePriorityType.Performance"/> can use a lot of memory.
+    /// Whether <see cref="AssetManager"/>s should prefer maximum performance, or lower memory usage. Used in rare cases, where <see cref="ResourcePriorityType.Performance"/> can use a lot of memory.
     /// </summary>
     public static ResourcePriorityType ResourcePriority = ResourcePriorityType.Performance;
     
     
 
     /// <summary>
-    /// Types of action <see cref="AssetsManager"/> will do if the specified asset was not found.
+    /// Types of action <see cref="AssetManager"/> will do if the specified asset was not found.
     /// </summary>
     public enum NotFoundPolicyType
     {
@@ -165,7 +165,7 @@ public static class Assets
     }
 
     /// <summary>
-    /// Action <see cref="AssetsManager"/> will do if the specified asset was not found.
+    /// Action <see cref="AssetManager"/> will do if the specified asset was not found.
     /// </summary>
     public static NotFoundPolicyType NotFoundPolicy = NotFoundPolicyType.Fallback;
 }
