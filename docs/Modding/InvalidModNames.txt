@@ -1,0 +1,6 @@
+Break the game:
+_ModManager
+
+Highly not recommended:
+ExampleMod
+NewMod

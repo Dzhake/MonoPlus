@@ -18,8 +18,15 @@ public static class Assets
     /// </summary>
     public static readonly Dictionary<string, Func<FileStream, object>> CustomFormats = new();
         
-        
+    /// <summary>
+    /// All registered <see cref="AssetManager"/>s.
+    /// </summary>
     private static readonly Dictionary<string, AssetManager> Managers = new();
+    
+    /// <summary>
+    /// List of <see cref="IAssetLoader"/>s, that are currently reloading some assets. Used to determine whether the game should pause and wait until assets are reloaded.
+    /// </summary>
+    public static readonly List<IAssetLoader> ReloadingAssetLoaders = new();
 
     /// <summary>
     ///   <para>Adds the specified asset <paramref name="assetManager"/> to the global registry under the specified <paramref name="prefix"/>.</para>
