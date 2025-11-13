@@ -2,7 +2,7 @@
 using System.IO;
 using System.Text.Json.Serialization;
 
-namespace MonoPlus.ModSystem;
+namespace Monod.ModSystem;
 
 /// <summary>
 /// Represents serialized configuration for a <see cref="Mod"/>,

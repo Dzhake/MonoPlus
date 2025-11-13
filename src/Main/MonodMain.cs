@@ -1,16 +1,16 @@
-﻿using MonoPlus.LogSystem;
+﻿using Monod.LogSystem;
 using Microsoft.Xna.Framework;
-using MonoPlus.GraphicsSystem;
-using MonoPlus.InputSystem;
-using MonoPlus.LocalizationSystem;
-using MonoPlus.Utils.General;
+using Monod.GraphicsSystem;
+using Monod.InputSystem;
+using Monod.LocalizationSystem;
+using Monod.Utils.General;
 
 namespace MonoPlus;
 
 /// <summary>
 /// Wrapper around various <see cref="MonoPlus"/> modules.
 /// </summary>
-public static class MonoPlusMain
+public static class MonodMain
 {
     /// <summary>
     /// Whether the program should do operations related to hot reloading assets/.dlls etc. at cost of performance and memory. This does not include <b>fully</b> reloading mods.

@@ -3,7 +3,7 @@ using System.IO;
 using System.Text.Json;
 using HarmonyLib;
 
-namespace MonoPlus.ModSystem;
+namespace Monod.ModSystem;
 
 /// <summary>
 /// Helper class for quickly creating mods with failure problems from an <see cref="Exception"/>.

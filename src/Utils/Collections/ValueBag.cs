@@ -1,6 +1,6 @@
 ﻿﻿using System;
 
- namespace MonoPlus.Utils.Collections;
+ namespace Monod.Utils.Collections;
 
  /// <summary>
  ///   <para>A simple structure managing an unordered collection of elements.</para>

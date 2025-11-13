@@ -1,7 +1,8 @@
 using System;
+using Monod.AssetsSystem;
 using MonoPlus.AssetsSystem;
 
-namespace MonoPlus.ModSystem;
+namespace Monod.ModSystem;
 
 /// <summary>
 /// Represents types of content mod can have.

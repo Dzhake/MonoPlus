@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using System.Threading;
-using MonoPlus.ModSystem;
+using Monod.ModSystem;
 
-namespace MonoPlus.ModdingNew;
+namespace Monod.ModdingNew;
 
 /// <summary>
 /// Class for loading, unloading and reloading <see cref="Mod"/>s.

@@ -1,6 +1,7 @@
 ﻿using System;
+using MonoPlus.AssetsSystem;
 
-namespace MonoPlus.AssetsSystem;
+namespace Monod.AssetsSystem;
 
 /// <summary>
 ///     <para>The exception that is thrown when an asset at the specified path is not any known format.</para>

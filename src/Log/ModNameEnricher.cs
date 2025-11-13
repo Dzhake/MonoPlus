@@ -1,7 +1,7 @@
 ﻿using Serilog.Core;
 using Serilog.Events;
 
-namespace MonoPlus.LogSystem;
+namespace Monod.LogSystem;
 
 /// <summary>
 /// Enriches logged text by adding Mod=DD property if absent

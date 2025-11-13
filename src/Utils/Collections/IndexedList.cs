@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
 
-namespace MonoPlus.Utils.Collections;
+namespace Monod.Utils.Collections;
 
 /// <summary>
 /// <b>Read all this text before using.</b>

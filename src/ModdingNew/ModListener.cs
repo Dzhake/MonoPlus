@@ -1,4 +1,4 @@
-namespace MonoPlus.ModdingNew;
+namespace Monod.ModdingNew;
 
 /// <summary>
 /// Represents a set of virtual methods which <see cref="ModManager"/> calls for each mod.

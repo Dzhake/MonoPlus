@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using MonoPlus.Utils.Collections;
+using Monod.Utils.Collections;
 
-namespace MonoPlus.Utils.General;
+namespace Monod.Utils.General;
 
 /// <summary>
 /// Helper class for keeping track of <see cref="Tasks"/>, and throwing exceptions to main thread.

@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Text;
 using Microsoft.Xna.Framework.Input;
-using MonoPlus.TimeSystem;
+using Monod.TimeSystem;
 using SDL3;
 
-namespace MonoPlus.InputSystem;
+namespace Monod.InputSystem;
 
 /// <summary>
 /// Represents text input field which captures input and may have selection.

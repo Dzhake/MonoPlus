@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Reflection;
 using HarmonyLib;
+using Monod.AssetsSystem;
 using MonoPlus.AssetsSystem;
 using Serilog;
 
-namespace MonoPlus.ModSystem;
+namespace Monod.ModSystem;
 
 /// <summary>
 /// Represents a <see cref="Mod"/> with an assembly, assets, and <see cref="ModListener"/>.

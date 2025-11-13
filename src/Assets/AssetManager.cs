@@ -5,9 +5,10 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework.Graphics;
-using MonoPlus.Utils;
-using MonoPlus.Utils.Collections;
-using MonoPlus.Utils.General;
+using Monod.AssetsSystem;
+using Monod.Utils;
+using Monod.Utils.Collections;
+using Monod.Utils.General;
 using Serilog;
 
 namespace MonoPlus.AssetsSystem;
@@ -112,7 +113,7 @@ public class AssetManager : IDisposable
     public void ReloadAllAssets()
     {
         ObjectDisposedException.ThrowIf(disposed, this);
-        if (!MonoPlusMain.HotReload) return;
+        if (!MonodMain.HotReload) return;
         
         Loader.LoadAssetManifests();
         LoadAssets();

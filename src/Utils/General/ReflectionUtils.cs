@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Reflection;
 
-namespace MonoPlus.Utils.General;
+namespace Monod.Utils.General;
 
 /// <summary>
 /// Helper class for simplier use of <see cref="System.Reflection"/>

@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
  using System.IO;
+ using MonoPlus.AssetsSystem;
 
-namespace MonoPlus.AssetsSystem;
+ namespace Monod.AssetsSystem;
 
 /// <summary>
 /// Util methods related to <see cref="Assets"/> and <see cref="AssetManager"/>s.

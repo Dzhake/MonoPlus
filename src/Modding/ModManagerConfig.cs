@@ -1,6 +1,6 @@
 using System.Text.Json.Serialization;
 
-namespace MonoPlus.ModSystem;
+namespace Monod.ModSystem;
 
 /// <summary>
 /// Config file for the <see cref="ModManager"/>, saved to "%Saves%/ModManager/Config.json"

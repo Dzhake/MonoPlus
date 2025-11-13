@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 using Chasm.SemanticVersioning;
 using Chasm.SemanticVersioning.Ranges;
 
-namespace MonoPlus.ModSystem;
+namespace Monod.ModSystem;
 
 /// <summary>
 /// Represents Id of a <see cref="Mod"/>.

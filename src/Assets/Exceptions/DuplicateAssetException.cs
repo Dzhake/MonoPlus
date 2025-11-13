@@ -1,7 +1,8 @@
 ﻿using System;
 using System.IO;
+using MonoPlus.AssetsSystem;
 
-namespace MonoPlus.AssetsSystem;
+namespace Monod.AssetsSystem;
 
 /// <summary>
 ///   <para>The exception that is thrown when <see cref="FileAssetManager"/> found more than asset with same path and name but different extensions</para>

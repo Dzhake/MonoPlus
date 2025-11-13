@@ -18,7 +18,7 @@ using System.Diagnostics.Contracts;
 using System.IO;
 using System.Threading.Tasks;
 
-namespace MonoPlus.Utils.General;
+namespace Monod.Utils.General;
 
 /// <summary>
 ///   <para>Provides a set of extension methods for the <see cref="Stream"/> class.</para>

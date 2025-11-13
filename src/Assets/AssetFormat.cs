@@ -2,7 +2,7 @@
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace MonoPlus.AssetsSystem;
+namespace Monod.AssetsSystem;
 
 /// <summary>
 ///   <para>Defines the types of assets.</para>
@@ -10,7 +10,7 @@ namespace MonoPlus.AssetsSystem;
 public enum AssetType
 {
     /// <summary>
-    /// Unknown asset type, not supported by <see cref="MonoPlus.AssetsSystem"/>.
+    /// Unknown asset type, not supported by <see cref="Monod.AssetsSystem"/>.
     /// </summary>
     Unknown,
 

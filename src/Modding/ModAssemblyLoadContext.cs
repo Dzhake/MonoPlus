@@ -3,8 +3,9 @@ using System.IO;
 using System.Reflection;
 using System.Runtime.Loader;
 using System.Threading;
+using MonoPlus;
 
-namespace MonoPlus.ModSystem;
+namespace Monod.ModSystem;
 
 /// <summary>
 /// Represents <see cref="Assembly"/> for <see cref="Mod"/>s
@@ -37,7 +38,7 @@ public class ModAssemblyLoadContext : AssemblyLoadContext, IDisposable
         if (config.AssemblyFile is null) throw new InvalidOperationException("Trying to create ModAssemblyLoadContext with config which has null AssemblyFile");
         this.mod = mod;
 
-        if (!MonoPlusMain.HotReload) return;
+        if (!MonodMain.HotReload) return;
         watcher = new(Path.Combine(mod.Directory, Path.GetDirectoryName(config.AssemblyFile) ?? ""), Path.GetFileName(config.AssemblyFile));
         watcher.NotifyFilter = NotifyFilters.LastWrite;
         watcher.Changed += OnFileChanged;

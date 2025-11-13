@@ -2,7 +2,7 @@ using System;
 using System.IO;
 using System.Linq;
 
-namespace MonoPlus.LocalizationSystem;
+namespace Monod.LocalizationSystem;
 
 public class LocaleManager
 {

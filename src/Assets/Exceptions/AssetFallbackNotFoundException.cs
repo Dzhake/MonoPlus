@@ -1,6 +1,7 @@
 ﻿using System;
+using MonoPlus.AssetsSystem;
 
-namespace MonoPlus.AssetsSystem;
+namespace Monod.AssetsSystem;
 
 /// <summary>
 /// The exception that is thrown when <see cref="assetManager"/> could not find fallback for an asset.

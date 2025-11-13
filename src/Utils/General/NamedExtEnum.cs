@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 
-namespace MonoPlus.Utils.General;
+namespace Monod.Utils.General;
 
 public class NamedExtEnum
 {

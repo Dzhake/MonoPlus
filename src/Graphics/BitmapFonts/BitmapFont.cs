@@ -2,7 +2,7 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
-namespace MonoPlus.GraphicsSystem.BitmapFonts;
+namespace Monod.GraphicsSystem.BitmapFonts;
 
 /// <summary>
 /// Represents a font, which contains a <see cref="Texture"/> with all the glyphs in a row of same <see cref="GlyphSize"/>, and a definition of <see cref="Glyphs"/> to match where in <see cref="Texture"/> is which glyph.

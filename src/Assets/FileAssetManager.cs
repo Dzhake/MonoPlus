@@ -7,11 +7,13 @@ using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Xna.Framework.Audio;
 using Microsoft.Xna.Framework.Graphics;
-using MonoPlus.GraphicsSystem;
-using MonoPlus.LocalizationSystem;
-using MonoPlus.Utils.General;
+using Monod.GraphicsSystem;
+using Monod.LocalizationSystem;
+using Monod.Utils.General;
+using MonoPlus;
+using MonoPlus.AssetsSystem;
 
-namespace MonoPlus.AssetsSystem;
+namespace Monod.AssetsSystem;
 
 /// <summary>
 ///     <para>Represents an asset manager, that loads assets from a directory in the file system.</para>
@@ -93,13 +95,13 @@ public class FileAssetManager : AssetManager
 
     private void OnFileChanged(object? sender, FileSystemEventArgs args)
     {
-        if (!MonoPlusMain.HotReload || _watcher != sender) return;
+        if (!MonodMain.HotReload || _watcher != sender) return;
         ReloadAsset(args.FullPath);
     }
 
     private void OnFileRenamed(object? sender, RenamedEventArgs args)
     {
-        if (!MonoPlusMain.HotReload || _watcher != sender) return;
+        if (!MonodMain.HotReload || _watcher != sender) return;
         ReloadAsset(args.OldFullPath);
         ReloadAsset(args.FullPath);
     }

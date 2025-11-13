@@ -1,7 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using SDL3;
 
-namespace MonoPlus.GraphicsSystem;
+namespace Monod.GraphicsSystem;
 
 /// <summary>
 /// Represents graphics info which should be serialized in settings file and some methods to change those..

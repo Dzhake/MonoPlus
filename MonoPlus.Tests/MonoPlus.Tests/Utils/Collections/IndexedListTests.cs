@@ -1,4 +1,6 @@
-﻿namespace MonoPlus.Utils.Collections.Tests;
+﻿using Monod.Utils.Collections;
+
+namespace MonoPlus.Utils.Collections.Tests;
 
 [TestClass]
 public class IndexedListTests

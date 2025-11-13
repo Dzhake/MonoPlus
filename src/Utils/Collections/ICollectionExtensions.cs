@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace MonoPlus.Utils.Collections;
+namespace Monod.Utils.Collections;
 
 /// <summary>
 /// Extensions for <see cref="ICollection{T}"/>, <see cref="IEnumerable{T}"/>, and <see cref="IList{T}"/>. 

@@ -1,4 +1,4 @@
-namespace MonoPlus.ModSystem;
+namespace Monod.ModSystem;
 
 /// <summary>
 /// Represents a set of virtual methods which <see cref="ModManager"/> calls for each mod.

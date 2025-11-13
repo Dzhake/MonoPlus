@@ -1,8 +1,8 @@
 ﻿using System;
 using Microsoft.Xna.Framework;
-using MonoPlus.GraphicsSystem;
+using Monod.GraphicsSystem;
 
-namespace MonoPlus.TimeSystem;
+namespace Monod.TimeSystem;
 
 /// <summary>
 /// Class for managing <see cref="DeltaTime"/> and <see cref="TotalTime"/>, and quick access to those.

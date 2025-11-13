@@ -7,13 +7,15 @@ using System.Reflection;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
+using Monod.AssetsSystem;
+using Monod.SaveSystem;
+using Monod.Utils.General;
+using Monod.Utils;
+using MonoPlus;
 using MonoPlus.AssetsSystem;
-using MonoPlus.SaveSystem;
-using MonoPlus.Utils;
-using MonoPlus.Utils.General;
 using Serilog;
 
-namespace MonoPlus.ModSystem;
+namespace Monod.ModSystem;
 
 /// <summary>
 /// Class for loading, unloading and reloading <see cref="Mod"/>s.
@@ -491,7 +493,7 @@ public static class ModManager
     /// <param name="mod">Mod whose assembly to reload.</param>
     public static async Task ReloadAssemblyAsync(Mod mod)
     {
-        if (!MonoPlusMain.HotReload)
+        if (!MonodMain.HotReload)
         {
             Log.Warning("Tried to reload assembly of {ModName}, but hot reload is off", mod.Config.Id.Name);
             return;

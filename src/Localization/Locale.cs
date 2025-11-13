@@ -4,10 +4,10 @@ using System.Globalization;
 using System.IO;
 using Linguini.Bundle;
 using Linguini.Bundle.Builder;
-using MonoPlus.ModSystem;
+using Monod.ModSystem;
 using Serilog;
 
-namespace MonoPlus.LocalizationSystem;
+namespace Monod.LocalizationSystem;
 
 /// <summary>
 /// Class to manage localization.

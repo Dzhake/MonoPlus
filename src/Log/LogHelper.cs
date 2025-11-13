@@ -9,7 +9,7 @@ using Serilog.Events;
 using Serilog.Formatting.Display;
 using Serilog.Sinks.SystemConsole.Themes;
 
-namespace MonoPlus.LogSystem;
+namespace Monod.LogSystem;
 
 /// <summary>
 /// Small helper class for initializing <see cref="Log"/>.

@@ -4,6 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using JetBrains.Annotations;
 using Microsoft.Xna.Framework.Graphics;
+using Monod.AssetsSystem;
 using Serilog;
 
 namespace MonoPlus.AssetsSystem;

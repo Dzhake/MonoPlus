@@ -1,4 +1,4 @@
-namespace MonoPlus.ModdingNew;
+namespace Monod.ModdingNew;
 
 /// <summary>
 /// Represents status a <see cref="Mod"/> can have.

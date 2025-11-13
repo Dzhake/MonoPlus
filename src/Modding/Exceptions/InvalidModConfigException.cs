@@ -1,7 +1,7 @@
 ﻿using System;
 using System.IO;
 
-namespace MonoPlus.ModSystem;
+namespace Monod.ModSystem;
 
 /// <summary>
 /// Thrown when config for <see cref="ModConfig"/> is not found or is invalid

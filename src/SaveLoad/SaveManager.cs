@@ -1,10 +1,10 @@
 using System;
 using System.IO;
 using System.Text.Json;
-using MonoPlus.Utils;
-using MonoPlus.Utils.General;
+using Monod.Utils.General;
+using Monod.Utils;
 
-namespace MonoPlus.SaveSystem;
+namespace Monod.SaveSystem;
 
 /// <summary>
 /// Class for saving and loading data using <see cref="JsonSerializer"/>.
