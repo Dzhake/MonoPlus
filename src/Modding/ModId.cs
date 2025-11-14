@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Text.Json.Serialization;
 using Chasm.SemanticVersioning;
-using Chasm.SemanticVersioning.Ranges;
 
 namespace Monod.ModSystem;
 

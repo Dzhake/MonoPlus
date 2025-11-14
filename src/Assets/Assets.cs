@@ -27,7 +27,7 @@ public static class Assets
     /// <summary>
     /// List of <see cref="IAssetLoader"/>s, that are currently reloading some assets. Used to determine whether the game should pause and wait until assets are reloaded.
     /// </summary>
-    public static readonly List<IAssetLoader> ReloadingAssetLoaders = new();
+    public static readonly HashSet<IAssetLoader> ReloadingAssetLoaders = new();
 
     /// <summary>
     ///   <para>Adds the specified asset <paramref name="assetManager"/> to the global registry under the specified <paramref name="prefix"/>.</para>
@@ -116,7 +116,7 @@ public static class Assets
     /// <param name="query">Path to split.</param>
     /// <param name="prefix">Prefix of asset manager.</param>
     /// <param name="path">Asset path for asset manager.</param>
-    private static void SplitPath(ReadOnlySpan<char> query, out ReadOnlySpan<char> prefix, out ReadOnlySpan<char> path)
+    public static void SplitPath(ReadOnlySpan<char> query, out ReadOnlySpan<char> prefix, out ReadOnlySpan<char> path)
     {
         int separatorIndex = query.IndexOf(":/");
         if (separatorIndex == -1)

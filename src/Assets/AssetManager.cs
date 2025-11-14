@@ -1,14 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Linq;
 using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.Xna.Framework.Graphics;
 using Monod.AssetsSystem;
-using Monod.Utils;
 using Monod.Utils.Collections;
-using Monod.Utils.General;
 using Serilog;
 
 namespace MonoPlus.AssetsSystem;
@@ -165,9 +159,8 @@ public class AssetManager : IDisposable
     /// Invokes all listeners with the specified <paramref name="oldAssets"/> param.
     /// </summary>
     /// <param name="oldAssets">Assets before reloading, which you can use to check if your asset was reloaded, <b>or <see langword="null"/> if all assets were reloaded</b></param>
-    private void InvokeListeners(object[]? oldAssets)
+    private void InvokeListeners(HashSet<object>? oldAssets)
     {
-        oldAssets.Sort();
         foreach (IAssetListener assetListener in listeners)
             assetListener.ReloadAssets(oldAssets);
     }

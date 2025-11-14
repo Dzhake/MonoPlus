@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Reflection;
 using HarmonyLib;
-using Monod.AssetsSystem;
 using Monod.ModSystem;
 using MonoPlus.AssetsSystem;
 using Serilog;
