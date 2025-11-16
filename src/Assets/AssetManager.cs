@@ -111,7 +111,7 @@ public class AssetManager : IDisposable
         
         Loader.LoadAssetManifests();
         LoadAssets();
-        InvokeListeners(null);
+        InvokeListeners();
     }
     
     
@@ -156,13 +156,12 @@ public class AssetManager : IDisposable
     }
 
     /// <summary>
-    /// Invokes all listeners with the specified <paramref name="oldAssets"/> param.
+    /// Invoke all listeners, to make them reload assets.
     /// </summary>
-    /// <param name="oldAssets">Assets before reloading, which you can use to check if your asset was reloaded, <b>or <see langword="null"/> if all assets were reloaded</b></param>
-    private void InvokeListeners(HashSet<object>? oldAssets)
+    private void InvokeListeners()
     {
         foreach (IAssetListener assetListener in listeners)
-            assetListener.ReloadAssets(oldAssets);
+            assetListener.LoadAssets(true);
     }
 
 

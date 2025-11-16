@@ -22,8 +22,6 @@ public abstract class MonodGame : Game
     /// Main <see cref="AssetManager"/> for vanilla game.
     /// </summary>
     public static AssetManager? MainAssetManager;
-    
-    
 
     /// <summary>
     /// Creates a new <see cref="MonodGame"/>.

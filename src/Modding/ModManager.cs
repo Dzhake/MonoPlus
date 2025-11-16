@@ -190,6 +190,7 @@ public static class ModManager
     public static async Task PreventModLockAsync()
     {
         int tries = 0;
+        //Theoretically this thing can prevent loading mods that can be loaded if they check their dependencies for longer than 3 ms. Well, I don't think that will ever happen.
         const int maxTries = 3;
         int previousLoadedModsCount = LoadedModsCount;
         

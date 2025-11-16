@@ -83,12 +83,16 @@ public static class Assets
     /// <exception cref="InvalidCastException">The asset at the specified <paramref name="fullPath"/> could not be cast to type <typeparamref name="T"/>.</exception>
     /// <exception cref="ArgumentException">Could not find asset with the specified prefix.</exception>
     [MustUseReturnValue]
-    public static T Get<T>(string fullPath)
+    public static T Get<T>(string fullPath, out int? listenerIndex, IAssetListener? listener = null)
     {
         SplitPath(fullPath, out var prefix, out var relativePath);
 
         if (!Managers.TryGetValue(prefix.ToString(), out AssetManager? manager))
             throw new ArgumentException("Could not find asset with the specified prefix.", nameof(fullPath));
+        if (listener is not null)
+            listenerIndex = manager.AddListener(listener);
+        else
+            listenerIndex = null;
         return manager.Get<T>(relativePath.ToString());
     }
 
