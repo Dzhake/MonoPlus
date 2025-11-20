@@ -10,8 +10,6 @@ using System.Threading.Tasks;
 using Monod.AssetsSystem;
 using Monod.SaveSystem;
 using Monod.Utils.General;
-using MonoPlus;
-using MonoPlus.AssetsSystem;
 using Serilog;
 
 namespace Monod.ModSystem;
@@ -323,7 +321,7 @@ public static class ModManager
         string contentDir = GetContentDirectory(modDir);
         if (Directory.Exists(contentDir))
         {
-            mod.Assets = new FileAssetManager(contentDir);
+            //TODO mod.Assets = new FileAssetManager(contentDir);
             Assets.RegisterAssetManager(mod.Assets, mod.Config.Id.Name);
             mod.ContentType |= ModContentType.Assets;
         }

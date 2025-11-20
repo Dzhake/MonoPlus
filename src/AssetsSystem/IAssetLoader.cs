@@ -1,4 +1,4 @@
-namespace MonoPlus.AssetsSystem;
+namespace Monod.AssetsSystem;
 
 /// <summary>
 /// Provides methods for loading assets from an external source.

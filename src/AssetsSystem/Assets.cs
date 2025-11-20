@@ -4,10 +4,10 @@ using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using JetBrains.Annotations;
 using Microsoft.Xna.Framework.Graphics;
-using Monod.AssetsSystem;
+using Monod.Utils.Collections;
 using Serilog;
 
-namespace MonoPlus.AssetsSystem;
+namespace Monod.AssetsSystem;
 
 /// <summary>
 ///   <para>Provides a set of static methods to manage asset managers and load assets.</para>
@@ -22,12 +22,18 @@ public static class Assets
     /// <summary>
     /// All registered <see cref="AssetManager"/>s.
     /// </summary>
-    private static readonly Dictionary<string, AssetManager> Managers = new();
+    public static readonly Dictionary<string, AssetManager> Managers = new();
     
     /// <summary>
     /// List of <see cref="IAssetLoader"/>s, that are currently reloading some assets. Used to determine whether the game should pause and wait until assets are reloaded.
     /// </summary>
     public static readonly HashSet<IAssetLoader> ReloadingAssetLoaders = new();
+
+    /// <summary>
+    /// Event that is raised when some <see cref="IAssetLoader"/>s finish reloading assets. Use it to get new assets after the reload.
+    /// </summary>
+    public static EventBus OnReload = new();
+    
 
     /// <summary>
     ///   <para>Adds the specified asset <paramref name="assetManager"/> to the global registry under the specified <paramref name="prefix"/>.</para>
@@ -71,47 +77,50 @@ public static class Assets
     /// </summary>
     /// <param name="prefix"><see cref="AssetManager"/>'s prefix.</param>
     /// <returns>Whether <see cref="AssetManager"/> with specified <paramref name="prefix"/> is registered.</returns>
+    [Pure]
     public static bool AssetsManagerRegistered(string prefix) => Managers.ContainsKey(prefix);
     
 
     /// <summary>
-    ///   <para>Loads and returns an asset at the specified <paramref name="fullPath"/>.</para>
+    ///   Get asset at the specified <see cref="fullPath"/> from the cache.
     /// </summary>
     /// <typeparam name="T">The type of the asset to load.</typeparam>
-    /// <param name="fullPath">A fully qualified path to the asset to get the handle of.</param>
-    /// <returns>A value task containing either the loaded asset, or the asset loading task.</returns>
-    /// <exception cref="InvalidCastException">The asset at the specified <paramref name="fullPath"/> could not be cast to type <typeparamref name="T"/>.</exception>
-    /// <exception cref="ArgumentException">Could not find asset with the specified prefix.</exception>
+    /// <param name="fullPath">Full path to the asset (Asset Manager's name + ":" + Relative asset's path)</param>
+    /// <returns>Asset from the cache found at the specified path.</returns>
+    /// <exception cref="ArgumentException">Could not find asset manager with the specified prefix.</exception>
     [MustUseReturnValue]
-    public static T Get<T>(string fullPath, out int? listenerIndex, IAssetListener? listener = null)
+    public static T Get<T>(string fullPath)
     {
         SplitPath(fullPath, out var prefix, out var relativePath);
-
-        if (!Managers.TryGetValue(prefix.ToString(), out AssetManager? manager))
-            throw new ArgumentException("Could not find asset with the specified prefix.", nameof(fullPath));
-        if (listener is not null)
-            listenerIndex = manager.AddListener(listener);
-        else
-            listenerIndex = null;
-        return manager.Get<T>(relativePath.ToString());
+        return GetManager(prefix.ToString()).Get<T>(relativePath.ToString());
     }
 
     /// <summary>
     ///   <para>Same as <see cref="Get{T}"/>, but returns <see langword="null"/> if asset was not found, instead of using <see cref="Assets.NotFoundPolicy"/>.</para>
     /// </summary>
     /// <typeparam name="T">The type of the asset to load.</typeparam>
-    /// <param name="fullPath">A fully qualified path to the asset to get the handle of.</param>
-    /// <returns>A value task containing either the loaded asset, or the asset loading task.</returns>
-    /// <exception cref="InvalidCastException">The asset at the specified <paramref name="fullPath"/> could not be cast to type <typeparamref name="T"/>.</exception>
-    /// <exception cref="ArgumentException">Could not find asset with the specified prefix.</exception>
+    /// <param name="fullPath">Full path to the asset (Asset Manager's name + ":" + Relative asset's path)</param>
+    /// <returns>Asset from the cache found at the specified path.</returns>
+    /// <exception cref="ArgumentException">Could not find asset manager with the specified prefix.</exception>
     [MustUseReturnValue]
     public static T? GetOrDefault<T>(string fullPath)
     {
         SplitPath(fullPath, out var prefix, out var relativePath);
+        return GetManager(prefix.ToString()).GetOrDefault<T>(relativePath.ToString());
+    }
 
-        if (!Managers.TryGetValue(prefix.ToString(), out AssetManager? manager))
-            throw new ArgumentException("Could not find asset with the specified prefix.", nameof(fullPath));
-        return manager.GetOrDefault<T>(relativePath.ToString());
+    /// <summary>
+    /// Get an registered <see cref="AssetManager"/> by it's name from <see cref="Managers"/>. Highly recommended over <see cref="Managers"/>'s indexer for forward-compability. (Maybe we will have some issues with multithreading and this method will do a lock?)
+    /// </summary>
+    /// <param name="prefix">Name of the manager.</param>
+    /// <returns>Manager with the specified name in <see cref="Managers"/>.</returns>
+    /// <exception cref="ArgumentException">Could not find asset manager with the specified prefix.</exception>
+    [MustUseReturnValue]
+    public static AssetManager GetManager(string prefix)
+    {
+        if (!Managers.TryGetValue(prefix, out AssetManager? manager))
+            throw new ArgumentException("Could not find asset manager with the specified prefix", nameof(prefix));
+        return manager;
     }
 
     /// <summary>
@@ -120,9 +129,10 @@ public static class Assets
     /// <param name="query">Path to split.</param>
     /// <param name="prefix">Prefix of asset manager.</param>
     /// <param name="path">Asset path for asset manager.</param>
+    [Pure]
     public static void SplitPath(ReadOnlySpan<char> query, out ReadOnlySpan<char> prefix, out ReadOnlySpan<char> path)
     {
-        int separatorIndex = query.IndexOf(":/");
+        int separatorIndex = query.IndexOf(":");
         if (separatorIndex == -1)
         {
             //no prefix, only <path>
@@ -130,12 +140,19 @@ public static class Assets
             path = query;
             return;
         }
-        // <prefix> ':/' <path>
+        // <prefix> ':' <path>
         prefix = query[..separatorIndex];
         path = query[(separatorIndex + 2)..];
     }
     
-    
+
+    /// <summary>
+    /// Invoke all subscribed listeners, to make them reload assets.
+    /// </summary>
+    public static void InvokeReload()
+    {
+        OnReload.Emit();
+    }
 
     /// <summary>
     /// Type of resource program should aim for.

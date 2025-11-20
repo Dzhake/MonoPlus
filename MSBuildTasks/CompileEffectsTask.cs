@@ -5,7 +5,7 @@ using System.IO;
 using Microsoft.Build.Framework;
 using Microsoft.Build.Utilities;
 
-namespace MonoPlus.MSBuild;
+namespace Monod.MSBuild;
 
 /// <summary>
 /// Used to compile .fx asset files using MGFXC.

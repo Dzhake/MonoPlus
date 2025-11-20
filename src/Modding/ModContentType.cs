@@ -1,5 +1,5 @@
 using System;
-using MonoPlus.AssetsSystem;
+using Monod.AssetsSystem;
 
 namespace Monod.ModSystem;
 

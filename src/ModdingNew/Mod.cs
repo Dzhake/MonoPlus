@@ -2,7 +2,7 @@
 using System.Reflection;
 using HarmonyLib;
 using Monod.ModSystem;
-using MonoPlus.AssetsSystem;
+using Monod.AssetsSystem;
 using Serilog;
 
 namespace Monod.ModdingNew;

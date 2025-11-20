@@ -8,10 +8,9 @@ using Monod.InputSystem;
 using Monod.ModSystem;
 using Monod.TimeSystem;
 using Monod.Utils.General;
-using MonoPlus.AssetsSystem;
 using Serilog;
 
-namespace MonoPlus;
+namespace Monod;
 
 /// <summary>
 /// Class containing similar code for all apps made with MonodEngine, to reduce repetitve code. Every app must have a class inheriting from <see cref="MonodGame"/>.
@@ -48,7 +47,7 @@ public abstract class MonodGame : Game
         Renderer.spriteBatch = new SpriteBatch(GraphicsDevice);
 
         string contentPath = $"{AppContext.BaseDirectory}Content";
-        MainAssetManager = new FileAssetManager(contentPath);
+        //TODO MainAssetManager = new FileAssetManager(contentPath);
         if (MainAssetManager is null) throw new InvalidOperationException("Couldn't create MainAssetManager");
         Assets.RegisterAssetManager(MainAssetManager, "");
         MainAssetManager.LoadAssets();

@@ -5,7 +5,7 @@ using Monod.InputSystem;
 using Monod.LocalizationSystem;
 using Monod.Utils.General;
 
-namespace MonoPlus;
+namespace Monod;
 
 /// <summary>
 /// Wrapper around various <see cref="MonoPlus"/> modules.

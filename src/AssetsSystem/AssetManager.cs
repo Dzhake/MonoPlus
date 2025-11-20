@@ -2,10 +2,9 @@
 using System.Collections.Generic;
 using System.Threading;
 using Monod.AssetsSystem;
-using Monod.Utils.Collections;
 using Serilog;
 
-namespace MonoPlus.AssetsSystem;
+namespace Monod.AssetsSystem;
 
 /// <summary>
 /// Class for loading, storing, caching, and accessing various assets.
@@ -22,10 +21,7 @@ public class AssetManager : IDisposable
     /// </summary>
     public IAssetLoader Loader;
 
-    /// <summary>
-    /// List of objects which listen to assets being reloaded, and load the assets again on reload.
-    /// </summary>
-    private readonly IndexedList<IAssetListener> listeners = new();
+    
 
     /// <summary>
     /// Whether this asset manager has been disposed.
@@ -36,6 +32,16 @@ public class AssetManager : IDisposable
     /// Unique prefix for this <see cref="AssetManager"/>, which should be used for <see cref="Assets.Get{T}"/>
     /// </summary>
     public string? Prefix = null;
+
+    /// <summary>
+    /// Whether this <see cref="AssetManager"/> is capable of reloading assets. Should be <see langword="false"/> for <see cref="AssetManager"/> with name "fallbacks", to prevent issues when reloading fallbacks.
+    /// </summary>
+    public bool CanReload = true;
+    
+    /// <summary>
+    /// Whether this <see cref="AssetManager"/> can reload assets (<see cref="CanReload"/>) and <see cref="MonodMain.HotReload"/> is on.
+    /// </summary>
+    public bool ShouldReload => CanReload && MonodMain.HotReload;
 
     /// <summary>
     ///   Get the asset manager's display name.
@@ -111,7 +117,6 @@ public class AssetManager : IDisposable
         
         Loader.LoadAssetManifests();
         LoadAssets();
-        InvokeListeners();
     }
     
     
@@ -131,38 +136,7 @@ public class AssetManager : IDisposable
             MainThread.Add(Task.Run(async () => await LoadIntoCacheAsync(Path.GetFileNameWithoutExtension(assetPath))));*/
     }
 
-    /// <summary>
-    /// Adds the specified <paramref name="listener"/> to the <see cref="IAssetListener"/>'s listeners.
-    /// </summary>
-    /// <param name="listener">Listener to add.</param>
-    /// <returns>Indexed of the listener, for use with <see cref="RemoveListener"/>.</returns>
-    public int AddListener(IAssetListener listener)
-    {
-        ObjectDisposedException.ThrowIf(disposed, this);
-        listeners.Add(listener, out int index);
-        return index;
-    }
-
     
-    
-    /// <summary>
-    /// Removes listener at specified index.
-    /// </summary>
-    /// <param name="index">Index of the listener to remove.</param>
-    public void RemoveListener(int index)
-    {
-        ObjectDisposedException.ThrowIf(disposed, this);
-        listeners.RemoveAt(index);
-    }
-
-    /// <summary>
-    /// Invoke all listeners, to make them reload assets.
-    /// </summary>
-    private void InvokeListeners()
-    {
-        foreach (IAssetListener assetListener in listeners)
-            assetListener.LoadAssets(true);
-    }
 
 
     /// <inheritdoc/> 

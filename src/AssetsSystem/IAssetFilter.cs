@@ -1,4 +1,4 @@
-namespace MonoPlus.AssetsSystem;
+namespace Monod.AssetsSystem;
 
 /// <summary>
 /// Allows <see cref="AssetManager"/> to not load some specific asset based on its path. Can be shared between multiply <see cref="AssetManager"/>s.
